@@ -2,15 +2,20 @@ use bevy::prelude::*;
 
 use crate::components::{
     AttackRange, AttackTimer, Creature, CreatureStats, Enemy, EnemyAttackTimer, EnemyStats,
-    Velocity,
+    Player, Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
 };
 use crate::math::{calculate_damage_with_crits, CritTier};
+use crate::resources::{get_affinity_bonuses, AffinityState, ArtifactBuffs, GameData};
+use crate::systems::creature_xp::PendingKillCredit;
 
 /// Projectile speed in pixels per second
 pub const PROJECTILE_SPEED: f32 = 500.0;
 
 /// Projectile size in pixels
 pub const PROJECTILE_SIZE: f32 = 8.0;
+
+/// Weapon projectile size in pixels (smaller than creature projectiles)
+pub const WEAPON_PROJECTILE_SIZE: f32 = 6.0;
 
 /// Maximum projectile lifetime in seconds
 pub const PROJECTILE_LIFETIME: f32 = 1.0;
@@ -28,6 +33,8 @@ pub struct Projectile {
     pub damage: f64,
     pub crit_tier: CritTier,
     pub lifetime: Timer,
+    /// The creature entity that fired this projectile (for XP tracking)
+    pub source_creature: Option<Entity>,
 }
 
 /// Screen shake resource
@@ -95,7 +102,11 @@ fn format_damage(damage: f64) -> String {
 pub fn creature_attack_system(
     mut commands: Commands,
     time: Res<Time>,
+    artifact_buffs: Res<ArtifactBuffs>,
+    affinity_state: Res<AffinityState>,
+    game_data: Res<GameData>,
     mut creature_query: Query<(
+        Entity,
         &CreatureStats,
         &mut AttackTimer,
         &AttackRange,
@@ -103,7 +114,7 @@ pub fn creature_attack_system(
     )>,
     enemy_query: Query<(Entity, &Transform), With<Enemy>>,
 ) {
-    for (stats, mut attack_timer, attack_range, creature_transform) in creature_query.iter_mut() {
+    for (creature_entity, stats, mut attack_timer, attack_range, creature_transform) in creature_query.iter_mut() {
         // Tick the attack timer
         attack_timer.timer.tick(time.delta());
 
@@ -127,12 +138,42 @@ pub fn creature_attack_system(
 
             // Attack nearest enemy if one is in range
             if let Some((target_entity, _distance, target_pos)) = nearest_enemy {
+                // Get artifact bonuses for this creature
+                let artifact_bonus = artifact_buffs.get_total_bonuses(
+                    &stats.id,
+                    stats.color,
+                    stats.creature_type,
+                );
+
+                // Get affinity bonuses for this creature's color
+                let affinity_bonus = get_affinity_bonuses(&game_data, stats.color, &affinity_state);
+
+                // Combine damage bonuses from artifacts and affinity
+                let total_damage_bonus = artifact_bonus.damage_bonus + affinity_bonus.damage_bonus;
+                let modified_damage = stats.base_damage * (1.0 + total_damage_bonus / 100.0);
+
+                // Apply crit bonuses from artifacts and affinity
+                let modified_crit_t1 = stats.crit_t1 + artifact_bonus.crit_t1_bonus + affinity_bonus.crit_t1_bonus;
+
+                // Crit T2 and T3 require affinity unlocks
+                let modified_crit_t2 = if affinity_bonus.crit_t2_unlock {
+                    stats.crit_t2 + artifact_bonus.crit_t2_bonus
+                } else {
+                    0.0 // Can't mega crit without affinity unlock
+                };
+
+                let modified_crit_t3 = if affinity_bonus.crit_t3_unlock {
+                    stats.crit_t3 + artifact_bonus.crit_t3_bonus
+                } else {
+                    0.0 // Can't super crit without affinity unlock
+                };
+
                 // Calculate damage with crits
                 let crit_result = calculate_damage_with_crits(
-                    stats.base_damage,
-                    stats.crit_t1,
-                    stats.crit_t2,
-                    stats.crit_t3,
+                    modified_damage,
+                    modified_crit_t1,
+                    modified_crit_t2,
+                    modified_crit_t3,
                 );
 
                 // Get projectile color based on crit tier
@@ -147,6 +188,7 @@ pub fn creature_attack_system(
                         damage: crit_result.final_damage,
                         crit_tier: crit_result.tier,
                         lifetime: Timer::from_seconds(PROJECTILE_LIFETIME, TimerMode::Once),
+                        source_creature: Some(creature_entity),
                     },
                     Velocity {
                         x: direction.x * PROJECTILE_SPEED,
@@ -194,8 +236,20 @@ pub fn projectile_system(
 
             // Hit detection - if projectile is close enough to target
             if distance < 20.0 {
+                // Check if this hit will kill the enemy
+                let will_kill = enemy_stats.current_hp - projectile.damage <= 0.0;
+
                 // Deal damage
                 enemy_stats.current_hp -= projectile.damage;
+
+                // If this projectile killed the enemy and came from a creature, spawn kill credit
+                if will_kill {
+                    if let Some(source_creature) = projectile.source_creature {
+                        commands.spawn(PendingKillCredit {
+                            creature_entity: source_creature,
+                        });
+                    }
+                }
 
                 // Spawn floating damage number
                 let damage_color = get_damage_number_color(projectile.crit_tier);
@@ -343,6 +397,99 @@ pub fn enemy_attack_system(
             if let Some((target_entity, _distance)) = nearest_creature {
                 if let Ok((_, _, mut creature_stats)) = creature_query.get_mut(target_entity) {
                     creature_stats.current_hp -= enemy_stats.base_damage;
+                }
+            }
+        }
+    }
+}
+
+/// Weapon projectile color (silver/white)
+const WEAPON_PROJECTILE_COLOR: Color = Color::srgb(0.9, 0.9, 0.95);
+
+/// System that handles weapon auto-attacks
+pub fn weapon_attack_system(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut weapon_query: Query<(&WeaponData, &WeaponStats, &mut WeaponAttackTimer), With<Weapon>>,
+    player_query: Query<&Transform, With<Player>>,
+    enemy_query: Query<(Entity, &Transform), With<Enemy>>,
+) {
+    let Ok(player_transform) = player_query.get_single() else {
+        return;
+    };
+
+    let player_pos = player_transform.translation.truncate();
+
+    for (weapon_data, weapon_stats, mut attack_timer) in weapon_query.iter_mut() {
+        // Tick the attack timer
+        attack_timer.timer.tick(time.delta());
+
+        // Check if attack is ready
+        if attack_timer.timer.just_finished() {
+            // Find nearest enemy within weapon's range
+            let mut nearest_enemy: Option<(Entity, f32, Vec2)> = None;
+
+            for (enemy_entity, enemy_transform) in enemy_query.iter() {
+                let enemy_pos = enemy_transform.translation.truncate();
+                let distance = player_pos.distance(enemy_pos);
+
+                if distance <= weapon_stats.auto_range as f32 {
+                    if nearest_enemy.is_none() || distance < nearest_enemy.unwrap().1 {
+                        nearest_enemy = Some((enemy_entity, distance, enemy_pos));
+                    }
+                }
+            }
+
+            // Attack nearest enemy if one is in range
+            if let Some((target_entity, _distance, target_pos)) = nearest_enemy {
+                // Spawn projectiles based on projectile_count
+                for i in 0..weapon_stats.projectile_count {
+                    let direction = (target_pos - player_pos).normalize_or_zero();
+
+                    // Calculate projectile spread for multiple projectiles
+                    let spread_angle = if weapon_stats.projectile_count > 1 {
+                        let spread_range = 0.3; // ~17 degrees total spread
+                        let offset = (i as f32 / (weapon_stats.projectile_count - 1) as f32) - 0.5;
+                        offset * spread_range * 2.0
+                    } else {
+                        0.0
+                    };
+
+                    // Rotate direction by spread angle
+                    let rotated_dir = Vec2::new(
+                        direction.x * spread_angle.cos() - direction.y * spread_angle.sin(),
+                        direction.x * spread_angle.sin() + direction.y * spread_angle.cos(),
+                    );
+
+                    let projectile_speed = if weapon_stats.projectile_speed > 0.0 {
+                        weapon_stats.projectile_speed as f32
+                    } else {
+                        PROJECTILE_SPEED
+                    };
+
+                    commands.spawn((
+                        Projectile {
+                            target: target_entity,
+                            damage: weapon_stats.auto_damage,
+                            crit_tier: CritTier::None, // Weapons don't crit (for now)
+                            lifetime: Timer::from_seconds(PROJECTILE_LIFETIME, TimerMode::Once),
+                            source_creature: None, // Weapon projectiles don't give creature XP
+                        },
+                        Velocity {
+                            x: rotated_dir.x * projectile_speed,
+                            y: rotated_dir.y * projectile_speed,
+                        },
+                        Sprite {
+                            color: weapon_data.color.to_bevy_color().lighter(0.3),
+                            custom_size: Some(Vec2::new(WEAPON_PROJECTILE_SIZE, WEAPON_PROJECTILE_SIZE)),
+                            ..default()
+                        },
+                        Transform::from_translation(Vec3::new(
+                            player_pos.x,
+                            player_pos.y,
+                            0.6, // Above creatures
+                        )),
+                    ));
                 }
             }
         }

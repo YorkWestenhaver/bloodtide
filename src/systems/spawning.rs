@@ -3,9 +3,10 @@ use rand::Rng;
 
 use crate::components::{
     AttackRange, AttackTimer, Creature, CreatureColor, CreatureStats, CreatureType, Enemy,
-    EnemyAttackTimer, EnemyClass, EnemyStats, EnemyType, Player, Velocity,
+    EnemyAttackTimer, EnemyClass, EnemyStats, EnemyType, Player, Velocity, Weapon, WeaponAttackTimer,
+    WeaponData, WeaponStats,
 };
-use crate::resources::{GameData, GameState};
+use crate::resources::{AffinityState, ArtifactBuffs, GameData, GameState};
 use crate::systems::death::RespawnQueue;
 
 /// Size of creature sprites in pixels
@@ -41,6 +42,7 @@ impl Default for EnemySpawnTimer {
 pub fn spawn_creature(
     commands: &mut Commands,
     game_data: &GameData,
+    artifact_buffs: &ArtifactBuffs,
     creature_id: &str,
     position: Vec3,
 ) -> Option<Entity> {
@@ -50,7 +52,19 @@ pub fn spawn_creature(
     let color = CreatureColor::from_str(&creature_data.color);
     let creature_type = CreatureType::from_str(&creature_data.creature_type);
 
-    let stats = CreatureStats::new(
+    // Get artifact bonuses for this creature
+    let bonuses = artifact_buffs.get_total_bonuses(creature_id, color, creature_type);
+
+    // Apply HP bonus to base HP
+    let modified_hp = creature_data.base_hp * (1.0 + bonuses.hp_bonus / 100.0);
+
+    // Apply attack speed bonus
+    let modified_attack_speed = creature_data.attack_speed * (1.0 + bonuses.attack_speed_bonus / 100.0);
+
+    // Get first kills_per_level threshold, or default to 10
+    let kills_for_next_level = creature_data.kills_per_level.first().copied().unwrap_or(10);
+
+    let mut stats = CreatureStats::new(
         creature_data.id.clone(),
         creature_data.name.clone(),
         color,
@@ -64,7 +78,15 @@ pub fn spawn_creature(
         creature_data.crit_t1,
         creature_data.crit_t2,
         creature_data.crit_t3,
+        kills_for_next_level,
+        creature_data.max_level,
+        creature_data.evolves_into.clone(),
+        creature_data.evolution_count,
     );
+
+    // Apply HP bonuses to the stats
+    stats.max_hp = modified_hp;
+    stats.current_hp = modified_hp;
 
     // Determine attack range based on creature type
     let attack_range = match creature_type {
@@ -79,7 +101,7 @@ pub fn spawn_creature(
             Creature,
             stats.clone(),
             Velocity::default(),
-            AttackTimer::new(creature_data.attack_speed),
+            AttackTimer::new(modified_attack_speed),
             AttackRange(attack_range),
             Sprite {
                 color: color.to_bevy_color(),
@@ -91,11 +113,134 @@ pub fn spawn_creature(
         .id();
 
     println!(
-        "Spawned {} (Tier {} {}, range: {:.0}) at ({:.0}, {:.0})",
-        stats.name, stats.tier, creature_data.creature_type, attack_range, position.x, position.y
+        "Spawned {} (Tier {} {}, range: {:.0}, HP: {:.0}) at ({:.0}, {:.0})",
+        stats.name, stats.tier, creature_data.creature_type, attack_range, modified_hp, position.x, position.y
     );
 
     Some(entity)
+}
+
+/// Spawn a weapon by ID from the game data
+/// Weapons are invisible entities that auto-attack and provide affinity
+pub fn spawn_weapon(
+    commands: &mut Commands,
+    game_data: &GameData,
+    affinity_state: &mut AffinityState,
+    weapon_id: &str,
+) -> Option<Entity> {
+    // Find weapon data by ID
+    let weapon_data = game_data.weapons.iter().find(|w| w.id == weapon_id)?;
+
+    let color = CreatureColor::from_str(&weapon_data.color);
+
+    let data = WeaponData::new(
+        weapon_data.id.clone(),
+        weapon_data.name.clone(),
+        color,
+        weapon_data.tier,
+        weapon_data.affinity_amount,
+    );
+
+    let stats = WeaponStats::new(
+        weapon_data.auto_damage,
+        weapon_data.auto_speed,
+        weapon_data.auto_range,
+        weapon_data.projectile_count,
+        weapon_data.projectile_pattern.clone(),
+        weapon_data.projectile_speed,
+    );
+
+    // Add affinity for this weapon's color
+    affinity_state.add(color, weapon_data.affinity_amount);
+
+    // Spawn weapon entity (no visible sprite)
+    let entity = commands
+        .spawn((
+            Weapon,
+            data.clone(),
+            stats,
+            WeaponAttackTimer::new(weapon_data.auto_speed),
+        ))
+        .id();
+
+    println!(
+        "Weapon acquired: {} - +{:.0} {} Affinity",
+        data.name, data.affinity_amount, weapon_data.color
+    );
+
+    Some(entity)
+}
+
+/// Check and handle weapon evolution
+/// Returns Some(evolved_weapon_id) if evolution occurred
+pub fn try_weapon_evolution(
+    commands: &mut Commands,
+    game_data: &GameData,
+    affinity_state: &mut AffinityState,
+    weapon_query: &Query<(Entity, &WeaponData)>,
+) -> Option<String> {
+    // Get list of all current weapons
+    let weapons: Vec<(Entity, String, CreatureColor, f64)> = weapon_query
+        .iter()
+        .map(|(entity, data)| (entity, data.id.clone(), data.color, data.affinity_amount))
+        .collect();
+
+    // Check each weapon's evolution recipe
+    for weapon in &game_data.weapons {
+        if weapon.evolution_recipe.is_empty() {
+            continue;
+        }
+
+        // Count how many of each required weapon we have
+        let mut recipe_met = true;
+        let mut recipe_counts: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
+
+        for required in &weapon.evolution_recipe {
+            *recipe_counts.entry(required.clone()).or_insert(0) += 1;
+        }
+
+        let mut weapons_to_consume: Vec<Entity> = Vec::new();
+
+        for (required_id, required_count) in &recipe_counts {
+            let matching: Vec<_> = weapons
+                .iter()
+                .filter(|(entity, id, _, _)| {
+                    id == required_id && !weapons_to_consume.contains(entity)
+                })
+                .take(*required_count)
+                .collect();
+
+            if matching.len() < *required_count {
+                recipe_met = false;
+                break;
+            }
+
+            for (entity, _, _, _) in matching {
+                weapons_to_consume.push(*entity);
+            }
+        }
+
+        if recipe_met && !weapons_to_consume.is_empty() {
+            // Remove affinity from consumed weapons
+            for &entity in &weapons_to_consume {
+                if let Some((_, _, color, affinity)) = weapons.iter().find(|(e, _, _, _)| *e == entity) {
+                    affinity_state.remove(*color, *affinity);
+                }
+                commands.entity(entity).despawn();
+            }
+
+            // Spawn evolved weapon
+            let evolved_id = &weapon.id;
+            if spawn_weapon(commands, game_data, affinity_state, evolved_id).is_some() {
+                if let Some(evolved_weapon) = game_data.weapons.iter().find(|w| w.id == *evolved_id) {
+                    println!("Weapons combined into {}!", evolved_weapon.name);
+                }
+                return Some(evolved_id.clone());
+            }
+        }
+    }
+
+    None
 }
 
 /// Get color for an enemy based on its ID
@@ -170,6 +315,7 @@ pub fn spawn_test_creature_system(
     mut commands: Commands,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     game_data: Res<GameData>,
+    artifact_buffs: Res<ArtifactBuffs>,
     player_query: Query<&Transform, With<Player>>,
     creature_query: Query<&Creature>,
 ) {
@@ -190,7 +336,7 @@ pub fn spawn_test_creature_system(
                 0.5, // Above background, below player
             );
 
-            spawn_creature(&mut commands, &game_data, "fire_imp", spawn_pos);
+            spawn_creature(&mut commands, &game_data, &artifact_buffs, "fire_imp", spawn_pos);
         }
     }
 }
@@ -289,6 +435,7 @@ pub fn respawn_system(
     time: Res<Time>,
     mut respawn_queue: ResMut<RespawnQueue>,
     game_data: Res<GameData>,
+    artifact_buffs: Res<ArtifactBuffs>,
     player_query: Query<&Transform, With<Player>>,
     creature_query: Query<&Creature>,
 ) {
@@ -323,7 +470,7 @@ pub fn respawn_system(
             );
 
             // Spawn the creature
-            if spawn_creature(&mut commands, &game_data, &entry.creature_id, spawn_pos).is_some() {
+            if spawn_creature(&mut commands, &game_data, &artifact_buffs, &entry.creature_id, spawn_pos).is_some() {
                 println!(
                     "{} respawned!",
                     entry.creature_id

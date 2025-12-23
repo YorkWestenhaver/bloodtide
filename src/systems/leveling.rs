@@ -1,17 +1,20 @@
 use bevy::prelude::*;
 
-use crate::components::{Creature, Player};
-use crate::resources::{CardType, GameData, GameState, PlayerDeck};
-use crate::systems::spawn_creature;
+use crate::components::{Creature, Player, WeaponData};
+use crate::resources::{AffinityState, ArtifactBuffs, CardType, GameData, GameState, PlayerDeck};
+use crate::systems::{spawn_creature, spawn_weapon, try_weapon_evolution};
 
 /// System that checks if player should level up based on kill count
 pub fn level_check_system(
     mut commands: Commands,
     mut game_state: ResMut<GameState>,
+    mut artifact_buffs: ResMut<ArtifactBuffs>,
+    mut affinity_state: ResMut<AffinityState>,
     player_deck: Res<PlayerDeck>,
     game_data: Res<GameData>,
     player_query: Query<&Transform, With<Player>>,
     creature_query: Query<&Creature>,
+    weapon_query: Query<(Entity, &WeaponData)>,
 ) {
     if game_state.kill_count >= game_state.kills_for_next_level {
         // Subtract kills used for this level (keep overflow)
@@ -50,14 +53,19 @@ pub fn level_check_system(
                             0.5,
                         );
 
-                        spawn_creature(&mut commands, &game_data, &card.id, spawn_pos);
+                        spawn_creature(&mut commands, &game_data, &artifact_buffs, &card.id, spawn_pos);
                     }
                 }
                 CardType::Weapon => {
-                    println!("  (Weapon cards not yet implemented)");
+                    // Spawn the weapon and add its affinity
+                    spawn_weapon(&mut commands, &game_data, &mut affinity_state, &card.id);
+
+                    // Check for weapon evolution
+                    try_weapon_evolution(&mut commands, &game_data, &mut affinity_state, &weapon_query);
                 }
                 CardType::Artifact => {
-                    println!("  (Artifact cards not yet implemented)");
+                    // Apply artifact bonuses
+                    artifact_buffs.apply_artifact(&game_data, &card.id);
                 }
             }
         }

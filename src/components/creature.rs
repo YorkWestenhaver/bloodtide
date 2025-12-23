@@ -5,7 +5,7 @@ use bevy::prelude::*;
 pub struct Creature;
 
 /// Creature color/element type
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
 pub enum CreatureColor {
     #[default]
     Red,
@@ -42,7 +42,7 @@ impl CreatureColor {
 }
 
 /// Creature archetype/role
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
 pub enum CreatureType {
     #[default]
     Melee,
@@ -73,6 +73,10 @@ pub struct CreatureStats {
     pub creature_type: CreatureType,
     pub level: u32,
     pub kills: u32,
+    pub kills_for_next_level: u32,
+    pub max_level: u32,
+    pub evolves_into: String,
+    pub evolution_count: u32,
     // Combat stats
     pub base_damage: f64,
     pub attack_speed: f64,
@@ -102,6 +106,10 @@ impl CreatureStats {
         crit_t1: f64,
         crit_t2: f64,
         crit_t3: f64,
+        kills_for_next_level: u32,
+        max_level: u32,
+        evolves_into: String,
+        evolution_count: u32,
     ) -> Self {
         Self {
             id,
@@ -111,6 +119,10 @@ impl CreatureStats {
             creature_type,
             level: 1,
             kills: 0,
+            kills_for_next_level,
+            max_level,
+            evolves_into,
+            evolution_count,
             base_damage,
             attack_speed,
             base_hp,
@@ -273,6 +285,10 @@ mod tests {
             5.0,  // crit_t1
             0.0,  // crit_t2
             0.0,  // crit_t3
+            10,   // kills_for_next_level
+            10,   // max_level
+            "evolved_test".to_string(), // evolves_into
+            3,    // evolution_count
         );
         assert_eq!(stats.level, 1);
     }
@@ -286,6 +302,7 @@ mod tests {
             1,
             CreatureType::Ranged,
             15.0, 1.0, 100.0, 100.0, 200.0, 5.0, 0.0, 0.0,
+            10, 10, "".to_string(), 3,
         );
         assert_eq!(stats.kills, 0);
     }
@@ -299,6 +316,7 @@ mod tests {
             1,
             CreatureType::Ranged,
             15.0, 1.0, 100.0, 100.0, 200.0, 5.0, 0.0, 0.0,
+            10, 10, "".to_string(), 3,
         );
         assert_eq!(stats.max_hp, 100.0);
         assert_eq!(stats.max_hp, stats.base_hp);
@@ -313,6 +331,7 @@ mod tests {
             1,
             CreatureType::Ranged,
             15.0, 1.0, 100.0, 100.0, 200.0, 5.0, 0.0, 0.0,
+            10, 10, "".to_string(), 3,
         );
         assert_eq!(stats.current_hp, 100.0);
         assert_eq!(stats.current_hp, stats.base_hp);
@@ -334,6 +353,10 @@ mod tests {
             10.0,  // crit_t1
             5.0,   // crit_t2
             1.0,   // crit_t3
+            25,    // kills_for_next_level
+            10,    // max_level
+            "flame_fiend".to_string(), // evolves_into
+            3,     // evolution_count
         );
         assert_eq!(stats.id, "fire_imp");
         assert_eq!(stats.name, "Fire Imp");
@@ -348,6 +371,10 @@ mod tests {
         assert_eq!(stats.crit_t1, 10.0);
         assert_eq!(stats.crit_t2, 5.0);
         assert_eq!(stats.crit_t3, 1.0);
+        assert_eq!(stats.kills_for_next_level, 25);
+        assert_eq!(stats.max_level, 10);
+        assert_eq!(stats.evolves_into, "flame_fiend");
+        assert_eq!(stats.evolution_count, 3);
     }
 
     // =========================================================================

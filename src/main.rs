@@ -7,14 +7,16 @@ mod resources;
 mod systems;
 
 use components::{Player, Velocity};
-use resources::{load_game_data, DeckCard, GameData, GameState, PlayerDeck};
+use resources::{load_game_data, AffinityState, ArtifactBuffs, DeckCard, GameData, GameState, PlayerDeck};
 use systems::{
     apply_velocity_system, camera_follow_system, creature_attack_system, creature_death_system,
-    creature_follow_system, damage_number_system, death_effect_system, enemy_attack_system,
-    enemy_chase_system, enemy_death_system, enemy_spawn_system, level_check_system,
-    level_up_effect_system, player_movement_system, projectile_system, respawn_system,
-    screen_shake_system, spawn_hp_bars_system, spawn_test_creature_system, spawn_ui_system,
-    update_hp_bars_system, update_ui_system, EnemySpawnTimer, RespawnQueue, ScreenShake,
+    creature_evolution_system, creature_follow_system, creature_level_up_effect_system,
+    creature_xp_system, damage_number_system, death_effect_system, enemy_attack_system,
+    enemy_chase_system, enemy_death_system, enemy_spawn_system, evolution_effect_system,
+    level_check_system, level_up_effect_system, player_movement_system, projectile_system,
+    respawn_system, screen_shake_system, spawn_hp_bars_system, spawn_test_creature_system,
+    spawn_ui_system, update_hp_bars_system, update_ui_system, weapon_attack_system,
+    EnemySpawnTimer, RespawnQueue, ScreenShake,
 };
 
 fn main() {
@@ -65,6 +67,8 @@ fn main() {
         .init_resource::<GameState>()
         .init_resource::<RespawnQueue>()
         .init_resource::<ScreenShake>()
+        .init_resource::<ArtifactBuffs>()
+        .init_resource::<AffinityState>()
         .add_systems(Startup, (setup, spawn_ui_system))
         // Input and spawning systems
         .add_systems(Update, (
@@ -83,6 +87,7 @@ fn main() {
         .add_systems(Update, (
             creature_attack_system,
             enemy_attack_system,
+            weapon_attack_system,
             projectile_system,
             damage_number_system,
         ).chain().after(apply_velocity_system))
@@ -92,13 +97,20 @@ fn main() {
             creature_death_system,
             death_effect_system,
         ).chain().after(projectile_system))
+        // Creature XP and evolution
+        .add_systems(Update, (
+            creature_xp_system,
+            creature_level_up_effect_system,
+            creature_evolution_system,
+            evolution_effect_system,
+        ).chain().after(enemy_death_system))
         // HP bars and leveling
         .add_systems(Update, (
             spawn_hp_bars_system,
             update_hp_bars_system,
             level_check_system,
             level_up_effect_system,
-        ).chain().after(enemy_death_system))
+        ).chain().after(creature_xp_system))
         // UI and camera (run last)
         .add_systems(Update, (
             update_ui_system,

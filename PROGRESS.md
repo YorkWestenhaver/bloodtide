@@ -1,6 +1,6 @@
 # Bloodtide Development Progress
 
-## Current Phase: 16 - Artifacts Working
+## Current Phase: 19 - Better UI
 
 ---
 
@@ -142,65 +142,95 @@
 - [x] Register math module in main.rs
 - [x] Test: Fire Imps occasionally show yellow projectiles and damage numbers
 
-## Phase 16: Artifacts Working ⬅️ CURRENT
-- [ ] Create src/resources/artifact_buffs.rs:
+## Phase 16: Artifacts Working ✅
+- [x] Create src/resources/artifact_buffs.rs:
   - ArtifactBuffs resource to track all active artifact effects
-  - Store accumulated bonuses: damage_bonus, attack_speed_bonus, crit bonuses, etc.
-- [ ] Update level_check_system:
-  - When artifact card rolled, look up artifact in GameData
-  - Apply artifact's bonuses to ArtifactBuffs resource
-  - Print: "Artifact acquired: [name] - [effect description]"
-- [ ] Update damage calculation:
-  - Apply artifact_buffs.damage_bonus to base damage
-  - Apply artifact crit bonuses to crit chances
-- [ ] Apply attack speed bonuses to creature attack timers
-- [ ] Apply HP bonuses when creatures spawn
-- [ ] Handle target_scope filtering (global, color, type, creature-specific)
-- [ ] Test: Roll artifacts, see damage/stats increase
+  - StatBonuses struct with damage_bonus, attack_speed_bonus, hp_bonus, crit bonuses
+  - HashMap storage for global, color, type, and creature-specific bonuses
+  - acquired_artifacts Vec<String> for UI tracking
+- [x] Create apply_artifact() method:
+  - Takes artifact id, looks up in GameData
+  - Based on target_scope, adds bonuses to appropriate bucket (global/color/type/creature)
+  - Prints: "Artifact acquired: [name] - [description]"
+- [x] Create get_total_bonuses() method:
+  - Takes creature's color, type, and id
+  - Returns combined bonuses from all applicable sources
+- [x] Update level_check_system:
+  - When artifact card rolled, calls artifact_buffs.apply_artifact()
+- [x] Update creature_attack_system:
+  - Apply damage bonus: base_damage * (1 + total_damage_bonus / 100)
+  - Apply crit bonuses to crit chances before rolling
+- [x] Update spawn_creature:
+  - Apply HP bonus when creature spawns: base_hp * (1 + total_hp_bonus / 100)
+  - Apply attack speed bonus to AttackTimer
+- [x] Handle target_scope filtering (global, color, type, creature-specific)
+- [x] Register ArtifactBuffs resource in main.rs
+- [x] Test: 119 tests passing, build succeeds
 
-## Phase 17: Weapons + Affinity
-- [ ] Create src/components/weapon.rs:
+## Phase 17: Weapons + Affinity ✅
+- [x] Create src/components/weapon.rs:
   - Weapon marker component
-  - WeaponData: id, color, affinity_amount, auto_damage, auto_speed, etc.
-- [ ] Create src/resources/affinity.rs:
-  - AffinityState resource: red_affinity, blue_affinity, etc.
-- [ ] Weapon spawning:
-  - When weapon card rolled, spawn weapon entity attached to player
-  - Weapon auto-attacks (separate from creatures)
-  - Weapon projectiles are smaller/different color
-- [ ] Affinity calculation:
+  - WeaponData: id, name, color, tier, affinity_amount
+  - WeaponStats: auto_damage, auto_speed, auto_range, projectile_count, pattern, speed
+  - WeaponAttackTimer: timer for auto-attacks
+- [x] Create src/resources/affinity.rs:
+  - AffinityState resource: red, blue, green, white, black, colorless
+  - add() and remove() methods for managing affinity
+  - get() method to retrieve affinity by color
+  - AffinityBonus struct with damage/attack_speed/hp/crit bonuses
+  - get_affinity_bonuses() function: looks up thresholds from GameData
+- [x] Weapon spawning:
+  - spawn_weapon() function: creates weapon entity, adds affinity to AffinityState
+  - Weapons auto-attack via weapon_attack_system
+  - Weapon projectiles are white/silver colored, 6x6 size
+- [x] Affinity calculation:
   - Sum affinity_amount from all equipped weapons per color
-  - Look up thresholds from affinity.toml
+  - Look up thresholds from affinity.toml via GameData
   - Apply bonuses to matching color creatures
-- [ ] Affinity threshold bonuses:
-  - Damage bonus
-  - Attack speed bonus
-  - Crit tier unlocks
-  - Special effects (burn_dot, etc.)
-- [ ] Weapon evolution:
-  - Track weapon counts
-  - When recipe met (e.g., ember_staff x2), evolve to next tier
-- [ ] Test: Roll weapons, see affinity increase, creatures deal more damage
+- [x] Affinity threshold bonuses:
+  - Damage bonus applied to creatures
+  - Attack speed bonus applied to creatures
+  - HP bonus applied to creatures
+  - Crit T2/T3 tier unlocks (require affinity threshold to activate)
+- [x] Weapon evolution:
+  - try_weapon_evolution() checks evolution_recipe for each weapon
+  - When recipe met (e.g., ember_staff x2), despawn components, spawn evolved
+  - Properly manages affinity removal/addition during evolution
+- [x] Update level_check_system to handle weapon cards
+- [x] Update creature_attack_system to apply affinity bonuses
+- [x] Register AffinityState resource and weapon_attack_system in main.rs
+- [x] Test: 130 tests passing, build succeeds
 
-## Phase 18: Creature XP + Evolution
-- [ ] Add to CreatureStats: kills: u32, xp_level: u32
-- [ ] Create creature_xp_system:
-  - When creature's projectile kills enemy, increment that creature's kills
-  - Track which creature dealt killing blow
-- [ ] Creature leveling:
-  - Check kills against kills_per_level array from TOML
-  - On level up: +10% damage, +10% HP, slight attack speed boost
-  - Print: "[Creature] leveled up to [X]!"
-  - Visual effect on creature
-- [ ] Evolution system:
-  - Track count of each creature type in play
-  - When 3x same creature exists, prompt/auto-evolve
-  - Look up evolves_into from TOML
-  - Despawn 3 creatures, spawn 1 evolved creature
-  - Evolved creature starts at level 1 but higher base stats
-- [ ] Test: Creatures gain kills, level up, 3x Fire Imps become Flame Fiend
+## Phase 18: Creature XP + Evolution ✅
+- [x] Update CreatureStats with new fields:
+  - kills_for_next_level: u32 (from kills_per_level array index)
+  - max_level: u32 (from TOML)
+  - evolves_into: String (from TOML)
+  - evolution_count: u32 (from TOML)
+- [x] Track kill attribution:
+  - Added source_creature: Option<Entity> to Projectile component
+  - creature_attack_system stores creature Entity in projectiles
+  - PendingKillCredit component spawned when projectile kills enemy
+- [x] Create src/systems/creature_xp.rs:
+  - creature_xp_system: processes PendingKillCredit, increments creature kills
+  - On level up: +10% base_damage, +10% max_hp (heals by amount gained)
+  - Gets next threshold from kills_per_level array
+  - Prints: "[Creature name] leveled up to [X]!"
+  - CreatureLevelUpEffect: green expanding ring visual
+  - creature_level_up_effect_system: animates the effect
+- [x] Evolution system:
+  - creature_evolution_system: groups creatures by id
+  - When count >= evolution_count (usually 3), auto-evolves
+  - Despawns component creatures, spawns evolved creature at average position
+  - Prefers lowest level creatures for evolution
+  - EvolutionEffect: golden flash visual at each consumed creature
+  - evolution_effect_system: animates the effect
+  - Prints: "3x [old creature] evolved into [new creature]!"
+- [x] Update spawn_creature to set kills_for_next_level from TOML kills_per_level[0]
+- [x] Register creature_xp_system, creature_level_up_effect_system, creature_evolution_system, evolution_effect_system in main.rs
+- [x] Test: 133 tests passing, build succeeds
 
-## Phase 19: Better UI
+## Phase 19: Better UI ⬅️ CURRENT
 - [ ] Creature Panel (right side of screen):
   - List all active creatures
   - Show: name, level, kills, HP bar
@@ -357,4 +387,4 @@
 (None)
 
 ## Last Updated
-Phase 15 completed - Crit system with visual feedback and floating damage numbers
+Phase 18 completed - Creature XP + Evolution system with kill tracking, creature leveling (+10% damage/HP per level), and auto-evolution when 3x same creature exists

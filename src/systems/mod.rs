@@ -1,5 +1,6 @@
 pub mod ai;
 pub mod combat;
+pub mod creature_xp;
 pub mod death;
 pub mod hp_bars;
 pub mod leveling;
@@ -9,6 +10,7 @@ pub mod ui;
 
 pub use ai::*;
 pub use combat::*;
+pub use creature_xp::*;
 pub use death::*;
 pub use hp_bars::*;
 pub use leveling::*;
