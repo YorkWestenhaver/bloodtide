@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::components::{Creature, Player, WeaponData};
 use crate::resources::{AffinityState, ArtifactBuffs, CardType, GameData, GameState, PlayerDeck};
-use crate::systems::{spawn_creature, spawn_weapon, try_weapon_evolution};
+use crate::systems::{spawn_creature, spawn_weapon, try_weapon_evolution, CardRollState};
 
 /// System that checks if player should level up based on kill count
 pub fn level_check_system(
@@ -10,6 +10,7 @@ pub fn level_check_system(
     mut game_state: ResMut<GameState>,
     mut artifact_buffs: ResMut<ArtifactBuffs>,
     mut affinity_state: ResMut<AffinityState>,
+    mut card_roll_state: ResMut<CardRollState>,
     player_deck: Res<PlayerDeck>,
     game_data: Res<GameData>,
     player_query: Query<&Transform, With<Player>>,
@@ -37,6 +38,39 @@ pub fn level_check_system(
         // Roll a card from the deck
         if let Some(card) = player_deck.roll_card() {
             println!("Rolled card: {}!", card.id);
+
+            // Get card name and tier for popup
+            let (card_name, card_tier) = match card.card_type {
+                CardType::Creature => {
+                    let data = game_data.creatures.iter().find(|c| c.id == card.id);
+                    (
+                        data.map(|c| c.name.clone()).unwrap_or_else(|| card.id.clone()),
+                        data.map(|c| c.tier).unwrap_or(1),
+                    )
+                }
+                CardType::Weapon => {
+                    let data = game_data.weapons.iter().find(|w| w.id == card.id);
+                    (
+                        data.map(|w| w.name.clone()).unwrap_or_else(|| card.id.clone()),
+                        data.map(|w| w.tier).unwrap_or(1),
+                    )
+                }
+                CardType::Artifact => {
+                    let data = game_data.artifacts.iter().find(|a| a.id == card.id);
+                    (
+                        data.map(|a| a.name.clone()).unwrap_or_else(|| card.id.clone()),
+                        data.map(|a| a.tier).unwrap_or(1),
+                    )
+                }
+            };
+
+            // Set pending popup for UI
+            let card_type_str = match card.card_type {
+                CardType::Creature => "Creature",
+                CardType::Weapon => "Weapon",
+                CardType::Artifact => "Artifact",
+            };
+            card_roll_state.pending_popup = Some((card_name, card_type_str.to_string(), card_tier));
 
             match card.card_type {
                 CardType::Creature => {

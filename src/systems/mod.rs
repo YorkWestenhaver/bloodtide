@@ -7,6 +7,7 @@ pub mod leveling;
 pub mod movement;
 pub mod spawning;
 pub mod ui;
+pub mod ui_panels;
 
 pub use ai::*;
 pub use combat::*;
@@ -17,3 +18,4 @@ pub use leveling::*;
 pub use movement::*;
 pub use spawning::*;
 pub use ui::*;
+pub use ui_panels::*;

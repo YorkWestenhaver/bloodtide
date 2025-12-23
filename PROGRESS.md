@@ -1,6 +1,6 @@
 # Bloodtide Development Progress
 
-## Current Phase: 19 - Better UI
+## Current Phase: 20 - Director AI
 
 ---
 
@@ -230,32 +230,51 @@
 - [x] Register creature_xp_system, creature_level_up_effect_system, creature_evolution_system, evolution_effect_system in main.rs
 - [x] Test: 133 tests passing, build succeeds
 
-## Phase 19: Better UI ⬅️ CURRENT
-- [ ] Creature Panel (right side of screen):
-  - List all active creatures
-  - Show: name, level, kills, HP bar
-  - Show respawning creatures with timer
-- [ ] Artifact Panel (left side or bottom):
-  - List all acquired artifacts
-  - Show: name, effect summary
-  - Scrollable if many artifacts
-- [ ] Affinity Display (top or corner):
-  - Bar for each color showing current affinity
-  - Show threshold markers
-  - Highlight active bonuses
-- [ ] Card Roll Popup:
-  - When leveling up, show card being rolled
-  - Animated reveal
-  - Show card name, rarity, effect
-  - Brief display then auto-dismiss (or click to dismiss)
-- [ ] Damage number improvements:
-  - Stack/combine rapid hits
-  - Better positioning to avoid overlap
-- [ ] Wave announcement:
-  - "WAVE 5" text appears center screen briefly
-- [ ] Test: All UI elements display and update correctly
+## Phase 19: Better UI ✅
+- [x] Creature Panel (right side of screen):
+  - Created CreaturePanel and CreaturePanelContent marker components
+  - spawn_creature_panel_system: positions panel absolute right, top
+  - update_creature_panel_system: lists all creatures with name, level (Lv.X), kills (K:X)
+  - Shows HP bar per creature with color coding (green/yellow/red)
+  - Respawning creatures shown with grayed name and countdown timer
+- [x] Artifact Panel (bottom-left):
+  - Created ArtifactPanel and ArtifactPanelContent marker components
+  - spawn_artifact_panel_system: positions panel absolute left, bottom
+  - update_artifact_panel_system: lists acquired artifacts with name and effect summary
+  - Tier-colored artifact names (gray/green/blue/purple/gold)
+  - Shows "None yet" when no artifacts acquired
+  - Max height with overflow scrolling
+- [x] Affinity Display (top-right below creature panel):
+  - Created AffinityDisplay and AffinityDisplayContent marker components
+  - spawn_affinity_display_system: positions panel below creature panel
+  - update_affinity_display_system: shows bars for each color with affinity > 0
+  - Visual bar with fill based on affinity value (0-100)
+  - Threshold markers at 11, 26, 51, 76, 100
+  - Markers turn yellow when reached
+- [x] Card Roll Popup:
+  - Created CardRollPopup component with timer, card_name, card_type, tier
+  - Created CardRollState resource with pending_popup field
+  - level_check_system sets pending_popup when card rolled
+  - show_card_roll_popup_system: spawns centered popup with tier-colored border
+  - Shows "New [Type]!", card name, and tier name (Common/Uncommon/Rare/Epic/Legendary)
+  - card_roll_popup_update_system: fades out, auto-dismisses after 2.5s or click
+- [x] Damage number improvements:
+  - Created DamageNumberOffsets resource with recent_positions tracking
+  - calculate_damage_number_offset function for avoiding overlap
+  - Random horizontal offset + vertical stacking for nearby hits
+- [x] Wave announcement:
+  - Created WaveAnnouncement component with timer and wave_number
+  - Created WaveAnnouncementState resource tracking last_announced_wave
+  - show_wave_announcement_system: spawns "WAVE X" text at center when wave changes
+  - wave_announcement_update_system: scale-up animation then fade out
+  - Milestone waves (10, 20, etc.) shown in gold
+- [x] HUD Updated:
+  - Shows "Level: X | Kills: Y | Wave: Z | Creatures: N | Artifacts: M"
+  - Creature and artifact counts update in real-time
+- [x] All systems registered in main.rs with proper ordering
+- [x] Test: 136 tests passing, build succeeds
 
-## Phase 20: Director AI
+## Phase 20: Director AI ⬅️ CURRENT
 - [ ] Create src/resources/director.rs:
   - Director resource tracking player state
   - Metrics: player_dps, creature_count, player_hp_percent, time_since_damage
@@ -387,4 +406,4 @@
 (None)
 
 ## Last Updated
-Phase 18 completed - Creature XP + Evolution system with kill tracking, creature leveling (+10% damage/HP per level), and auto-evolution when 3x same creature exists
+Phase 19 completed - Better UI with creature panel, artifact panel, affinity display, card roll popup, wave announcements, and improved HUD showing creature/artifact counts

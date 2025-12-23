@@ -1,9 +1,9 @@
 use bevy::prelude::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use crate::components::{Creature, CreatureStats};
-use crate::resources::{ArtifactBuffs, GameData};
-use crate::systems::spawning::{spawn_creature, CREATURE_SIZE};
+use crate::resources::GameData;
+use crate::systems::spawning::CREATURE_SIZE;
 
 /// Marker for pending kill attribution
 /// This is added when a projectile kills an enemy, to be processed by creature_xp_system
@@ -22,6 +22,13 @@ pub struct CreatureLevelUpEffect {
 #[derive(Component)]
 pub struct EvolutionEffect {
     pub timer: Timer,
+}
+
+/// Resource to track which evolutions have been announced (to avoid spam)
+#[derive(Resource, Default)]
+pub struct EvolutionReadyState {
+    /// Set of creature IDs that have had "evolution ready" announced
+    pub announced: HashSet<String>,
 }
 
 /// System that processes kills and awards XP to creatures
@@ -112,53 +119,45 @@ pub fn creature_level_up_effect_system(
     }
 }
 
-/// System that handles creature evolution when 3+ of the same type exist
+/// System that checks for evolution-ready creatures and announces (does NOT auto-evolve)
+/// Future phases will add UI button to trigger evolution manually
 pub fn creature_evolution_system(
-    mut commands: Commands,
     game_data: Res<GameData>,
-    artifact_buffs: Res<ArtifactBuffs>,
-    creature_query: Query<(Entity, &CreatureStats, &Transform), With<Creature>>,
+    mut evolution_state: ResMut<EvolutionReadyState>,
+    creature_query: Query<&CreatureStats, With<Creature>>,
 ) {
     // Group creatures by ID
-    let mut creatures_by_id: HashMap<String, Vec<(Entity, u32, Vec3)>> = HashMap::new();
+    let mut creatures_by_id: HashMap<String, usize> = HashMap::new();
 
-    for (entity, stats, transform) in creature_query.iter() {
+    for stats in creature_query.iter() {
         // Skip creatures that can't evolve
         if stats.evolves_into.is_empty() || stats.evolution_count == 0 {
             continue;
         }
 
-        creatures_by_id
-            .entry(stats.id.clone())
-            .or_default()
-            .push((entity, stats.level, transform.translation));
+        *creatures_by_id.entry(stats.id.clone()).or_default() += 1;
     }
 
-    // Check each creature type for evolution
-    for (creature_id, mut creatures) in creatures_by_id {
+    // Check each creature type for evolution readiness
+    for (creature_id, count) in creatures_by_id {
         // Get the evolution count for this creature type
         let evolution_count = creature_query
             .iter()
-            .find(|(_, stats, _)| stats.id == creature_id)
-            .map(|(_, stats, _)| stats.evolution_count)
+            .find(|stats| stats.id == creature_id)
+            .map(|stats| stats.evolution_count)
             .unwrap_or(3);
 
-        if creatures.len() >= evolution_count as usize {
-            // Sort by level (ascending) to evolve lowest level ones first
-            creatures.sort_by_key(|(_, level, _)| *level);
-
-            // Take the first evolution_count creatures
-            let to_evolve: Vec<_> = creatures.iter().take(evolution_count as usize).collect();
-
-            // Calculate average position for evolved creature
-            let avg_pos = to_evolve.iter().fold(Vec3::ZERO, |acc, (_, _, pos)| acc + *pos)
-                / evolution_count as f32;
+        if count >= evolution_count as usize {
+            // Only announce once per creature type
+            if evolution_state.announced.contains(&creature_id) {
+                continue;
+            }
 
             // Get the evolves_into ID
             let evolves_into = creature_query
                 .iter()
-                .find(|(_, stats, _)| stats.id == creature_id)
-                .map(|(_, stats, _)| stats.evolves_into.clone())
+                .find(|stats| stats.id == creature_id)
+                .map(|stats| stats.evolves_into.clone())
                 .unwrap_or_default();
 
             if evolves_into.is_empty() {
@@ -168,55 +167,42 @@ pub fn creature_evolution_system(
             // Get creature name for logging
             let old_name = creature_query
                 .iter()
-                .find(|(_, stats, _)| stats.id == creature_id)
-                .map(|(_, stats, _)| stats.name.clone())
+                .find(|stats| stats.id == creature_id)
+                .map(|stats| stats.name.clone())
                 .unwrap_or_else(|| creature_id.clone());
 
-            // Despawn the creatures being evolved
-            for (entity, _, pos) in to_evolve.iter() {
-                // Spawn evolution flash at each creature's position
-                commands.spawn((
-                    EvolutionEffect {
-                        timer: Timer::from_seconds(0.5, TimerMode::Once),
-                    },
-                    Sprite {
-                        color: Color::srgba(1.0, 0.8, 0.2, 0.9), // Golden flash
-                        custom_size: Some(Vec2::new(CREATURE_SIZE * 2.0, CREATURE_SIZE * 2.0)),
-                        ..default()
-                    },
-                    Transform::from_translation(Vec3::new(pos.x, pos.y, 0.8)),
-                ));
+            // Get evolved creature name
+            let new_name = game_data
+                .creatures
+                .iter()
+                .find(|c| c.id == evolves_into)
+                .map(|c| c.name.clone())
+                .unwrap_or_else(|| evolves_into.clone());
 
-                commands.entity(*entity).despawn_recursive();
-            }
+            println!(
+                "Evolution ready: {}x {} can become {}!",
+                evolution_count, old_name, new_name
+            );
 
-            // Spawn the evolved creature
-            let spawn_pos = Vec3::new(avg_pos.x, avg_pos.y, 0.5);
-            if let Some(_evolved_entity) = spawn_creature(
-                &mut commands,
-                &game_data,
-                &artifact_buffs,
-                &evolves_into,
-                spawn_pos,
-            ) {
-                // Get evolved creature name for logging
-                let new_name = game_data
-                    .creatures
-                    .iter()
-                    .find(|c| c.id == evolves_into)
-                    .map(|c| c.name.clone())
-                    .unwrap_or_else(|| evolves_into.clone());
-
-                println!(
-                    "{}x {} evolved into {}!",
-                    evolution_count, old_name, new_name
-                );
-            }
-
-            // Only process one evolution per frame to avoid iterator invalidation issues
-            break;
+            // Mark as announced
+            evolution_state.announced.insert(creature_id);
         }
     }
+
+    // Clear announcements for creatures that are no longer evolution-ready
+    // (e.g., if one died and count dropped below threshold)
+    evolution_state.announced.retain(|creature_id| {
+        let count = creature_query
+            .iter()
+            .filter(|stats| stats.id == *creature_id)
+            .count();
+        let evolution_count = creature_query
+            .iter()
+            .find(|stats| stats.id == *creature_id)
+            .map(|stats| stats.evolution_count)
+            .unwrap_or(3);
+        count >= evolution_count as usize
+    });
 }
 
 /// System that updates evolution effects

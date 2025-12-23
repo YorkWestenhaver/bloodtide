@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
-use crate::resources::GameState;
+use crate::components::Creature;
+use crate::resources::{ArtifactBuffs, GameState};
 
 /// Marker component for the main HUD text
 #[derive(Component)]
@@ -23,9 +24,9 @@ pub fn spawn_ui_system(mut commands: Commands) {
         .with_children(|parent| {
             parent.spawn((
                 HudText,
-                Text::new("Level: 1 | Kills: 0 | Wave: 1"),
+                Text::new("Level: 1 | Kills: 0 | Wave: 1 | Creatures: 0 | Artifacts: 0"),
                 TextFont {
-                    font_size: 24.0,
+                    font_size: 20.0,
                     ..default()
                 },
                 TextColor(Color::WHITE),
@@ -38,14 +39,21 @@ pub fn spawn_ui_system(mut commands: Commands) {
 /// System that updates the HUD text with current game state
 pub fn update_ui_system(
     game_state: Res<GameState>,
+    artifact_buffs: Res<ArtifactBuffs>,
+    creature_query: Query<&Creature>,
     mut query: Query<&mut Text, With<HudText>>,
 ) {
+    let creature_count = creature_query.iter().count();
+    let artifact_count = artifact_buffs.acquired_artifacts.len();
+
     for mut text in query.iter_mut() {
         **text = format!(
-            "Level: {} | Kills: {} | Wave: {}",
+            "Level: {} | Kills: {} | Wave: {} | Creatures: {} | Artifacts: {}",
             game_state.current_level,
             game_state.total_kills,
-            game_state.current_wave
+            game_state.current_wave,
+            creature_count,
+            artifact_count
         );
     }
 }

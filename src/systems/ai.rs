@@ -6,7 +6,16 @@ use crate::components::{Creature, CreatureStats, Enemy, EnemyStats, Player, Velo
 pub const CREATURE_FOLLOW_DISTANCE: f32 = 100.0;
 
 /// Distance threshold - stop moving when within this range of target
-pub const CREATURE_STOP_DISTANCE: f32 = 20.0;
+pub const CREATURE_STOP_DISTANCE: f32 = 10.0;
+
+/// Distance at which creatures move at boosted speed to catch up
+pub const CREATURE_CATCHUP_DISTANCE: f32 = 200.0;
+
+/// Speed multiplier when catching up
+pub const CREATURE_CATCHUP_MULTIPLIER: f32 = 2.5;
+
+/// Base speed multiplier for formation movement (creatures move faster than their base speed)
+pub const CREATURE_FORMATION_SPEED_MULTIPLIER: f32 = 1.8;
 
 /// System that makes creatures follow the player
 pub fn creature_follow_system(
@@ -46,8 +55,18 @@ pub fn creature_follow_system(
         // Only move if we're far enough from target position
         if distance > CREATURE_STOP_DISTANCE {
             let direction = to_target.normalize();
-            // Use movement speed from creature stats
-            let speed = stats.movement_speed as f32;
+            // Use movement speed from creature stats with formation multiplier
+            let base_speed = stats.movement_speed as f32 * CREATURE_FORMATION_SPEED_MULTIPLIER;
+
+            // Apply catch-up boost if far from target
+            let speed = if distance > CREATURE_CATCHUP_DISTANCE {
+                base_speed * CREATURE_CATCHUP_MULTIPLIER
+            } else {
+                // Smooth interpolation: faster when further, slower when closer
+                let t = (distance / CREATURE_CATCHUP_DISTANCE).min(1.0);
+                base_speed * (1.0 + t * (CREATURE_CATCHUP_MULTIPLIER - 1.0))
+            };
+
             velocity.x = direction.x * speed;
             velocity.y = direction.y * speed;
         } else {

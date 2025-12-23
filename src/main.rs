@@ -16,7 +16,14 @@ use systems::{
     level_check_system, level_up_effect_system, player_movement_system, projectile_system,
     respawn_system, screen_shake_system, spawn_hp_bars_system, spawn_test_creature_system,
     spawn_ui_system, update_hp_bars_system, update_ui_system, weapon_attack_system,
-    EnemySpawnTimer, RespawnQueue, ScreenShake,
+    EnemySpawnTimer, RespawnQueue, ScreenShake, EvolutionReadyState,
+    // UI Panel systems
+    spawn_creature_panel_system, update_creature_panel_system,
+    spawn_artifact_panel_system, update_artifact_panel_system,
+    spawn_affinity_display_system, update_affinity_display_system,
+    show_card_roll_popup_system, card_roll_popup_update_system,
+    show_wave_announcement_system, wave_announcement_update_system,
+    CardRollState, WaveAnnouncementState, DamageNumberOffsets,
 };
 
 fn main() {
@@ -69,7 +76,17 @@ fn main() {
         .init_resource::<ScreenShake>()
         .init_resource::<ArtifactBuffs>()
         .init_resource::<AffinityState>()
-        .add_systems(Startup, (setup, spawn_ui_system))
+        .init_resource::<CardRollState>()
+        .init_resource::<WaveAnnouncementState>()
+        .init_resource::<DamageNumberOffsets>()
+        .init_resource::<EvolutionReadyState>()
+        .add_systems(Startup, (
+            setup,
+            spawn_ui_system,
+            spawn_creature_panel_system,
+            spawn_artifact_panel_system,
+            spawn_affinity_display_system,
+        ))
         // Input and spawning systems
         .add_systems(Update, (
             player_movement_system,
@@ -111,12 +128,22 @@ fn main() {
             level_check_system,
             level_up_effect_system,
         ).chain().after(creature_xp_system))
+        // UI panel updates
+        .add_systems(Update, (
+            update_creature_panel_system,
+            update_artifact_panel_system,
+            update_affinity_display_system,
+            show_card_roll_popup_system,
+            card_roll_popup_update_system,
+            show_wave_announcement_system,
+            wave_announcement_update_system,
+        ).after(level_up_effect_system))
         // UI and camera (run last)
         .add_systems(Update, (
             update_ui_system,
             camera_follow_system,
             screen_shake_system,
-        ).chain().after(level_up_effect_system))
+        ).chain().after(update_creature_panel_system))
         .run();
 }
 
