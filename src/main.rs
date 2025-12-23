@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_ecs_tilemap::prelude::*;
 
 mod components;
 mod data;
@@ -7,7 +8,7 @@ mod resources;
 mod systems;
 
 use components::{Player, Velocity};
-use resources::{load_game_data, AffinityState, ArtifactBuffs, DeathSprites, DebugSettings, Director, GameData, GameState, GamePhase, PlayerDeck, DeckBuilderState, SpatialGrid, ProjectilePool, DamageNumberPool};
+use resources::{load_game_data, AffinityState, ArtifactBuffs, DeathSprites, DebugSettings, Director, GameData, GameState, GamePhase, PlayerDeck, DeckBuilderState, SpatialGrid, ProjectilePool, DamageNumberPool, ChunkManager};
 use systems::{
     apply_velocity_system, camera_follow_system, creature_attack_system, creature_death_system,
     creature_evolution_system, creature_follow_system, creature_level_up_effect_system,
@@ -53,6 +54,8 @@ use systems::{
     deck_builder_available_cards_system, deck_builder_tab_system, deck_builder_button_system,
     deck_builder_add_card_system, deck_builder_start_run_system, deck_builder_clear_deck_system,
     deck_builder_footer_system, deck_builder_weapon_select_system,
+    // Tilemap systems
+    load_tilemap_assets, chunk_loading_system,
 };
 
 fn main() {
@@ -74,6 +77,7 @@ fn main() {
             }),
             ..default()
         }))
+        .add_plugins(TilemapPlugin)
         .insert_resource(game_data)
         .init_resource::<PlayerDeck>()  // Empty deck, will be populated from DeckBuilder
         .init_resource::<DeckBuilderState>()  // Deck builder with default starter cards
@@ -95,6 +99,7 @@ fn main() {
         .init_resource::<SpatialGrid>()
         .init_resource::<ProjectilePool>()
         .init_resource::<DamageNumberPool>()
+        .init_resource::<ChunkManager>()
         .add_systems(Startup, (
             setup,
             spawn_ui_system,
@@ -106,9 +111,12 @@ fn main() {
             spawn_deck_builder_system,
             init_pools_system,
             load_death_sprites,
+            load_tilemap_assets,
         ))
         // Director update (runs early)
         .add_systems(Update, director_update_system)
+        // Tilemap chunk loading (runs early, based on player position)
+        .add_systems(Update, chunk_loading_system.after(director_update_system))
         // Input and spawning systems
         .add_systems(Update, (
             player_movement_system,
@@ -259,31 +267,7 @@ fn setup(mut commands: Commands) {
     // Spawn camera
     commands.spawn(Camera2d);
 
-    // Spawn background grid for visual reference
-    let grid_size = 100.0; // Size of each grid cell
-    let grid_count = 40; // Number of cells in each direction from center
-    let dark_color = Color::srgb(0.1, 0.1, 0.15);
-    let light_color = Color::srgb(0.15, 0.15, 0.2);
-
-    for x in -grid_count..=grid_count {
-        for y in -grid_count..=grid_count {
-            let is_dark = (x + y) % 2 == 0;
-            let color = if is_dark { dark_color } else { light_color };
-
-            commands.spawn((
-                Sprite {
-                    color,
-                    custom_size: Some(Vec2::new(grid_size, grid_size)),
-                    ..default()
-                },
-                Transform::from_xyz(
-                    x as f32 * grid_size,
-                    y as f32 * grid_size,
-                    -1.0, // Behind player
-                ),
-            ));
-        }
-    }
+    // Ground tilemap is now handled by chunk_loading_system
 
     // Spawn origin marker (red cross) for reference
     // Horizontal bar

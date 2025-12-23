@@ -1,0 +1,93 @@
+{
+  "tilesets": {
+    "ground": {
+      "file": "ground_tileset.svg",
+      "export_to": "ground_tileset.png",
+      "tile_width": 32,
+      "tile_height": 32,
+      "columns": 4,
+      "rows": 4,
+      "total_tiles": 16,
+      "transparent_background": false,
+      "tiles": {
+        "0": { "name": "dirt_a", "type": "base", "biome": "dirt" },
+        "1": { "name": "dirt_b", "type": "base", "biome": "dirt" },
+        "2": { "name": "dirt_dark", "type": "base", "biome": "dirt" },
+        "3": { "name": "dirt_light", "type": "base", "biome": "dirt" },
+        "4": { "name": "dirt_rocks", "type": "accent", "biome": "dirt" },
+        "5": { "name": "dirt_pebbles", "type": "accent", "biome": "dirt" },
+        "6": { "name": "dirt_cracked", "type": "accent", "biome": "dirt" },
+        "7": { "name": "dirt_dry", "type": "accent", "biome": "dirt" },
+        "8": { "name": "rocky_a", "type": "base", "biome": "rocky" },
+        "9": { "name": "rocky_b", "type": "base", "biome": "rocky" },
+        "10": { "name": "gravel", "type": "base", "biome": "gravel" },
+        "11": { "name": "gravel_mixed", "type": "accent", "biome": "gravel" },
+        "12": { "name": "stone_dark", "type": "base", "biome": "stone" },
+        "13": { "name": "stone_moss", "type": "accent", "biome": "stone" },
+        "14": { "name": "dirt_bloody", "type": "special", "biome": "battlefield" },
+        "15": { "name": "scorched", "type": "special", "biome": "fire" }
+      },
+      "biome_weights": {
+        "dirt": { "tiles": [0, 1, 2, 3], "accent_chance": 0.15, "accents": [4, 5, 6, 7] },
+        "rocky": { "tiles": [8, 9], "accent_chance": 0.2, "accents": [10, 11] },
+        "gravel": { "tiles": [10, 11], "accent_chance": 0.1, "accents": [8, 9] },
+        "stone": { "tiles": [12], "accent_chance": 0.25, "accents": [13] },
+        "battlefield": { "tiles": [0, 1, 2], "accent_chance": 0.3, "accents": [14] },
+        "fire": { "tiles": [2, 3], "accent_chance": 0.4, "accents": [15] }
+      }
+    },
+    "ground_details": {
+      "file": "ground_details.svg",
+      "export_to": "ground_details.png",
+      "tile_width": 16,
+      "tile_height": 16,
+      "columns": 8,
+      "rows": 2,
+      "total_tiles": 16,
+      "transparent_background": true,
+      "usage": "overlay",
+      "z_offset": 0.1,
+      "spawn_density": 0.05,
+      "tiles": {
+        "0": { "name": "rock_small", "category": "rocks" },
+        "1": { "name": "pebbles", "category": "rocks" },
+        "2": { "name": "rock_cluster", "category": "rocks" },
+        "3": { "name": "rock_large", "category": "rocks" },
+        "4": { "name": "gravel", "category": "rocks" },
+        "5": { "name": "dirt_mound", "category": "terrain" },
+        "6": { "name": "wet_patch", "category": "terrain" },
+        "7": { "name": "crater", "category": "terrain" },
+        "8": { "name": "bone_small", "category": "bones" },
+        "9": { "name": "bone_pile", "category": "bones" },
+        "10": { "name": "skull_fragment", "category": "bones" },
+        "11": { "name": "crack_a", "category": "cracks" },
+        "12": { "name": "crack_b", "category": "cracks" },
+        "13": { "name": "blood_drop", "category": "blood" },
+        "14": { "name": "ember", "category": "fire" },
+        "15": { "name": "dead_grass", "category": "vegetation" }
+      },
+      "biome_details": {
+        "dirt": { "categories": ["rocks", "cracks", "vegetation"], "weights": [0.5, 0.3, 0.2] },
+        "rocky": { "categories": ["rocks", "cracks"], "weights": [0.7, 0.3] },
+        "battlefield": { "categories": ["bones", "blood", "rocks"], "weights": [0.4, 0.4, 0.2] },
+        "fire": { "categories": ["fire", "cracks"], "weights": [0.6, 0.4] }
+      }
+    }
+  },
+  "generation_algorithm": {
+    "method": "weighted_random",
+    "steps": [
+      "1. Divide map into chunks (e.g. 16x16 tiles each)",
+      "2. Assign biome to each chunk based on zone or noise",
+      "3. For each tile position, pick random base tile from biome",
+      "4. Roll for accent: if random() < accent_chance, replace with accent tile",
+      "5. Roll for detail overlay: if random() < spawn_density, spawn detail sprite",
+      "6. Store entire tilemap in memory, render with GPU instancing"
+    ],
+    "notes": [
+      "Generate map ONCE at level load, not per frame",
+      "Use seeded RNG for reproducible maps",
+      "Details are separate entities, not baked into tilemap"
+    ]
+  }
+}
