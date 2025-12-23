@@ -506,44 +506,46 @@ pub fn projectile_system(
                     }
                 }
 
-                // Spawn floating damage number
-                let damage_color = get_damage_number_color(projectile.crit_tier);
-                let damage_text = format_damage(projectile.damage);
+                // Spawn floating damage number (if enabled)
+                if debug_settings.show_damage_numbers {
+                    let damage_color = get_damage_number_color(projectile.crit_tier);
+                    let damage_text = format_damage(projectile.damage);
 
-                // Scale font size based on crit tier
-                let font_size = match projectile.crit_tier {
-                    CritTier::None => 16.0,
-                    CritTier::Normal => 20.0,
-                    CritTier::Mega => 26.0,
-                    CritTier::Super => 34.0,
-                };
+                    // Scale font size based on crit tier
+                    let font_size = match projectile.crit_tier {
+                        CritTier::None => 16.0,
+                        CritTier::Normal => 20.0,
+                        CritTier::Mega => 26.0,
+                        CritTier::Super => 34.0,
+                    };
 
-                // Try to get damage number from pool
-                if let Some(pooled_entity) = damage_number_pool.get() {
-                    if let Ok((mut dmg_num, mut text, mut text_font, mut text_color, mut transform, mut vis)) = damage_number_query.get_mut(pooled_entity) {
-                        dmg_num.reset();
-                        *text = Text2d::new(damage_text);
-                        text_font.font_size = font_size;
-                        *text_color = TextColor(damage_color);
-                        transform.translation = Vec3::new(enemy_pos.x, enemy_pos.y + 20.0, 10.0);
-                        *vis = Visibility::Visible;
+                    // Try to get damage number from pool
+                    if let Some(pooled_entity) = damage_number_pool.get() {
+                        if let Ok((mut dmg_num, mut text, mut text_font, mut text_color, mut transform, mut vis)) = damage_number_query.get_mut(pooled_entity) {
+                            dmg_num.reset();
+                            *text = Text2d::new(damage_text.clone());
+                            text_font.font_size = font_size;
+                            *text_color = TextColor(damage_color);
+                            transform.translation = Vec3::new(enemy_pos.x, enemy_pos.y + 20.0, 10.0);
+                            *vis = Visibility::Visible;
+                        }
+                    } else {
+                        // Pool exhausted, fall back to spawning
+                        commands.spawn((
+                            DamageNumber::new(),
+                            Text2d::new(damage_text),
+                            TextFont {
+                                font_size,
+                                ..default()
+                            },
+                            TextColor(damage_color),
+                            Transform::from_translation(Vec3::new(
+                                enemy_pos.x,
+                                enemy_pos.y + 20.0, // Start slightly above enemy
+                                10.0, // Above everything
+                            )),
+                        ));
                     }
-                } else {
-                    // Pool exhausted, fall back to spawning
-                    commands.spawn((
-                        DamageNumber::new(),
-                        Text2d::new(damage_text),
-                        TextFont {
-                            font_size,
-                            ..default()
-                        },
-                        TextColor(damage_color),
-                        Transform::from_translation(Vec3::new(
-                            enemy_pos.x,
-                            enemy_pos.y + 20.0, // Start slightly above enemy
-                            10.0, // Above everything
-                        )),
-                    ));
                 }
 
                 // Trigger screen shake for Mega and Super crits
@@ -673,21 +675,23 @@ pub fn projectile_system(
                     }
                 }
 
-                // Spawn damage number for AoE hit
-                commands.spawn((
-                    DamageNumber::new(),
-                    Text2d::new(format_damage(final_damage)),
-                    TextFont {
-                        font_size: 14.0,
-                        ..default()
-                    },
-                    TextColor(Color::srgb(1.0, 0.6, 0.2)), // Orange for AoE
-                    Transform::from_translation(Vec3::new(
-                        enemy_pos.x,
-                        enemy_pos.y + 20.0,
-                        10.0,
-                    )),
-                ));
+                // Spawn damage number for AoE hit (if enabled)
+                if debug_settings.show_damage_numbers {
+                    commands.spawn((
+                        DamageNumber::new(),
+                        Text2d::new(format_damage(final_damage)),
+                        TextFont {
+                            font_size: 14.0,
+                            ..default()
+                        },
+                        TextColor(Color::srgb(1.0, 0.6, 0.2)), // Orange for AoE
+                        Transform::from_translation(Vec3::new(
+                            enemy_pos.x,
+                            enemy_pos.y + 20.0,
+                            10.0,
+                        )),
+                    ));
+                }
             }
         }
     }

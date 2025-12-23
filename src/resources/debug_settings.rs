@@ -49,6 +49,7 @@ pub struct DebugSettings {
     pub god_mode: bool,      // Creatures can't die
     pub show_fps: bool,      // Display FPS in corner
     pub show_enemy_count: bool, // Display enemy count in HUD
+    pub show_damage_numbers: bool, // Display floating damage numbers
 
     // Display options
     pub show_advanced_tooltips: bool,      // Show detailed tooltips on hover
@@ -93,6 +94,7 @@ impl Default for DebugSettings {
             god_mode: false,
             show_fps: true,
             show_enemy_count: true,
+            show_damage_numbers: true,
             show_advanced_tooltips: true,
             show_expanded_creature_stats: true,
             show_expanded_affinity_stats: true,

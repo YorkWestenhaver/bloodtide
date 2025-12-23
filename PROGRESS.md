@@ -286,8 +286,17 @@
   - SpatialGrid resource with 256px cells
   - update_spatial_grid_system runs before combat
   - creature_attack_system uses grid instead of iterating all enemies
-- [ ] Implement projectile pooling (pre-allocate, toggle visibility)
-- [ ] Implement damage number pooling
+- [x] Implement projectile pooling (pre-allocate 5000, toggle visibility)
+  - ProjectilePool resource in `src/resources/pools.rs`
+  - init_pools_system pre-spawns entities at startup
+  - Projectiles reused via Visibility::Hidden/Visible toggle
+- [x] Implement damage number pooling (pre-allocate 500)
+  - DamageNumberPool resource in `src/resources/pools.rs`
+  - Same pattern as projectiles
+- [x] Fix Bevy query conflicts in combat.rs
+  - Added proper With<T>/Without<T> filters to all queries
+  - Ensures disjoint entity sets for Transform access
+- [ ] Add toggle for damage numbers (debug menu)
 - [ ] Better pacing curve
 - [ ] Smooth difficulty transitions
 - [ ] Test: Standing still doesn't cause enemy flood
@@ -420,4 +429,4 @@
 
 ## Last Updated
 
-Phase 24 GPU Optimization in progress. Added enemy cap (MAX_ENEMIES = 2000) and spatial grid for efficient collision detection. Projectile and damage number pooling still pending.
+Phase 24 GPU Optimization complete. Added enemy cap (MAX_ENEMIES = 2000), spatial grid for O(1) collision lookups, projectile pooling (5000), and damage number pooling (500). Fixed Bevy query conflicts with proper With/Without filters. Still investigating remaining performance issues - damage numbers may be a factor.

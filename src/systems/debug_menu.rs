@@ -198,6 +198,7 @@ pub enum CheckboxSettingId {
     GodMode,
     ShowFps,
     ShowEnemyCount,
+    ShowDamageNumbers,
     ToggleMode,
     ShowAdvancedTooltips,
     ShowExpandedCreatureStats,
@@ -211,6 +212,7 @@ impl CheckboxSettingId {
             Self::GodMode => "God Mode",
             Self::ShowFps => "Show FPS",
             Self::ShowEnemyCount => "Show Enemy Count",
+            Self::ShowDamageNumbers => "Show Damage Numbers",
             Self::ToggleMode => "Toggle Mode (vs Hold)",
             Self::ShowAdvancedTooltips => "Advanced Tooltips",
             Self::ShowExpandedCreatureStats => "Expanded Creature Stats",
@@ -297,6 +299,7 @@ pub fn spawn_debug_menu_system(mut commands: Commands) {
         spawn_checkbox(parent, CheckboxSettingId::GodMode);
         spawn_checkbox(parent, CheckboxSettingId::ShowFps);
         spawn_checkbox(parent, CheckboxSettingId::ShowEnemyCount);
+        spawn_checkbox(parent, CheckboxSettingId::ShowDamageNumbers);
 
         // Reset button
         parent.spawn((
@@ -1122,6 +1125,7 @@ fn get_checkbox_value(settings: &DebugSettings, id: CheckboxSettingId) -> bool {
         CheckboxSettingId::GodMode => settings.god_mode,
         CheckboxSettingId::ShowFps => settings.show_fps,
         CheckboxSettingId::ShowEnemyCount => settings.show_enemy_count,
+        CheckboxSettingId::ShowDamageNumbers => settings.show_damage_numbers,
         CheckboxSettingId::ToggleMode => settings.menu_toggle_mode,
         CheckboxSettingId::ShowAdvancedTooltips => settings.show_advanced_tooltips,
         CheckboxSettingId::ShowExpandedCreatureStats => settings.show_expanded_creature_stats,
@@ -1135,6 +1139,7 @@ fn toggle_checkbox(settings: &mut DebugSettings, id: CheckboxSettingId) {
         CheckboxSettingId::GodMode => settings.god_mode = !settings.god_mode,
         CheckboxSettingId::ShowFps => settings.show_fps = !settings.show_fps,
         CheckboxSettingId::ShowEnemyCount => settings.show_enemy_count = !settings.show_enemy_count,
+        CheckboxSettingId::ShowDamageNumbers => settings.show_damage_numbers = !settings.show_damage_numbers,
         CheckboxSettingId::ToggleMode => settings.menu_toggle_mode = !settings.menu_toggle_mode,
         CheckboxSettingId::ShowAdvancedTooltips => settings.show_advanced_tooltips = !settings.show_advanced_tooltips,
         CheckboxSettingId::ShowExpandedCreatureStats => settings.show_expanded_creature_stats = !settings.show_expanded_creature_stats,
