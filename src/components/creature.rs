@@ -41,6 +41,37 @@ impl CreatureColor {
     }
 }
 
+/// Get a unique color for a creature based on its ID
+/// Each creature has a distinct visual appearance even within the same color affinity
+pub fn get_creature_color_by_id(creature_id: &str) -> Color {
+    match creature_id {
+        // Tier 1 - Lighter, more basic colors
+        "fire_imp" => Color::srgb(1.0, 0.35, 0.2),          // Bright orange-red
+        "ember_hound" => Color::srgb(1.0, 0.5, 0.15),       // Orange
+        "fire_spirit" => Color::srgb(1.0, 0.6, 0.4),        // Peach/salmon
+
+        // Tier 2 - Richer, more saturated colors
+        "flame_fiend" => Color::srgb(0.9, 0.2, 0.1),        // Deep crimson
+        "hellhound" => Color::srgb(0.85, 0.25, 0.0),        // Burnt orange
+        "inferno_knight" => Color::srgb(0.7, 0.15, 0.15),   // Dark red (armored)
+        "magma_elemental" => Color::srgb(0.8, 0.3, 0.0),    // Magma orange
+        "greater_fire_spirit" => Color::srgb(1.0, 0.7, 0.5),// Bright peach
+
+        // Tier 3 - Intense, dramatic colors
+        "inferno_demon" => Color::srgb(0.6, 0.05, 0.1),     // Very dark red
+        "hellhound_alpha" => Color::srgb(0.9, 0.15, 0.0),   // Intense orange-red
+        "inferno_warlord" => Color::srgb(0.5, 0.1, 0.1),    // Maroon
+        "phoenix" => Color::srgb(1.0, 0.55, 0.0),           // Brilliant orange
+
+        // Tier 4 - Legendary, special colors
+        "inferno_titan" => Color::srgb(0.4, 0.05, 0.05),    // Nearly black-red
+        "eternal_phoenix" => Color::srgb(1.0, 0.75, 0.2),   // Golden-orange
+
+        // Fallback - use affinity color
+        _ => Color::srgb(1.0, 0.3, 0.2), // Default fire red
+    }
+}
+
 /// Creature archetype/role
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
 pub enum CreatureType {

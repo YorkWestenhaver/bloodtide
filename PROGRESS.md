@@ -1,6 +1,6 @@
 # Bloodtide Development Progress
 
-## Current Phase: 23 - Creature Visual Differentiation
+## Current Phase: 24 - Director Tuning
 
 ---
 
@@ -264,20 +264,22 @@
   - Reset to L1 with higher base stats
 - [x] Test: Get 3 Fire Imps, evolve to Flame Fiend, verify stats
 
-### Phase 23: Creature Visual Differentiation ⬅️ CURRENT
+### Phase 23: Creature Visual Differentiation ✅
 
-- [ ] Different colored squares per creature ID (not just color affinity)
-  - Fire Imp: solid red
-  - Ember Hound: orange or striped
-  - Flame Fiend: darker red
-  - etc.
-- [ ] Level indicator on creature:
-  - Small number overlay OR
-  - Border thickness/glow intensity
-- [ ] Evolution tier indicator (T1/T2/T3 visible)
-- [ ] Test: Can visually distinguish all creature types at a glance
+- [x] Different colored squares per creature ID (not just color affinity)
+  - Tier 1: Fire Imp (bright orange-red), Ember Hound (orange), Fire Spirit (peach)
+  - Tier 2: Flame Fiend (deep crimson), Hellhound (burnt orange), Inferno Knight (dark red), Magma Elemental (magma orange), Greater Fire Spirit (bright peach)
+  - Tier 3: Inferno Demon (very dark red), Hellhound Alpha (intense orange-red), Inferno Warlord (maroon), Phoenix (brilliant orange)
+  - Tier 4: Inferno Titan (nearly black-red), Eternal Phoenix (golden-orange)
+- [x] Level indicator on creature:
+  - Small "L#" text below each creature sprite
+  - Updates automatically when creature levels up
+- [x] Evolution tier indicator (T1/T2/T3 visible)
+  - Tier 2+: Colored border behind creature sprite
+  - T2: Green border, T3: Blue border, T4: Purple border, T5+: Gold border
+- [x] Test: Build and tests pass, visual differentiation implemented
 
-### Phase 24: Director Tuning
+### Phase 24: Director Tuning ⬅️ CURRENT
 
 - [ ] Fix over-spawning when stationary
 - [ ] Better pacing curve
@@ -412,4 +414,4 @@
 
 ## Last Updated
 
-Phase 22 (Creature Evolution) completed. Reorganized phases: GPU Acceleration moved to backlog. New order is 23 (Visual Differentiation), 24 (Director Tuning), 25 (Debug Spawn Menu), 26 (Bosses), 27 (Formation), 28 (Player Health), 29 (Polish).
+Phase 23 (Creature Visual Differentiation) completed. Added unique colors per creature ID, level labels below creatures, and tier borders for tier 2+ creatures.

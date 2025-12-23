@@ -15,7 +15,8 @@ use systems::{
     enemy_chase_system, enemy_death_system, enemy_spawn_system, evolution_effect_system,
     level_check_system, level_up_effect_system, player_movement_system, projectile_system,
     respawn_system, screen_shake_system, spawn_hp_bars_system, spawn_test_creature_system,
-    spawn_ui_system, update_hp_bars_system, update_ui_system, weapon_attack_system,
+    spawn_ui_system, update_hp_bars_system, update_level_labels_system, update_tier_borders_system,
+    update_ui_system, weapon_attack_system,
     EnemySpawnTimer, RespawnQueue, ScreenShake, EvolutionReadyState,
     // Projectile type systems
     homing_projectile_system, piercing_rotation_system, explosion_effect_system, chain_effect_system,
@@ -151,10 +152,12 @@ fn main() {
             creature_evolution_system,
             evolution_effect_system,
         ).chain().after(enemy_death_system))
-        // HP bars and leveling
+        // HP bars, level labels, tier borders and leveling
         .add_systems(Update, (
             spawn_hp_bars_system,
             update_hp_bars_system,
+            update_level_labels_system,
+            update_tier_borders_system,
             level_check_system,
             level_up_effect_system,
             card_roll_queue_system,

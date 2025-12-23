@@ -4,7 +4,7 @@ use rand::Rng;
 use crate::components::{
     AttackRange, AttackTimer, Creature, CreatureColor, CreatureStats, CreatureType, Enemy,
     EnemyAttackTimer, EnemyClass, EnemyStats, EnemyType, Player, ProjectileConfig, ProjectileType,
-    Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
+    Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats, get_creature_color_by_id,
 };
 use crate::resources::{AffinityState, ArtifactBuffs, DebugSettings, Director, GameData, GameState};
 use crate::systems::death::RespawnQueue;
@@ -118,6 +118,9 @@ pub fn spawn_creature(
         ProjectileType::from_str(&creature_data.projectile_type),
     );
 
+    // Get unique color for this specific creature type
+    let creature_color = get_creature_color_by_id(&creature_data.id);
+
     let entity = commands
         .spawn((
             Creature,
@@ -127,7 +130,7 @@ pub fn spawn_creature(
             AttackRange(attack_range),
             projectile_config,
             Sprite {
-                color: color.to_bevy_color(),
+                color: creature_color,
                 custom_size: Some(Vec2::new(CREATURE_SIZE, CREATURE_SIZE)),
                 ..default()
             },
