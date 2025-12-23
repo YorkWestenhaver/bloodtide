@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 mod components;
 mod data;
+mod math;
 mod resources;
 mod systems;
 
@@ -9,11 +10,11 @@ use components::{Player, Velocity};
 use resources::{load_game_data, DeckCard, GameData, GameState, PlayerDeck};
 use systems::{
     apply_velocity_system, camera_follow_system, creature_attack_system, creature_death_system,
-    creature_follow_system, death_effect_system, enemy_attack_system, enemy_chase_system,
-    enemy_death_system, enemy_spawn_system, level_check_system, level_up_effect_system,
-    player_movement_system, projectile_system, respawn_system, spawn_hp_bars_system,
-    spawn_test_creature_system, spawn_ui_system, update_hp_bars_system, update_ui_system,
-    EnemySpawnTimer, RespawnQueue,
+    creature_follow_system, damage_number_system, death_effect_system, enemy_attack_system,
+    enemy_chase_system, enemy_death_system, enemy_spawn_system, level_check_system,
+    level_up_effect_system, player_movement_system, projectile_system, respawn_system,
+    screen_shake_system, spawn_hp_bars_system, spawn_test_creature_system, spawn_ui_system,
+    update_hp_bars_system, update_ui_system, EnemySpawnTimer, RespawnQueue, ScreenShake,
 };
 
 fn main() {
@@ -63,28 +64,47 @@ fn main() {
         .init_resource::<EnemySpawnTimer>()
         .init_resource::<GameState>()
         .init_resource::<RespawnQueue>()
+        .init_resource::<ScreenShake>()
         .add_systems(Startup, (setup, spawn_ui_system))
+        // Input and spawning systems
         .add_systems(Update, (
             player_movement_system,
             spawn_test_creature_system,
             enemy_spawn_system,
             respawn_system,
+        ).chain())
+        // AI and movement systems
+        .add_systems(Update, (
             creature_follow_system,
             enemy_chase_system,
+            apply_velocity_system,
+        ).chain().after(player_movement_system))
+        // Combat systems
+        .add_systems(Update, (
             creature_attack_system,
             enemy_attack_system,
-            apply_velocity_system,
             projectile_system,
+            damage_number_system,
+        ).chain().after(apply_velocity_system))
+        // Death and effects systems
+        .add_systems(Update, (
             enemy_death_system,
             creature_death_system,
             death_effect_system,
+        ).chain().after(projectile_system))
+        // HP bars and leveling
+        .add_systems(Update, (
             spawn_hp_bars_system,
             update_hp_bars_system,
             level_check_system,
             level_up_effect_system,
+        ).chain().after(enemy_death_system))
+        // UI and camera (run last)
+        .add_systems(Update, (
             update_ui_system,
             camera_follow_system,
-        ).chain())
+            screen_shake_system,
+        ).chain().after(level_up_effect_system))
         .run();
 }
 

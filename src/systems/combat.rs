@@ -4,6 +4,7 @@ use crate::components::{
     AttackRange, AttackTimer, Creature, CreatureStats, Enemy, EnemyAttackTimer, EnemyStats,
     Velocity,
 };
+use crate::math::{calculate_damage_with_crits, CritTier};
 
 /// Projectile speed in pixels per second
 pub const PROJECTILE_SPEED: f32 = 500.0;
@@ -14,12 +15,80 @@ pub const PROJECTILE_SIZE: f32 = 8.0;
 /// Maximum projectile lifetime in seconds
 pub const PROJECTILE_LIFETIME: f32 = 1.0;
 
+/// Floating damage number lifetime in seconds
+pub const DAMAGE_NUMBER_LIFETIME: f32 = 0.8;
+
+/// Floating damage number rise speed in pixels per second
+pub const DAMAGE_NUMBER_RISE_SPEED: f32 = 60.0;
+
 /// Marker component for projectiles
 #[derive(Component)]
 pub struct Projectile {
     pub target: Entity,
     pub damage: f64,
+    pub crit_tier: CritTier,
     pub lifetime: Timer,
+}
+
+/// Screen shake resource
+#[derive(Resource, Default)]
+pub struct ScreenShake {
+    pub intensity: f32,
+    pub duration: Timer,
+}
+
+impl ScreenShake {
+    pub fn trigger(&mut self, intensity: f32, duration: f32) {
+        self.intensity = intensity;
+        self.duration = Timer::from_seconds(duration, TimerMode::Once);
+    }
+}
+
+/// Floating damage number component
+#[derive(Component)]
+pub struct DamageNumber {
+    pub lifetime: Timer,
+    pub start_alpha: f32,
+}
+
+impl DamageNumber {
+    pub fn new() -> Self {
+        Self {
+            lifetime: Timer::from_seconds(DAMAGE_NUMBER_LIFETIME, TimerMode::Once),
+            start_alpha: 1.0,
+        }
+    }
+}
+
+/// Get projectile color based on crit tier
+fn get_projectile_color(base_color: Color, crit_tier: CritTier) -> Color {
+    match crit_tier {
+        CritTier::None => base_color,
+        CritTier::Normal => Color::srgb(1.0, 1.0, 0.2),   // Yellow
+        CritTier::Mega => Color::srgb(1.0, 0.5, 0.0),     // Orange
+        CritTier::Super => Color::srgb(0.8, 0.2, 0.8),    // Red/Purple
+    }
+}
+
+/// Get damage number color based on crit tier
+fn get_damage_number_color(crit_tier: CritTier) -> Color {
+    match crit_tier {
+        CritTier::None => Color::WHITE,
+        CritTier::Normal => Color::srgb(1.0, 1.0, 0.2),   // Yellow
+        CritTier::Mega => Color::srgb(1.0, 0.5, 0.0),     // Orange
+        CritTier::Super => Color::srgb(1.0, 0.2, 0.2),    // Red
+    }
+}
+
+/// Format damage for display (uses scientific notation for large numbers)
+fn format_damage(damage: f64) -> String {
+    if damage >= 1_000_000.0 {
+        format!("{:.2e}", damage)
+    } else if damage >= 1000.0 {
+        format!("{:.1}k", damage / 1000.0)
+    } else {
+        format!("{:.0}", damage)
+    }
 }
 
 /// System that handles creature attacks
@@ -58,13 +127,25 @@ pub fn creature_attack_system(
 
             // Attack nearest enemy if one is in range
             if let Some((target_entity, _distance, target_pos)) = nearest_enemy {
+                // Calculate damage with crits
+                let crit_result = calculate_damage_with_crits(
+                    stats.base_damage,
+                    stats.crit_t1,
+                    stats.crit_t2,
+                    stats.crit_t3,
+                );
+
+                // Get projectile color based on crit tier
+                let projectile_color = get_projectile_color(stats.color.to_bevy_color(), crit_result.tier);
+
                 // Spawn projectile
                 let direction = (target_pos - creature_pos).normalize_or_zero();
 
                 commands.spawn((
                     Projectile {
                         target: target_entity,
-                        damage: stats.base_damage,
+                        damage: crit_result.final_damage,
+                        crit_tier: crit_result.tier,
                         lifetime: Timer::from_seconds(PROJECTILE_LIFETIME, TimerMode::Once),
                     },
                     Velocity {
@@ -72,7 +153,7 @@ pub fn creature_attack_system(
                         y: direction.y * PROJECTILE_SPEED,
                     },
                     Sprite {
-                        color: stats.color.to_bevy_color(),
+                        color: projectile_color,
                         custom_size: Some(Vec2::new(PROJECTILE_SIZE, PROJECTILE_SIZE)),
                         ..default()
                     },
@@ -93,6 +174,7 @@ pub fn projectile_system(
     time: Res<Time>,
     mut projectile_query: Query<(Entity, &mut Projectile, &Transform)>,
     mut enemy_query: Query<(&Transform, &mut EnemyStats), With<Enemy>>,
+    mut screen_shake: ResMut<ScreenShake>,
 ) {
     for (projectile_entity, mut projectile, projectile_transform) in projectile_query.iter_mut() {
         // Tick lifetime
@@ -115,6 +197,44 @@ pub fn projectile_system(
                 // Deal damage
                 enemy_stats.current_hp -= projectile.damage;
 
+                // Spawn floating damage number
+                let damage_color = get_damage_number_color(projectile.crit_tier);
+                let damage_text = format_damage(projectile.damage);
+
+                // Scale font size based on crit tier
+                let font_size = match projectile.crit_tier {
+                    CritTier::None => 16.0,
+                    CritTier::Normal => 20.0,
+                    CritTier::Mega => 26.0,
+                    CritTier::Super => 34.0,
+                };
+
+                commands.spawn((
+                    DamageNumber::new(),
+                    Text2d::new(damage_text),
+                    TextFont {
+                        font_size,
+                        ..default()
+                    },
+                    TextColor(damage_color),
+                    Transform::from_translation(Vec3::new(
+                        enemy_pos.x,
+                        enemy_pos.y + 20.0, // Start slightly above enemy
+                        10.0, // Above everything
+                    )),
+                ));
+
+                // Trigger screen shake for Mega and Super crits
+                match projectile.crit_tier {
+                    CritTier::Mega => {
+                        screen_shake.trigger(4.0, 0.15);
+                    }
+                    CritTier::Super => {
+                        screen_shake.trigger(10.0, 0.25);
+                    }
+                    _ => {}
+                }
+
                 // Despawn projectile
                 commands.entity(projectile_entity).despawn();
             }
@@ -122,6 +242,69 @@ pub fn projectile_system(
             // Target no longer exists, despawn projectile
             commands.entity(projectile_entity).despawn();
         }
+    }
+}
+
+/// System that updates floating damage numbers (rise and fade)
+pub fn damage_number_system(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut DamageNumber, &mut Transform, &mut TextColor)>,
+) {
+    for (entity, mut damage_number, mut transform, mut text_color) in query.iter_mut() {
+        // Tick lifetime
+        damage_number.lifetime.tick(time.delta());
+
+        // Despawn if lifetime expired
+        if damage_number.lifetime.finished() {
+            commands.entity(entity).despawn();
+            continue;
+        }
+
+        // Rise upward
+        transform.translation.y += DAMAGE_NUMBER_RISE_SPEED * time.delta_secs();
+
+        // Fade out based on remaining lifetime
+        let progress = damage_number.lifetime.fraction();
+        let alpha = 1.0 - progress; // Fade from 1.0 to 0.0
+
+        // Update text color alpha
+        let current_color = text_color.0;
+        text_color.0 = current_color.with_alpha(alpha);
+    }
+}
+
+/// System that applies screen shake to the camera
+pub fn screen_shake_system(
+    time: Res<Time>,
+    mut screen_shake: ResMut<ScreenShake>,
+    mut camera_query: Query<&mut Transform, With<Camera2d>>,
+) {
+    if screen_shake.intensity <= 0.0 {
+        return;
+    }
+
+    // Tick the shake timer
+    screen_shake.duration.tick(time.delta());
+
+    if screen_shake.duration.finished() {
+        screen_shake.intensity = 0.0;
+        return;
+    }
+
+    // Calculate remaining shake intensity based on time left
+    let remaining = 1.0 - screen_shake.duration.fraction();
+    let current_intensity = screen_shake.intensity * remaining;
+
+    // Apply random offset to camera
+    for mut transform in camera_query.iter_mut() {
+        let offset_x = (rand::random::<f32>() - 0.5) * 2.0 * current_intensity;
+        let offset_y = (rand::random::<f32>() - 0.5) * 2.0 * current_intensity;
+
+        // Note: This is additive shake. The camera_follow_system will reset the position
+        // We need to apply the shake on top of the follow position
+        transform.translation.x += offset_x;
+        transform.translation.y += offset_y;
     }
 }
 
