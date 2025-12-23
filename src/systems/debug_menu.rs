@@ -135,6 +135,10 @@ pub enum SliderSettingId {
     CritT1,
     CritT2,
     CritT3,
+    ProjectileCount,
+    ProjectileSize,
+    ProjectileSpeed,
+    AttackSpeed,
     WaveOverride,
     LevelOverride,
 }
@@ -151,6 +155,10 @@ impl SliderSettingId {
             Self::CritT1 => "Crit T1 Bonus",
             Self::CritT2 => "Crit T2 Bonus",
             Self::CritT3 => "Crit T3 Bonus",
+            Self::ProjectileCount => "Projectile Count",
+            Self::ProjectileSize => "Projectile Size",
+            Self::ProjectileSpeed => "Projectile Speed",
+            Self::AttackSpeed => "Attack Speed",
             Self::WaveOverride => "Wave Override",
             Self::LevelOverride => "Level Override",
         }
@@ -158,9 +166,11 @@ impl SliderSettingId {
 
     fn range(&self) -> SliderRange {
         match self {
-            Self::PlayerSpeed | Self::CreatureSpeed | Self::EnemySpeed | Self::SpawnRate => SliderRange::SPEED,
+            Self::PlayerSpeed | Self::CreatureSpeed | Self::EnemySpeed | Self::SpawnRate | Self::AttackSpeed => SliderRange::SPEED,
             Self::CreatureDamage | Self::EnemyDamage => SliderRange::DAMAGE,
             Self::CritT1 | Self::CritT2 | Self::CritT3 => SliderRange::CRIT,
+            Self::ProjectileCount => SliderRange::PROJECTILE_COUNT,
+            Self::ProjectileSize | Self::ProjectileSpeed => SliderRange::PROJECTILE_SIZE,
             Self::WaveOverride | Self::LevelOverride => SliderRange::WAVE_LEVEL,
         }
     }
@@ -238,6 +248,13 @@ pub fn spawn_debug_menu_system(mut commands: Commands) {
         spawn_slider(parent, SliderSettingId::CritT1);
         spawn_slider(parent, SliderSettingId::CritT2);
         spawn_slider(parent, SliderSettingId::CritT3);
+
+        // Projectile section
+        spawn_section_header(parent, "Projectiles");
+        spawn_slider(parent, SliderSettingId::ProjectileCount);
+        spawn_slider(parent, SliderSettingId::ProjectileSize);
+        spawn_slider(parent, SliderSettingId::ProjectileSpeed);
+        spawn_slider(parent, SliderSettingId::AttackSpeed);
 
         // Override section
         spawn_section_header(parent, "Overrides");
@@ -696,6 +713,13 @@ pub fn slider_value_text_system(
             SliderSettingId::CritT1 | SliderSettingId::CritT2 | SliderSettingId::CritT3 => {
                 format!("{:.0}%", value)
             }
+            SliderSettingId::ProjectileCount => {
+                if value >= 0.0 {
+                    format!("+{:.0}", value)
+                } else {
+                    format!("{:.0}", value)
+                }
+            }
             _ => format!("{:.1}x", value),
         };
 
@@ -846,6 +870,10 @@ fn get_slider_value(settings: &DebugSettings, id: SliderSettingId) -> f32 {
         SliderSettingId::CritT1 => settings.crit_t1_bonus,
         SliderSettingId::CritT2 => settings.crit_t2_bonus,
         SliderSettingId::CritT3 => settings.crit_t3_bonus,
+        SliderSettingId::ProjectileCount => settings.projectile_count_bonus as f32,
+        SliderSettingId::ProjectileSize => settings.projectile_size_multiplier,
+        SliderSettingId::ProjectileSpeed => settings.projectile_speed_multiplier,
+        SliderSettingId::AttackSpeed => settings.attack_speed_multiplier,
         SliderSettingId::WaveOverride => settings.current_wave_override.map(|v| v as f32).unwrap_or(0.0),
         SliderSettingId::LevelOverride => settings.current_level_override.map(|v| v as f32).unwrap_or(0.0),
     }
@@ -862,6 +890,10 @@ fn set_slider_value(settings: &mut DebugSettings, id: SliderSettingId, value: f3
         SliderSettingId::CritT1 => settings.crit_t1_bonus = value,
         SliderSettingId::CritT2 => settings.crit_t2_bonus = value,
         SliderSettingId::CritT3 => settings.crit_t3_bonus = value,
+        SliderSettingId::ProjectileCount => settings.projectile_count_bonus = value as i32,
+        SliderSettingId::ProjectileSize => settings.projectile_size_multiplier = value,
+        SliderSettingId::ProjectileSpeed => settings.projectile_speed_multiplier = value,
+        SliderSettingId::AttackSpeed => settings.attack_speed_multiplier = value,
         SliderSettingId::WaveOverride => {
             settings.current_wave_override = if value < 1.0 { None } else { Some(value as u32) };
         }

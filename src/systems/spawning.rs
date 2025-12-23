@@ -3,7 +3,7 @@ use rand::Rng;
 
 use crate::components::{
     AttackRange, AttackTimer, Creature, CreatureColor, CreatureStats, CreatureType, Enemy,
-    EnemyAttackTimer, EnemyClass, EnemyStats, EnemyType, Player, Velocity, Weapon, WeaponAttackTimer,
+    EnemyAttackTimer, EnemyClass, EnemyStats, EnemyType, Player, ProjectileConfig, Velocity, Weapon, WeaponAttackTimer,
     WeaponData, WeaponStats,
 };
 use crate::resources::{AffinityState, ArtifactBuffs, DebugSettings, Director, GameData, GameState};
@@ -108,6 +108,14 @@ pub fn spawn_creature(
         CreatureType::Assassin => 60.0,
     };
 
+    // Create projectile config from TOML data
+    let projectile_config = ProjectileConfig::new(
+        creature_data.projectile_count,
+        creature_data.projectile_spread,
+        creature_data.projectile_size,
+        creature_data.projectile_speed,
+    );
+
     let entity = commands
         .spawn((
             Creature,
@@ -115,6 +123,7 @@ pub fn spawn_creature(
             Velocity::default(),
             AttackTimer::new(modified_attack_speed),
             AttackRange(attack_range),
+            projectile_config,
             Sprite {
                 color: color.to_bevy_color(),
                 custom_size: Some(Vec2::new(CREATURE_SIZE, CREATURE_SIZE)),

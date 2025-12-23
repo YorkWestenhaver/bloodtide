@@ -27,6 +27,10 @@ max_level = 10
 abilities = ["fireball"]
 respawn_time = 20.0
 description = "A small fire spirit that hurls fireballs at enemies."
+projectile_count = 1
+projectile_spread = 0.0
+projectile_size = 8.0
+projectile_speed = 500.0
 
 [[creatures]]
 id = "ember_hound"
@@ -50,6 +54,10 @@ max_level = 10
 abilities = ["pounce"]
 respawn_time = 15.0
 description = "A fast fire dog that roams freely, attacking anything it sees."
+projectile_count = 1
+projectile_spread = 0.0
+projectile_size = 6.0
+projectile_speed = 600.0
 
 [[creatures]]
 id = "fire_spirit"
@@ -73,6 +81,10 @@ max_level = 10
 abilities = ["fire_heal"]
 respawn_time = 25.0
 description = "Orbits the player, periodically healing fire creatures."
+projectile_count = 1
+projectile_spread = 0.0
+projectile_size = 6.0
+projectile_speed = 400.0
 
 # =============================================================================
 # TIER 2 CREATURES (Evolved)
@@ -100,6 +112,10 @@ max_level = 10
 abilities = ["fireball", "burn_dot"]
 respawn_time = 30.0
 description = "A larger fire demon with faster fireballs that leave enemies burning."
+projectile_count = 2
+projectile_spread = 0.3
+projectile_size = 10.0
+projectile_speed = 550.0
 
 [[creatures]]
 id = "hellhound"
@@ -123,6 +139,10 @@ max_level = 10
 abilities = ["pounce", "fire_trail"]
 respawn_time = 25.0
 description = "Larger and faster, leaves a trail of fire as it runs."
+projectile_count = 1
+projectile_spread = 0.0
+projectile_size = 8.0
+projectile_speed = 700.0
 
 [[creatures]]
 id = "inferno_knight"
@@ -146,6 +166,10 @@ max_level = 10
 abilities = ["shield_bash", "flame_armor"]
 respawn_time = 35.0
 description = "Armored fire warrior, serves as frontline tank."
+projectile_count = 1
+projectile_spread = 0.0
+projectile_size = 12.0
+projectile_speed = 400.0
 
 [[creatures]]
 id = "magma_elemental"
@@ -169,6 +193,10 @@ max_level = 10
 abilities = ["ground_fire", "magma_pool"]
 respawn_time = 40.0
 description = "Slow but leaves damaging ground fire wherever it walks."
+projectile_count = 1
+projectile_spread = 0.0
+projectile_size = 14.0
+projectile_speed = 350.0
 
 [[creatures]]
 id = "greater_fire_spirit"
@@ -192,6 +220,10 @@ max_level = 10
 abilities = ["fire_heal", "damage_aura"]
 respawn_time = 35.0
 description = "Stronger heals and provides a damage buff aura to nearby fire creatures."
+projectile_count = 2
+projectile_spread = 0.4
+projectile_size = 7.0
+projectile_speed = 450.0
 
 # =============================================================================
 # TIER 3 CREATURES (Advanced)
@@ -219,6 +251,10 @@ max_level = 10
 abilities = ["fireball_multishot", "burn_dot", "inferno_blast"]
 respawn_time = 45.0
 description = "Massive demon that fires multiple fireballs and causes AoE burn."
+projectile_count = 3
+projectile_spread = 0.5
+projectile_size = 12.0
+projectile_speed = 600.0
 
 [[creatures]]
 id = "hellhound_alpha"
@@ -242,6 +278,10 @@ max_level = 10
 abilities = ["pounce", "fire_trail", "pack_howl"]
 respawn_time = 40.0
 description = "Pack leader that buffs other hellhounds nearby with increased damage."
+projectile_count = 2
+projectile_spread = 0.2
+projectile_size = 10.0
+projectile_speed = 800.0
 
 [[creatures]]
 id = "inferno_warlord"
@@ -265,6 +305,10 @@ max_level = 10
 abilities = ["shield_bash", "flame_armor", "warlord_slam"]
 respawn_time = 50.0
 description = "Heavy armor, devastating AoE slam attack, extremely tanky."
+projectile_count = 1
+projectile_spread = 0.0
+projectile_size = 16.0
+projectile_speed = 450.0
 
 [[creatures]]
 id = "phoenix"
@@ -288,6 +332,10 @@ max_level = 10
 abilities = ["fireball", "death_explosion"]
 respawn_time = 15.0
 description = "On death, explodes for massive AoE damage and respawns faster than other creatures."
+projectile_count = 2
+projectile_spread = 0.3
+projectile_size = 10.0
+projectile_speed = 550.0
 
 # =============================================================================
 # TIER 4 CREATURES (Legendary)
@@ -315,6 +363,10 @@ max_level = 10
 abilities = ["titan_slam", "flame_armor", "meteor_strike"]
 respawn_time = 90.0
 description = "Massive, slow, absolutely devastating. One of the strongest creatures."
+projectile_count = 3
+projectile_spread = 0.4
+projectile_size = 20.0
+projectile_speed = 500.0
 
 [[creatures]]
 id = "eternal_phoenix"
@@ -338,3 +390,7 @@ max_level = 10
 abilities = ["fireball_multishot", "death_explosion_mega", "burn_aura"]
 respawn_time = 5.0
 description = "Near-instant respawn, massive death explosion, burns everything around it constantly."
+projectile_count = 5
+projectile_spread = 0.8
+projectile_size = 14.0
+projectile_speed = 650.0

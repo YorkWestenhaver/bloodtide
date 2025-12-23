@@ -29,6 +29,12 @@ pub struct DebugSettings {
     pub crit_t2_bonus: f32,
     pub crit_t3_bonus: f32,
 
+    // Projectile settings
+    pub projectile_count_bonus: i32,      // Added to base projectile count
+    pub projectile_size_multiplier: f32,  // Multiplied by base size
+    pub projectile_speed_multiplier: f32, // Multiplied by base speed
+    pub attack_speed_multiplier: f32,     // Multiplied by attack speed
+
     // Overrides (None = use normal, Some(X) = force to X)
     pub current_wave_override: Option<u32>,
     pub current_level_override: Option<u32>,
@@ -58,6 +64,10 @@ impl Default for DebugSettings {
             crit_t1_bonus: 0.0,
             crit_t2_bonus: 0.0,
             crit_t3_bonus: 0.0,
+            projectile_count_bonus: 0,
+            projectile_size_multiplier: 1.0,
+            projectile_speed_multiplier: 1.0,
+            attack_speed_multiplier: 1.0,
             current_wave_override: None,
             current_level_override: None,
             god_mode: false,
@@ -99,6 +109,10 @@ impl SliderRange {
     pub const DAMAGE: SliderRange = SliderRange { min: 0.1, max: 10.0, step: 0.1 };
     pub const CRIT: SliderRange = SliderRange { min: 0.0, max: 100.0, step: 1.0 };
     pub const WAVE_LEVEL: SliderRange = SliderRange { min: 1.0, max: 100.0, step: 1.0 };
+    pub const PROJECTILE_COUNT: SliderRange = SliderRange { min: -3.0, max: 10.0, step: 1.0 };
+    pub const PROJECTILE_SIZE: SliderRange = SliderRange { min: 0.25, max: 4.0, step: 0.25 };
+    pub const PROJECTILE_SPEED: SliderRange = SliderRange { min: 0.25, max: 3.0, step: 0.25 };
+    pub const ATTACK_SPEED: SliderRange = SliderRange { min: 0.1, max: 5.0, step: 0.1 };
 }
 
 #[cfg(test)]
@@ -117,6 +131,10 @@ mod tests {
         assert_eq!(settings.crit_t1_bonus, 0.0);
         assert_eq!(settings.crit_t2_bonus, 0.0);
         assert_eq!(settings.crit_t3_bonus, 0.0);
+        assert_eq!(settings.projectile_count_bonus, 0);
+        assert_eq!(settings.projectile_size_multiplier, 1.0);
+        assert_eq!(settings.projectile_speed_multiplier, 1.0);
+        assert_eq!(settings.attack_speed_multiplier, 1.0);
     }
 
     #[test]
@@ -178,5 +196,9 @@ mod tests {
         assert!(SliderRange::DAMAGE.min < SliderRange::DAMAGE.max);
         assert!(SliderRange::CRIT.min < SliderRange::CRIT.max);
         assert!(SliderRange::WAVE_LEVEL.min < SliderRange::WAVE_LEVEL.max);
+        assert!(SliderRange::PROJECTILE_COUNT.min < SliderRange::PROJECTILE_COUNT.max);
+        assert!(SliderRange::PROJECTILE_SIZE.min < SliderRange::PROJECTILE_SIZE.max);
+        assert!(SliderRange::PROJECTILE_SPEED.min < SliderRange::PROJECTILE_SPEED.max);
+        assert!(SliderRange::ATTACK_SPEED.min < SliderRange::ATTACK_SPEED.max);
     }
 }

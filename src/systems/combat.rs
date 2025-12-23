@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::components::{
     AttackRange, AttackTimer, Creature, CreatureStats, Enemy, EnemyAttackTimer, EnemyStats,
-    Player, Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
+    Player, ProjectileConfig, Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
 };
 use crate::math::{calculate_damage_with_crits, CritTier};
 use crate::resources::{get_affinity_bonuses, AffinityState, ArtifactBuffs, DebugSettings, GameData};
@@ -35,6 +35,10 @@ pub struct Projectile {
     pub lifetime: Timer,
     /// The creature entity that fired this projectile (for XP tracking)
     pub source_creature: Option<Entity>,
+    /// Size of this projectile in pixels
+    pub size: f32,
+    /// Speed of this projectile in pixels per second
+    pub speed: f32,
 }
 
 /// Screen shake resource
@@ -111,6 +115,7 @@ pub fn creature_attack_system(
         &CreatureStats,
         &mut AttackTimer,
         &AttackRange,
+        &ProjectileConfig,
         &Transform,
     )>,
     enemy_query: Query<(Entity, &Transform), With<Enemy>>,
@@ -120,9 +125,10 @@ pub fn creature_attack_system(
         return;
     }
 
-    for (creature_entity, stats, mut attack_timer, attack_range, creature_transform) in creature_query.iter_mut() {
-        // Tick the attack timer
-        attack_timer.timer.tick(time.delta());
+    for (creature_entity, stats, mut attack_timer, attack_range, projectile_config, creature_transform) in creature_query.iter_mut() {
+        // Tick the attack timer (apply attack speed multiplier by scaling delta time)
+        let scaled_delta = time.delta().mul_f32(debug_settings.attack_speed_multiplier);
+        attack_timer.timer.tick(scaled_delta);
 
         // Check if attack is ready
         if attack_timer.timer.just_finished() {
@@ -190,32 +196,60 @@ pub fn creature_attack_system(
                 // Get projectile color based on crit tier
                 let projectile_color = get_projectile_color(stats.color.to_bevy_color(), crit_result.tier);
 
-                // Spawn projectile
-                let direction = (target_pos - creature_pos).normalize_or_zero();
+                // Calculate direction toward target
+                let base_direction = (target_pos - creature_pos).normalize_or_zero();
 
-                commands.spawn((
-                    Projectile {
-                        target: target_entity,
-                        damage: crit_result.final_damage,
-                        crit_tier: crit_result.tier,
-                        lifetime: Timer::from_seconds(PROJECTILE_LIFETIME, TimerMode::Once),
-                        source_creature: Some(creature_entity),
-                    },
-                    Velocity {
-                        x: direction.x * PROJECTILE_SPEED,
-                        y: direction.y * PROJECTILE_SPEED,
-                    },
-                    Sprite {
-                        color: projectile_color,
-                        custom_size: Some(Vec2::new(PROJECTILE_SIZE, PROJECTILE_SIZE)),
-                        ..default()
-                    },
-                    Transform::from_translation(Vec3::new(
-                        creature_pos.x,
-                        creature_pos.y,
-                        0.6, // Above creatures
-                    )),
-                ));
+                // Apply debug settings modifiers to projectile config
+                let projectile_count = (projectile_config.count as i32 + debug_settings.projectile_count_bonus) as u32;
+                let projectile_count = projectile_count.max(1); // Ensure at least 1 projectile
+                let projectile_size = projectile_config.size * debug_settings.projectile_size_multiplier;
+                let projectile_speed = projectile_config.speed * debug_settings.projectile_speed_multiplier;
+
+                // Spawn multiple projectiles with spread
+                for i in 0..projectile_count {
+                    // Calculate spread angle for this projectile
+                    let spread_angle = if projectile_count > 1 {
+                        let half_spread = projectile_config.spread / 2.0;
+                        let t = i as f32 / (projectile_count - 1) as f32;
+                        -half_spread + t * projectile_config.spread
+                    } else {
+                        0.0
+                    };
+
+                    // Rotate the base direction by the spread angle
+                    let cos_angle = spread_angle.cos();
+                    let sin_angle = spread_angle.sin();
+                    let direction = Vec2::new(
+                        base_direction.x * cos_angle - base_direction.y * sin_angle,
+                        base_direction.x * sin_angle + base_direction.y * cos_angle,
+                    );
+
+                    commands.spawn((
+                        Projectile {
+                            target: target_entity,
+                            damage: crit_result.final_damage,
+                            crit_tier: crit_result.tier,
+                            lifetime: Timer::from_seconds(PROJECTILE_LIFETIME, TimerMode::Once),
+                            source_creature: Some(creature_entity),
+                            size: projectile_size,
+                            speed: projectile_speed,
+                        },
+                        Velocity {
+                            x: direction.x * projectile_speed,
+                            y: direction.y * projectile_speed,
+                        },
+                        Sprite {
+                            color: projectile_color,
+                            custom_size: Some(Vec2::new(projectile_size, projectile_size)),
+                            ..default()
+                        },
+                        Transform::from_translation(Vec3::new(
+                            creature_pos.x,
+                            creature_pos.y,
+                            0.6, // Above creatures
+                        )),
+                    ));
+                }
             }
         }
     }
@@ -505,6 +539,8 @@ pub fn weapon_attack_system(
                             crit_tier: CritTier::None, // Weapons don't crit (for now)
                             lifetime: Timer::from_seconds(PROJECTILE_LIFETIME, TimerMode::Once),
                             source_creature: None, // Weapon projectiles don't give creature XP
+                            size: WEAPON_PROJECTILE_SIZE,
+                            speed: projectile_speed,
                         },
                         Velocity {
                             x: rotated_dir.x * projectile_speed,

@@ -161,6 +161,37 @@ impl AttackTimer {
 #[derive(Component)]
 pub struct AttackRange(pub f32);
 
+/// Projectile configuration for creatures
+/// Controls projectile count, spread, size, and speed
+#[derive(Component, Clone, Debug)]
+pub struct ProjectileConfig {
+    /// Number of projectiles to fire per attack
+    pub count: u32,
+    /// Spread angle in radians (total arc for all projectiles)
+    pub spread: f32,
+    /// Projectile size in pixels
+    pub size: f32,
+    /// Projectile speed in pixels per second
+    pub speed: f32,
+}
+
+impl Default for ProjectileConfig {
+    fn default() -> Self {
+        Self {
+            count: 1,
+            spread: 0.0,
+            size: 8.0,
+            speed: 500.0,
+        }
+    }
+}
+
+impl ProjectileConfig {
+    pub fn new(count: u32, spread: f32, size: f32, speed: f32) -> Self {
+        Self { count, spread, size, speed }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -422,5 +453,37 @@ mod tests {
     fn attack_range_stores_value() {
         let range = AttackRange(150.0);
         assert_eq!(range.0, 150.0);
+    }
+
+    // =========================================================================
+    // ProjectileConfig Tests
+    // =========================================================================
+
+    #[test]
+    fn projectile_config_default_values() {
+        let config = ProjectileConfig::default();
+        assert_eq!(config.count, 1);
+        assert_eq!(config.spread, 0.0);
+        assert_eq!(config.size, 8.0);
+        assert_eq!(config.speed, 500.0);
+    }
+
+    #[test]
+    fn projectile_config_new_preserves_values() {
+        let config = ProjectileConfig::new(3, 0.5, 12.0, 600.0);
+        assert_eq!(config.count, 3);
+        assert_eq!(config.spread, 0.5);
+        assert_eq!(config.size, 12.0);
+        assert_eq!(config.speed, 600.0);
+    }
+
+    #[test]
+    fn projectile_config_clone_works() {
+        let config = ProjectileConfig::new(5, 1.0, 10.0, 400.0);
+        let cloned = config.clone();
+        assert_eq!(cloned.count, config.count);
+        assert_eq!(cloned.spread, config.spread);
+        assert_eq!(cloned.size, config.size);
+        assert_eq!(cloned.speed, config.speed);
     }
 }

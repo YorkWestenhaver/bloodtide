@@ -5,6 +5,7 @@
 ---
 
 ## Phase 1: Data Loading ✅
+
 - [x] Create `src/data/mod.rs` with all struct definitions matching TOML schemas
 - [x] Implement serde deserialization for Creature, Weapon, Artifact, Enemy, Affinity
 - [x] Create `src/resources/game_data.rs` to hold loaded data as Bevy Resources
@@ -12,6 +13,7 @@
 - [x] Test: Print count of loaded items to console ("Loaded 14 creatures, 13 weapons...")
 
 ## Phase 2: Basic Rendering ✅
+
 - [x] Set up Bevy app with DefaultPlugins in `main.rs`
 - [x] Create window (1920x1080)
 - [x] Spawn player entity (white square, 48x48)
@@ -20,6 +22,7 @@
 - [x] Test: Player can move around screen
 
 ## Phase 3: Creature Spawning ✅
+
 - [x] Create `src/components/creature.rs` with Creature, CreatureStats, CreatureColor, CreatureType
 - [x] Create `src/systems/spawning.rs` with spawn_creature function
 - [x] Spawn Fire Imp on spacebar press (for testing)
@@ -27,12 +30,14 @@
 - [x] Test: Press space, Fire Imp appears
 
 ## Phase 4: Creature AI ✅
+
 - [x] Create `src/systems/ai.rs`
 - [x] Creature follows player (stays in formation)
 - [x] Basic formation: creatures arrange in circle around player (100px radius)
 - [x] Test: Fire Imps follow player around
 
 ## Phase 5: Enemy Spawning ✅
+
 - [x] Create `src/components/enemy.rs` with Enemy, EnemyStats, EnemyClass, EnemyType
 - [x] Spawn goblins on timer (every 1.5 seconds)
 - [x] Goblins rendered as green squares (28x28)
@@ -40,12 +45,14 @@
 - [x] Test: Goblins spawn periodically
 
 ## Phase 6: Enemy AI ✅
+
 - [x] Goblins chase player (enemy_chase_system)
 - [x] Move directly toward player position
 - [x] Uses movement_speed from TOML data (80 px/sec for goblins)
 - [x] Test: Goblins move toward player
 
 ## Phase 7: Basic Combat ✅
+
 - [x] Create `src/systems/combat.rs`
 - [x] Add AttackTimer and AttackRange components to creatures
 - [x] Creatures auto-attack nearest enemy in range
@@ -55,12 +62,14 @@
 - [x] Test: Fire Imps shoot projectiles at nearby goblins
 
 ## Phase 8: Death System ✅
+
 - [x] Enemy death when HP <= 0
 - [x] Remove dead enemy entity
 - [x] Increment kill counter (global resource)
 - [x] Test: Kill goblins, see kill count increase
 
 ## Phase 9: Leveling ✅
+
 - [x] Track kills in GameState resource
 - [x] Level up at 25 kills (with scaling: 1.2x multiplier each level)
 - [x] Print "Level Up!" to console on level up
@@ -68,6 +77,7 @@
 - [x] Test: Kill 25 goblins, level up triggers
 
 ## Phase 10: Deck System ✅
+
 - [x] Create `src/resources/deck.rs` with DeckCard, CardType, PlayerDeck
 - [x] Implement probability-weighted card rolling (roll_card method)
 - [x] Initialize starter deck in main.rs (fire_imp, ember_hound, ember_staff, molten_core)
@@ -76,6 +86,7 @@
 - [x] Test: Level up, new creature spawns based on deck roll
 
 ## Phase 11: Creature Stats ✅
+
 - [x] Update CreatureStats to include all TOML stats (crit_t1, crit_t2, crit_t3)
 - [x] Update spawn_creature to populate ALL stats from GameData TOML
 - [x] Update creature_follow_system to use actual movement_speed from stats
@@ -83,6 +94,7 @@
 - [x] Test: Different creatures have different speeds and attack rates
 
 ## Phase 12: Enemy Variety ✅
+
 - [x] Add total_kills and kills_at_wave_start to GameState
 - [x] Wave progression: every 50 kills advances to next wave
 - [x] Enemy spawning based on wave:
@@ -95,6 +107,7 @@
 - [x] Test: Wave progression and enemy variety
 
 ## Phase 13: Basic UI ✅
+
 - [x] Create `src/systems/ui.rs` with HudText marker component
 - [x] spawn_ui_system: Spawns HUD in top-left with dark background
 - [x] update_ui_system: Updates text with "Level: X | Kills: Y | Wave: Z"
@@ -102,6 +115,7 @@
 - [x] Test: HUD displays and updates in real-time
 
 ## Phase 14: Creature Polish ✅
+
 - [x] Updated creature colors (more vivid: red=fire, blue=ice, green=nature, white=holy, black=dark purple, colorless=gray)
 - [x] Added max_hp to CreatureStats (initialized to base_hp)
 - [x] Created enemy_attack_system: enemies deal damage to nearby creatures
@@ -118,6 +132,7 @@
 ---
 
 ## Phase 15: Crit System ✅
+
 - [x] Create src/math/mod.rs and src/math/crit.rs
 - [x] CritTier enum: None, Normal, Mega, Super
 - [x] CritResult struct: tier, final_damage, base_damage
@@ -143,6 +158,7 @@
 - [x] Test: Fire Imps occasionally show yellow projectiles and damage numbers
 
 ## Phase 16: Artifacts Working ✅
+
 - [x] Create src/resources/artifact_buffs.rs:
   - ArtifactBuffs resource to track all active artifact effects
   - StatBonuses struct with damage_bonus, attack_speed_bonus, hp_bonus, crit bonuses
@@ -158,16 +174,17 @@
 - [x] Update level_check_system:
   - When artifact card rolled, calls artifact_buffs.apply_artifact()
 - [x] Update creature_attack_system:
-  - Apply damage bonus: base_damage * (1 + total_damage_bonus / 100)
+  - Apply damage bonus: base_damage \* (1 + total_damage_bonus / 100)
   - Apply crit bonuses to crit chances before rolling
 - [x] Update spawn_creature:
-  - Apply HP bonus when creature spawns: base_hp * (1 + total_hp_bonus / 100)
+  - Apply HP bonus when creature spawns: base_hp \* (1 + total_hp_bonus / 100)
   - Apply attack speed bonus to AttackTimer
 - [x] Handle target_scope filtering (global, color, type, creature-specific)
 - [x] Register ArtifactBuffs resource in main.rs
 - [x] Test: 119 tests passing, build succeeds
 
 ## Phase 17: Weapons + Affinity ✅
+
 - [x] Create src/components/weapon.rs:
   - Weapon marker component
   - WeaponData: id, name, color, tier, affinity_amount
@@ -202,6 +219,7 @@
 - [x] Test: 130 tests passing, build succeeds
 
 ## Phase 18: Creature XP + Evolution ✅
+
 - [x] Update CreatureStats with new fields:
   - kills_for_next_level: u32 (from kills_per_level array index)
   - max_level: u32 (from TOML)
@@ -231,6 +249,7 @@
 - [x] Test: 133 tests passing, build succeeds
 
 ## Phase 19: Better UI ✅
+
 - [x] Creature Panel (right side of screen):
   - Created CreaturePanel and CreaturePanelContent marker components
   - spawn_creature_panel_system: positions panel absolute right, top
@@ -275,6 +294,7 @@
 - [x] Test: 136 tests passing, build succeeds
 
 ## Phase 20: Director AI ✅
+
 - [x] Created src/resources/director.rs:
   - Director resource tracking: player_dps, creature_count, total_creature_hp_percent, stress_level, enemies_alive
   - spawn_rate_modifier, damage_dealt_window, current_fps, low_fps_duration, performance_throttle
@@ -303,7 +323,7 @@
   - Wave 16-20: 15% elites
   - Wave 21+: 20% elites
   - Elites: 3x HP, 1.5x damage, slightly larger, brighter color
-- [x] Enemy HP scaling: 1.0 + (wave - 1) * 0.08
+- [x] Enemy HP scaling: 1.0 + (wave - 1) \* 0.08
 - [x] Performance safeguards:
   - FPS tracking per frame
   - FPS < 30 for 3+ seconds: reduce spawn rate by 25%
@@ -315,6 +335,7 @@
 - [x] Test: 142 tests passing, build succeeds
 
 ## Phase 20B: Debug Settings Menu ✅
+
 - [x] Created src/resources/debug_settings.rs:
   - DebugSettings resource with all tunable values
   - Speed multipliers: player, creature, enemy (range 0.1 to 5.0)
@@ -343,12 +364,12 @@
   - "Quit" button (closes application)
   - Game is PAUSED while pause menu is open
 - [x] Applied debug settings to gameplay:
-  - Player movement: speed * player_speed_multiplier
-  - Creature movement: speed * creature_speed_multiplier
-  - Creature damage: damage * creature_damage_multiplier + crit bonuses
-  - Enemy damage: damage * enemy_damage_multiplier
-  - Enemy movement: speed * enemy_speed_multiplier
-  - Spawn system: spawn_rate * enemy_spawn_rate_multiplier (both interval and count)
+  - Player movement: speed \* player_speed_multiplier
+  - Creature movement: speed \* creature_speed_multiplier
+  - Creature damage: damage \* creature_damage_multiplier + crit bonuses
+  - Enemy damage: damage \* enemy_damage_multiplier
+  - Enemy movement: speed \* enemy_speed_multiplier
+  - Spawn system: spawn_rate \* enemy_spawn_rate_multiplier (both interval and count)
   - Crit calculation: add crit_tX_bonus to creature's base crit chances
   - Wave/level overrides force GameState values when set
   - God mode heals creatures to max HP instead of dying
@@ -361,7 +382,43 @@
 - [x] All menu systems registered in main.rs with proper ordering
 - [x] Test: 155 tests passing, build succeeds
 
-## Phase 21: Bosses ⬅️ CURRENT
+## Phase 21A: Projectile Stats Foundation ✅
+
+- [x] Added ProjectileConfig component to creatures:
+  - count: u32 (number of projectiles per attack)
+  - spread: f32 (total spread angle in radians)
+  - size: f32 (projectile size in pixels)
+  - speed: f32 (projectile speed in pixels/sec)
+- [x] Updated Creature data struct in data/mod.rs:
+  - Added projectile_count, projectile_spread, projectile_size, projectile_speed fields
+  - Serde defaults: count=1, spread=0.0, size=8.0, speed=500.0
+- [x] Updated creatures.toml with projectile config for all creatures:
+  - Tier 1: single projectile, base stats
+  - Tier 2: some get 2 projectiles with spread (e.g., flame_fiend)
+  - Tier 3: 2-3 projectiles, larger spread (e.g., inferno_demon gets 3)
+  - Tier 4: 3-5 projectiles (e.g., eternal_phoenix gets 5 with 0.8 spread)
+- [x] Updated spawn_creature to add ProjectileConfig component from TOML data
+- [x] Updated Projectile component with size and speed fields
+- [x] Updated creature_attack_system for multi-shot spread:
+  - Spawns multiple projectiles based on count
+  - Spreads projectiles evenly across spread angle
+  - Each projectile uses custom size/speed from config
+- [x] Added projectile debug settings to DebugSettings:
+  - projectile_count_bonus: i32 (added to base count, can be negative)
+  - projectile_size_multiplier: f32 (multiplied by base size)
+  - projectile_speed_multiplier: f32 (multiplied by base speed)
+  - attack_speed_multiplier: f32 (scales attack timer tick rate)
+- [x] Updated debug menu UI with projectile sliders:
+  - New "Projectiles" section with count/size/speed/attack speed
+  - Proper formatting: count shows +/- bonus, others show multiplier
+- [x] Test: 158 tests passing, build succeeds
+
+## Phase 21: Changes to Combat System
+
+- [ ] TBD
+
+## Phase 22: Bosses ⬅️ CURRENT
+
 - [ ] Create src/components/boss.rs:
   - Boss marker component
   - BossData: id, phases, current_phase, phase_hp_thresholds
@@ -387,7 +444,8 @@
 - [ ] First boss: Troll Chief (Wave 10)
 - [ ] Test: Reach wave 10, fight boss, phases change, boss drops loot
 
-## Phase 22: Formation by Type
+## Phase 23: Formation by Type
+
 - [ ] Update creature AI based on CreatureType:
   - Melee: Position in front of player (toward nearest enemy)
   - Ranged: Position behind player (away from enemies)
@@ -400,7 +458,8 @@
   - Shorter attack range but higher damage
 - [ ] Test: Mixed army positions correctly, melee in front
 
-## Phase 23: Player Health + Game Over
+## Phase 24: Player Health + Game Over
+
 - [ ] Add player HP:
   - Player has health (starts at 100)
   - Enemies that reach player deal damage
@@ -415,7 +474,8 @@
   - Option to restart
 - [ ] Test: Enemies can kill player if all creatures dead
 
-## Phase 24: Polish + Balance
+## Phase 25: Polish + Balance
+
 - [ ] Remove spacebar test spawning (creatures only from deck)
 - [ ] Balance pass:
   - Creature stats vs enemy stats
@@ -439,6 +499,7 @@
 ---
 
 ## Future Features (Post-MVP)
+
 - [ ] Siege Castle map with zones
 - [ ] Zone objectives
 - [ ] Optional dungeon areas
@@ -453,6 +514,7 @@
 ---
 
 ## Unit Tests ✅
+
 - [x] Data loading tests (creatures, weapons, artifacts, enemies, affinity)
 - [x] Deck probability tests (weighted distribution)
 - [x] Leveling tests (threshold, overflow)
@@ -462,13 +524,16 @@
 ---
 
 ## Notes
+
 - Use placeholder art (colored shapes) for everything
 - Test each phase before moving to next
 - Commit after each completed phase
 - Keep spacebar spawning until Phase 24 for testing
 
 ## Current Blockers
+
 (None)
 
 ## Last Updated
-Phase 20B completed - Debug Settings Menu with slide-out debug panel (Shift key), pause menu (Escape key), and tunable parameters for speed/damage/crit/spawn rates with god mode and wave/level overrides
+
+Phase 21A completed - Projectile Stats Foundation with ProjectileConfig component (count, spread, size, speed), multi-shot spread attacks, debug menu projectile sliders, and attack speed multiplier
