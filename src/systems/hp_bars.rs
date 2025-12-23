@@ -69,8 +69,14 @@ pub fn spawn_hp_bars_system(
 pub fn update_hp_bars_system(
     mut commands: Commands,
     creature_query: Query<(Entity, &Transform, &CreatureStats), With<Creature>>,
-    mut bg_query: Query<(Entity, &HpBarBackground, &mut Transform), Without<HpBarForeground>>,
-    mut fg_query: Query<(Entity, &HpBarForeground, &mut Transform, &mut Sprite), Without<HpBarBackground>>,
+    mut bg_query: Query<
+        (Entity, &HpBarBackground, &mut Transform),
+        (Without<HpBarForeground>, Without<Creature>),
+    >,
+    mut fg_query: Query<
+        (Entity, &HpBarForeground, &mut Transform, &mut Sprite),
+        (Without<HpBarBackground>, Without<Creature>),
+    >,
 ) {
     // Update background bars
     for (bar_entity, hp_bar, mut bar_transform) in bg_query.iter_mut() {

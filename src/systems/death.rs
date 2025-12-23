@@ -86,7 +86,7 @@ pub struct RespawnQueue {
 }
 
 /// Get respawn time based on creature tier
-fn get_respawn_time(tier: u8) -> f32 {
+pub fn get_respawn_time(tier: u8) -> f32 {
     match tier {
         1 => 20.0,
         2 => 30.0,
@@ -142,5 +142,74 @@ pub fn creature_death_system(
             // Despawn the creature
             commands.entity(entity).despawn_recursive();
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // =========================================================================
+    // Respawn Time Tests
+    // =========================================================================
+
+    #[test]
+    fn tier_1_creatures_respawn_in_20_seconds() {
+        assert_eq!(get_respawn_time(1), 20.0);
+    }
+
+    #[test]
+    fn tier_2_creatures_respawn_in_30_seconds() {
+        assert_eq!(get_respawn_time(2), 30.0);
+    }
+
+    #[test]
+    fn tier_3_creatures_respawn_in_45_seconds() {
+        assert_eq!(get_respawn_time(3), 45.0);
+    }
+
+    #[test]
+    fn tier_4_creatures_respawn_in_60_seconds() {
+        assert_eq!(get_respawn_time(4), 60.0);
+    }
+
+    #[test]
+    fn tier_5_creatures_respawn_in_60_seconds() {
+        assert_eq!(get_respawn_time(5), 60.0);
+    }
+
+    #[test]
+    fn tier_0_creatures_respawn_in_60_seconds() {
+        // Edge case: tier 0 should fall through to default
+        assert_eq!(get_respawn_time(0), 60.0);
+    }
+
+    #[test]
+    fn very_high_tier_creatures_respawn_in_60_seconds() {
+        assert_eq!(get_respawn_time(100), 60.0);
+        assert_eq!(get_respawn_time(255), 60.0);
+    }
+
+    // =========================================================================
+    // RespawnQueue Tests
+    // =========================================================================
+
+    #[test]
+    fn respawn_queue_default_is_empty() {
+        let queue = RespawnQueue::default();
+        assert!(queue.entries.is_empty());
+    }
+
+    #[test]
+    fn respawn_entry_stores_creature_data() {
+        let entry = RespawnEntry {
+            creature_id: "fire_imp".to_string(),
+            tier: 1,
+            timer: Timer::from_seconds(20.0, TimerMode::Once),
+            position: Vec3::new(100.0, 200.0, 0.5),
+        };
+        assert_eq!(entry.creature_id, "fire_imp");
+        assert_eq!(entry.tier, 1);
+        assert_eq!(entry.position, Vec3::new(100.0, 200.0, 0.5));
     }
 }
