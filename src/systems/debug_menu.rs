@@ -116,6 +116,10 @@ pub struct RestartButton;
 #[derive(Component)]
 pub struct QuitButton;
 
+/// Pause menu main menu button (return to deck builder)
+#[derive(Component)]
+pub struct MainMenuButton;
+
 /// Toggle mode checkbox in pause menu
 #[derive(Component)]
 pub struct ToggleModeCheckbox;
@@ -458,6 +462,9 @@ pub fn spawn_pause_menu_system(mut commands: Commands) {
 
         // Restart button
         spawn_pause_button(parent, RestartButton, "Restart Run");
+
+        // Main menu button
+        spawn_pause_button(parent, MainMenuButton, "Main Menu");
 
         // Quit button
         spawn_pause_button(parent, QuitButton, "Quit Game");
@@ -930,7 +937,9 @@ pub fn checkbox_indicator_system(
 ) {
     for (indicator, mut visibility) in indicator_query.iter_mut() {
         let is_checked = get_checkbox_value(&debug_settings, indicator.setting_id);
-        *visibility = if is_checked { Visibility::Visible } else { Visibility::Hidden };
+        // Use Inherited when checked so parent visibility is respected
+        // Use Hidden when unchecked to explicitly hide regardless of parent
+        *visibility = if is_checked { Visibility::Inherited } else { Visibility::Hidden };
     }
 }
 
@@ -1059,6 +1068,70 @@ pub fn quit_button_system(
         match *interaction {
             Interaction::Pressed => {
                 app_exit.send(AppExit::Success);
+            }
+            Interaction::Hovered => {
+                *bg = BackgroundColor(BUTTON_HOVER);
+            }
+            Interaction::None => {
+                *bg = BackgroundColor(BUTTON_BG);
+            }
+        }
+    }
+}
+
+/// Handle pause menu main menu button (return to deck builder)
+pub fn main_menu_button_system(
+    mut commands: Commands,
+    mut debug_settings: ResMut<DebugSettings>,
+    mut game_phase: ResMut<crate::resources::GamePhase>,
+    mut game_state: ResMut<GameState>,
+    mut affinity_state: ResMut<crate::resources::AffinityState>,
+    mut artifact_buffs: ResMut<crate::resources::ArtifactBuffs>,
+    mut respawn_queue: ResMut<crate::systems::death::RespawnQueue>,
+    mut button_query: Query<(&Interaction, &mut BackgroundColor), (With<MainMenuButton>, Changed<Interaction>)>,
+    // Query all game entities to despawn
+    creature_query: Query<Entity, With<crate::components::Creature>>,
+    enemy_query: Query<Entity, With<crate::components::Enemy>>,
+    projectile_query: Query<Entity, With<crate::systems::combat::Projectile>>,
+    weapon_query: Query<Entity, With<crate::components::Weapon>>,
+) {
+    for (interaction, mut bg) in button_query.iter_mut() {
+        match *interaction {
+            Interaction::Pressed => {
+                // Despawn all game entities
+                for entity in creature_query.iter() {
+                    commands.entity(entity).despawn_recursive();
+                }
+                for entity in enemy_query.iter() {
+                    commands.entity(entity).despawn_recursive();
+                }
+                for entity in projectile_query.iter() {
+                    commands.entity(entity).despawn_recursive();
+                }
+                for entity in weapon_query.iter() {
+                    commands.entity(entity).despawn_recursive();
+                }
+
+                // Reset game state
+                *game_state = GameState::default();
+
+                // Reset affinity state
+                *affinity_state = crate::resources::AffinityState::default();
+
+                // Reset artifact buffs
+                *artifact_buffs = crate::resources::ArtifactBuffs::default();
+
+                // Clear respawn queue
+                respawn_queue.entries.clear();
+
+                // Close menu and reset debug settings
+                debug_settings.menu_state = MenuState::Closed;
+                debug_settings.reset_to_defaults();
+
+                // Return to deck builder phase
+                *game_phase = crate::resources::GamePhase::DeckBuilder;
+
+                println!("Returned to main menu!");
             }
             Interaction::Hovered => {
                 *bg = BackgroundColor(BUTTON_HOVER);

@@ -381,9 +381,14 @@ pub fn spawn_test_creature_system(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     game_data: Res<GameData>,
     artifact_buffs: Res<ArtifactBuffs>,
+    game_phase: Res<crate::resources::GamePhase>,
     player_query: Query<&Transform, With<Player>>,
     creature_query: Query<&Creature>,
 ) {
+    // Only allow spawning during gameplay
+    if *game_phase != crate::resources::GamePhase::Playing {
+        return;
+    }
     if keyboard_input.just_pressed(KeyCode::Space) {
         if let Ok(player_transform) = player_query.get_single() {
             // Count existing creatures for offset calculation
@@ -453,12 +458,13 @@ pub fn enemy_spawn_system(
     mut game_state: ResMut<GameState>,
     mut director: ResMut<Director>,
     debug_settings: Res<DebugSettings>,
+    game_phase: Res<crate::resources::GamePhase>,
     game_data: Res<GameData>,
     player_query: Query<&Transform, With<Player>>,
     enemy_query: Query<&Enemy>,
 ) {
-    // Don't spawn if game is paused
-    if debug_settings.is_paused() {
+    // Don't spawn if game is paused or not in playing phase
+    if debug_settings.is_paused() || *game_phase != crate::resources::GamePhase::Playing {
         return;
     }
 
@@ -602,9 +608,14 @@ pub fn enemy_cleanup_system(
 pub fn director_update_system(
     time: Res<Time>,
     mut director: ResMut<Director>,
+    game_phase: Res<crate::resources::GamePhase>,
     creature_query: Query<&CreatureStats, With<Creature>>,
     enemy_query: Query<&Enemy>,
 ) {
+    // Don't update director when not playing
+    if *game_phase != crate::resources::GamePhase::Playing {
+        return;
+    }
     // Update creature count and HP
     let mut total_hp = 0.0;
     let mut total_max_hp = 0.0;

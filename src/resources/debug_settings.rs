@@ -1,6 +1,14 @@
 use bevy::input::keyboard::KeyCode;
 use bevy::prelude::*;
 
+/// Phase of the game (deck builder vs playing)
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Resource)]
+pub enum GamePhase {
+    #[default]
+    DeckBuilder,
+    Playing,
+}
+
 /// State of the debug/pause menus
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 pub enum MenuState {

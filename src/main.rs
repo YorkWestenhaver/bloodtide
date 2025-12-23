@@ -7,7 +7,7 @@ mod resources;
 mod systems;
 
 use components::{Player, Velocity};
-use resources::{load_game_data, AffinityState, ArtifactBuffs, DebugSettings, DeckCard, Director, GameData, GameState, PlayerDeck, SpatialGrid, ProjectilePool, DamageNumberPool};
+use resources::{load_game_data, AffinityState, ArtifactBuffs, DebugSettings, Director, GameData, GameState, GamePhase, PlayerDeck, DeckBuilderState, SpatialGrid, ProjectilePool, DamageNumberPool};
 use systems::{
     apply_velocity_system, camera_follow_system, creature_attack_system, creature_death_system,
     creature_evolution_system, creature_follow_system, creature_level_up_effect_system,
@@ -38,6 +38,7 @@ use systems::{
     slider_interaction_system, slider_fill_update_system, slider_value_text_system,
     checkbox_interaction_system, checkbox_indicator_system, toggle_mode_checkbox_system,
     reset_button_system, resume_button_system, restart_button_system, quit_button_system,
+    main_menu_button_system,
     evolution_keybind_capture_system, evolution_keybind_text_system,
     // Leveling systems (Phase 21E)
     card_roll_queue_system, screen_flash_system, level_up_text_system, level_up_particle_system,
@@ -46,6 +47,11 @@ use systems::{
     update_spatial_grid_system,
     // Pooling system
     init_pools_system,
+    // Deck builder systems
+    spawn_deck_builder_system, deck_builder_visibility_system, deck_builder_update_cards_system,
+    deck_builder_available_cards_system, deck_builder_tab_system, deck_builder_button_system,
+    deck_builder_add_card_system, deck_builder_start_run_system, deck_builder_clear_deck_system,
+    deck_builder_footer_system,
 };
 
 fn main() {
@@ -68,19 +74,6 @@ fn main() {
         game_data.affinity_colors.len()
     );
 
-    // Create starter deck
-    let starter_deck = PlayerDeck::new(vec![
-        DeckCard::creature("fire_imp", 25.0),
-        DeckCard::creature("ember_hound", 15.0),
-        DeckCard::weapon("ember_staff", 15.0),
-        DeckCard::artifact("molten_core", 10.0),
-    ]);
-    println!(
-        "Starter deck: {} cards, total weight: {}",
-        starter_deck.cards.len(),
-        starter_deck.total_weight
-    );
-
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
@@ -91,7 +84,9 @@ fn main() {
             ..default()
         }))
         .insert_resource(game_data)
-        .insert_resource(starter_deck)
+        .init_resource::<PlayerDeck>()  // Empty deck, will be populated from DeckBuilder
+        .init_resource::<DeckBuilderState>()  // Deck builder with default starter cards
+        .init_resource::<GamePhase>()  // Starts in DeckBuilder phase
         .init_resource::<EnemySpawnTimer>()
         .init_resource::<GameState>()
         .init_resource::<RespawnQueue>()
@@ -117,6 +112,7 @@ fn main() {
             spawn_affinity_display_system,
             spawn_debug_menu_system,
             spawn_pause_menu_system,
+            spawn_deck_builder_system,
             init_pools_system,
         ))
         // Director update (runs early)
@@ -207,9 +203,22 @@ fn main() {
             resume_button_system,
             restart_button_system,
             quit_button_system,
+            main_menu_button_system,
             evolution_keybind_capture_system,
             evolution_keybind_text_system,
         ).after(debug_menu_input_system))
+        // Deck builder systems (run early, before director)
+        .add_systems(Update, (
+            deck_builder_visibility_system,
+            deck_builder_tab_system,
+            deck_builder_button_system,
+            deck_builder_add_card_system,
+            deck_builder_start_run_system,
+            deck_builder_clear_deck_system,
+            deck_builder_update_cards_system,
+            deck_builder_available_cards_system,
+            deck_builder_footer_system,
+        ).chain().before(director_update_system))
         // Tooltip systems (run after UI updates)
         .add_systems(Update, (
             tooltip_hover_system,
