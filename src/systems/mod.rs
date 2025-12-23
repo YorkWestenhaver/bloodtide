@@ -7,6 +7,7 @@ pub mod hp_bars;
 pub mod leveling;
 pub mod movement;
 pub mod spawning;
+pub mod tooltips;
 pub mod ui;
 pub mod ui_panels;
 
@@ -19,5 +20,6 @@ pub use hp_bars::*;
 pub use leveling::*;
 pub use movement::*;
 pub use spawning::*;
+pub use tooltips::*;
 pub use ui::*;
 pub use ui_panels::*;

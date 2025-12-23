@@ -45,6 +45,12 @@ pub struct DebugSettings {
     pub show_fps: bool,      // Display FPS in corner
     pub show_enemy_count: bool, // Display enemy count in HUD
 
+    // Display options
+    pub show_advanced_tooltips: bool,      // Show detailed tooltips on hover
+    pub show_expanded_creature_stats: bool, // Show expanded stats without hovering
+    pub show_expanded_affinity_stats: bool, // Show expanded affinity info
+    pub tooltip_delay_ms: u32,             // Time before tooltip appears (milliseconds)
+
     // Menu state
     pub menu_state: MenuState,
     pub menu_toggle_mode: bool, // true = toggle on press, false = hold to open
@@ -75,6 +81,10 @@ impl Default for DebugSettings {
             god_mode: false,
             show_fps: true,
             show_enemy_count: true,
+            show_advanced_tooltips: false,
+            show_expanded_creature_stats: false,
+            show_expanded_affinity_stats: false,
+            tooltip_delay_ms: 300,
             menu_state: MenuState::Closed,
             menu_toggle_mode: true,
             menu_slide_progress: 0.0,

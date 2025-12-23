@@ -28,6 +28,9 @@ use systems::{
     show_card_roll_popup_system, card_roll_popup_update_system,
     show_wave_announcement_system, wave_announcement_update_system,
     CardRollState, WaveAnnouncementState, DamageNumberOffsets,
+    // Tooltip systems
+    tooltip_hover_system, tooltip_spawn_system, tooltip_position_system,
+    tooltip_settings_change_system, TooltipState,
     // Debug menu systems
     spawn_debug_menu_system, spawn_pause_menu_system,
     debug_menu_input_system, debug_menu_animation_system, pause_menu_visibility_system,
@@ -92,6 +95,7 @@ fn main() {
         .init_resource::<EvolutionReadyState>()
         .init_resource::<Director>()
         .init_resource::<DebugSettings>()
+        .init_resource::<TooltipState>()
         .add_systems(Startup, (
             setup,
             spawn_ui_system,
@@ -181,6 +185,13 @@ fn main() {
             restart_button_system,
             quit_button_system,
         ).after(debug_menu_input_system))
+        // Tooltip systems (run after UI updates)
+        .add_systems(Update, (
+            tooltip_hover_system,
+            tooltip_spawn_system,
+            tooltip_position_system,
+            tooltip_settings_change_system,
+        ).chain().after(update_creature_panel_system))
         .run();
 }
 

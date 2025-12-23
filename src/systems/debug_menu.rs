@@ -19,7 +19,7 @@ const CHECKBOX_SIZE: f32 = 20.0;
 const MENU_ANIMATION_SPEED: f32 = 5.0; // Speed of slide animation
 
 const PAUSE_MENU_WIDTH: f32 = 300.0;
-const PAUSE_MENU_HEIGHT: f32 = 280.0;
+const PAUSE_MENU_HEIGHT: f32 = 400.0;
 
 const PANEL_BACKGROUND: Color = Color::srgba(0.08, 0.08, 0.12, 0.95);
 const SLIDER_BG: Color = Color::srgb(0.15, 0.15, 0.2);
@@ -185,6 +185,9 @@ pub enum CheckboxSettingId {
     ShowFps,
     ShowEnemyCount,
     ToggleMode,
+    ShowAdvancedTooltips,
+    ShowExpandedCreatureStats,
+    ShowExpandedAffinityStats,
 }
 
 impl CheckboxSettingId {
@@ -194,6 +197,9 @@ impl CheckboxSettingId {
             Self::ShowFps => "Show FPS",
             Self::ShowEnemyCount => "Show Enemy Count",
             Self::ToggleMode => "Toggle Mode (vs Hold)",
+            Self::ShowAdvancedTooltips => "Advanced Tooltips",
+            Self::ShowExpandedCreatureStats => "Expanded Creature Stats",
+            Self::ShowExpandedAffinityStats => "Expanded Affinity Stats",
         }
     }
 }
@@ -349,45 +355,27 @@ pub fn spawn_pause_menu_system(mut commands: Commands) {
         spawn_pause_button(parent, ResumeButton, "Resume");
 
         // Toggle mode checkbox
-        parent.spawn(Node {
-            width: Val::Percent(100.0),
-            height: Val::Px(BUTTON_HEIGHT),
-            margin: UiRect::vertical(Val::Px(10.0)),
-            flex_direction: FlexDirection::Row,
-            align_items: AlignItems::Center,
-            justify_content: JustifyContent::Center,
-            ..default()
-        }).with_children(|row| {
-            row.spawn((
-                ToggleModeCheckbox,
-                Button,
-                Node {
-                    width: Val::Px(CHECKBOX_SIZE),
-                    height: Val::Px(CHECKBOX_SIZE),
-                    margin: UiRect::right(Val::Px(10.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
+        spawn_pause_checkbox(parent, CheckboxSettingId::ToggleMode, "Toggle Mode (vs Hold)");
+
+        // Display Options section header
+        parent.spawn((
+            Text::new("Display Options"),
+            TextFont { font_size: 14.0, ..default() },
+            TextColor(Color::srgb(0.6, 0.6, 0.7)),
+            Node {
+                margin: UiRect {
+                    top: Val::Px(15.0),
+                    bottom: Val::Px(8.0),
                     ..default()
                 },
-                BackgroundColor(CHECKBOX_BG),
-            )).with_children(|cb| {
-                cb.spawn((
-                    CheckboxIndicator { setting_id: CheckboxSettingId::ToggleMode },
-                    Node {
-                        width: Val::Px(CHECKBOX_SIZE - 6.0),
-                        height: Val::Px(CHECKBOX_SIZE - 6.0),
-                        ..default()
-                    },
-                    BackgroundColor(CHECKBOX_CHECKED),
-                    Visibility::Inherited, // Will be updated based on setting
-                ));
-            });
-            row.spawn((
-                Text::new("Toggle Mode (vs Hold)"),
-                TextFont { font_size: 14.0, ..default() },
-                TextColor(TEXT_COLOR),
-            ));
-        });
+                ..default()
+            },
+        ));
+
+        // Display option checkboxes
+        spawn_pause_checkbox(parent, CheckboxSettingId::ShowAdvancedTooltips, "Advanced Tooltips");
+        spawn_pause_checkbox(parent, CheckboxSettingId::ShowExpandedCreatureStats, "Expanded Creature Stats");
+        spawn_pause_checkbox(parent, CheckboxSettingId::ShowExpandedAffinityStats, "Expanded Affinity Stats");
 
         // Restart button
         spawn_pause_button(parent, RestartButton, "Restart Run");
@@ -543,6 +531,48 @@ fn spawn_pause_button<T: Component>(parent: &mut ChildBuilder, marker: T, text: 
         btn.spawn((
             Text::new(text),
             TextFont { font_size: 18.0, ..default() },
+            TextColor(TEXT_COLOR),
+        ));
+    });
+}
+
+fn spawn_pause_checkbox(parent: &mut ChildBuilder, setting_id: CheckboxSettingId, label: &str) {
+    parent.spawn(Node {
+        width: Val::Percent(100.0),
+        height: Val::Px(BUTTON_HEIGHT),
+        margin: UiRect::bottom(Val::Px(6.0)),
+        flex_direction: FlexDirection::Row,
+        align_items: AlignItems::Center,
+        justify_content: JustifyContent::Center,
+        ..default()
+    }).with_children(|row| {
+        row.spawn((
+            DebugCheckbox { setting_id },
+            Button,
+            Node {
+                width: Val::Px(CHECKBOX_SIZE),
+                height: Val::Px(CHECKBOX_SIZE),
+                margin: UiRect::right(Val::Px(10.0)),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            BackgroundColor(CHECKBOX_BG),
+        )).with_children(|cb| {
+            cb.spawn((
+                CheckboxIndicator { setting_id },
+                Node {
+                    width: Val::Px(CHECKBOX_SIZE - 6.0),
+                    height: Val::Px(CHECKBOX_SIZE - 6.0),
+                    ..default()
+                },
+                BackgroundColor(CHECKBOX_CHECKED),
+                Visibility::Hidden, // Will be updated based on setting
+            ));
+        });
+        row.spawn((
+            Text::new(label),
+            TextFont { font_size: 14.0, ..default() },
             TextColor(TEXT_COLOR),
         ));
     });
@@ -918,6 +948,9 @@ fn get_checkbox_value(settings: &DebugSettings, id: CheckboxSettingId) -> bool {
         CheckboxSettingId::ShowFps => settings.show_fps,
         CheckboxSettingId::ShowEnemyCount => settings.show_enemy_count,
         CheckboxSettingId::ToggleMode => settings.menu_toggle_mode,
+        CheckboxSettingId::ShowAdvancedTooltips => settings.show_advanced_tooltips,
+        CheckboxSettingId::ShowExpandedCreatureStats => settings.show_expanded_creature_stats,
+        CheckboxSettingId::ShowExpandedAffinityStats => settings.show_expanded_affinity_stats,
     }
 }
 
@@ -927,6 +960,9 @@ fn toggle_checkbox(settings: &mut DebugSettings, id: CheckboxSettingId) {
         CheckboxSettingId::ShowFps => settings.show_fps = !settings.show_fps,
         CheckboxSettingId::ShowEnemyCount => settings.show_enemy_count = !settings.show_enemy_count,
         CheckboxSettingId::ToggleMode => settings.menu_toggle_mode = !settings.menu_toggle_mode,
+        CheckboxSettingId::ShowAdvancedTooltips => settings.show_advanced_tooltips = !settings.show_advanced_tooltips,
+        CheckboxSettingId::ShowExpandedCreatureStats => settings.show_expanded_creature_stats = !settings.show_expanded_creature_stats,
+        CheckboxSettingId::ShowExpandedAffinityStats => settings.show_expanded_affinity_stats = !settings.show_expanded_affinity_stats,
     }
 }
 

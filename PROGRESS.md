@@ -506,6 +506,43 @@
   - chain_effect_system
 - [x] Test: 162 tests passing, build succeeds
 
+## Phase 21D: Tooltips & Stat Visibility ✅
+
+- [x] Added display settings to DebugSettings:
+  - show_advanced_tooltips: bool (show detailed tooltips on hover, default false)
+  - show_expanded_creature_stats: bool (show expanded stats without hovering, default false)
+  - show_expanded_affinity_stats: bool (show expanded affinity info, default false)
+  - tooltip_delay_ms: u32 (time before tooltip appears in ms, default 300)
+- [x] Updated Pause Menu with "Display Options" section:
+  - "Show Advanced Tooltips" checkbox
+  - "Show Expanded Creature Stats" checkbox
+  - "Show Expanded Affinity Stats" checkbox
+  - Increased pause menu height to accommodate new options
+- [x] Created src/systems/tooltips.rs:
+  - TooltipTarget component with TooltipContent enum (Creature, Text, TitleAndDescription)
+  - Tooltip marker component for active tooltip entity
+  - TooltipState resource: hovered_target, hover_time, tooltip_visible, cursor_position
+  - Constants: TOOLTIP_BACKGROUND, TOOLTIP_BORDER, TOOLTIP_PADDING, TOOLTIP_MAX_WIDTH
+- [x] Implemented tooltip systems:
+  - tooltip_hover_system: tracks cursor position, detects hover via Interaction component
+  - tooltip_spawn_system: spawns/despawns tooltip based on hover state and delay
+  - tooltip_position_system: updates tooltip position to follow cursor
+  - tooltip_settings_change_system: clears tooltips when settings disabled
+- [x] Creature tooltip content (build_creature_tooltip function):
+  - Title: "[Name] (Tier [X])"
+  - Stats: Level, Kills, HP (current/max), Damage, Speed
+  - Attack info: Attack Speed, Range
+  - Crit chances: T1/T2/T3 percentages (only if > 0)
+  - Projectile info: count, type (Basic/Piercing/Explosive/Homing/Chain), penetration
+  - Evolution info: "Evolves into: [creature]" (if applicable)
+- [x] Added TooltipTarget to creature panel rows:
+  - Each creature row has Interaction::None and TooltipTarget pointing to creature entity
+  - Hover triggers tooltip with full creature stats
+- [x] Registered tooltip systems in main.rs:
+  - TooltipState resource initialized
+  - Systems run after update_creature_panel_system in chain
+- [x] Test: 164 tests passing, build succeeds
+
 ## Phase 22: Bosses ⬅️ CURRENT
 
 - [ ] Create src/components/boss.rs:
@@ -625,4 +662,4 @@
 
 ## Last Updated
 
-Phase 21C completed - Projectile Types with 5 behaviors (Basic, Piercing, Explosive, Homing, Chain), visual differentiation (shape/color tinting), explosion AoE damage, homing curves, chain redirects, and visual effects (expanding explosions, chain lightning lines)
+Phase 21D completed - Tooltips & Stat Visibility with display settings in DebugSettings, Display Options section in Pause Menu (3 new checkboxes), complete tooltip system (TooltipTarget, TooltipState, hover tracking with delay), creature panel tooltips showing full stats (level, kills, HP, damage, crit chances, projectile info, evolution)

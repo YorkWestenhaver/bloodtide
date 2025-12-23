@@ -1,9 +1,10 @@
 use bevy::prelude::*;
 use rand::Rng;
 
-use crate::components::{Creature, CreatureColor, CreatureStats};
-use crate::resources::{AffinityState, ArtifactBuffs, GameData, GameState};
+use crate::components::{Creature, CreatureColor, CreatureStats, ProjectileConfig};
+use crate::resources::{AffinityState, ArtifactBuffs, DebugSettings, GameData, GameState};
 use crate::systems::death::RespawnQueue;
+use crate::systems::tooltips::{TooltipContent, TooltipTarget};
 
 // =============================================================================
 // UI PANEL CONSTANTS
@@ -140,9 +141,10 @@ pub fn spawn_creature_panel_system(mut commands: Commands) {
 /// Updates the creature panel to show current creatures and respawning creatures
 pub fn update_creature_panel_system(
     mut commands: Commands,
-    creature_query: Query<&CreatureStats, With<Creature>>,
+    creature_query: Query<(Entity, &CreatureStats), With<Creature>>,
     respawn_queue: Res<RespawnQueue>,
     game_data: Res<GameData>,
+    debug_settings: Res<DebugSettings>,
     panel_content_query: Query<Entity, With<CreaturePanelContent>>,
 ) {
     let Ok(panel_entity) = panel_content_query.get_single() else {
@@ -154,8 +156,8 @@ pub fn update_creature_panel_system(
 
     // Add active creatures
     commands.entity(panel_entity).with_children(|parent| {
-        for stats in creature_query.iter() {
-            spawn_creature_row(parent, stats, false, 0.0);
+        for (creature_entity, stats) in creature_query.iter() {
+            spawn_creature_row(parent, creature_entity, stats, debug_settings.show_expanded_creature_stats);
         }
 
         // Add respawning creatures
@@ -201,13 +203,7 @@ pub fn update_creature_panel_system(
     });
 }
 
-fn spawn_creature_row(parent: &mut ChildBuilder, stats: &CreatureStats, grayed: bool, respawn_time: f32) {
-    let text_color = if grayed {
-        Color::srgb(0.5, 0.5, 0.5)
-    } else {
-        Color::WHITE
-    };
-
+fn spawn_creature_row(parent: &mut ChildBuilder, creature_entity: Entity, stats: &CreatureStats, show_expanded: bool) {
     let hp_percent = (stats.current_hp / stats.max_hp).clamp(0.0, 1.0) as f32;
     let hp_color = if hp_percent > 0.6 {
         Color::srgb(0.3, 0.8, 0.3)
@@ -226,6 +222,12 @@ fn spawn_creature_row(parent: &mut ChildBuilder, stats: &CreatureStats, grayed: 
             ..default()
         },
         BackgroundColor(Color::srgba(0.15, 0.15, 0.15, 0.5)),
+        // Add interaction for tooltip hover detection
+        Interaction::default(),
+        // Add tooltip target
+        TooltipTarget {
+            content: TooltipContent::Creature(creature_entity),
+        },
     )).with_children(|row| {
         // Top row: Name, Level, Kills
         row.spawn(Node {
@@ -244,7 +246,7 @@ fn spawn_creature_row(parent: &mut ChildBuilder, stats: &CreatureStats, grayed: 
             top.spawn((
                 Text::new(format!("Lv.{} K:{}", stats.level, stats.kills)),
                 TextFont { font_size: 12.0, ..default() },
-                TextColor(text_color),
+                TextColor(Color::WHITE),
             ));
         });
 
@@ -276,6 +278,28 @@ fn spawn_creature_row(parent: &mut ChildBuilder, stats: &CreatureStats, grayed: 
                 BackgroundColor(hp_color),
             ));
         });
+
+        // Expanded stats (if enabled)
+        if show_expanded {
+            row.spawn(Node {
+                flex_direction: FlexDirection::Column,
+                margin: UiRect::top(Val::Px(4.0)),
+                ..default()
+            }).with_children(|expanded| {
+                expanded.spawn((
+                    Text::new(format!("DMG: {:.0} | SPD: {:.0}", stats.base_damage, stats.movement_speed)),
+                    TextFont { font_size: 10.0, ..default() },
+                    TextColor(Color::srgb(0.6, 0.6, 0.6)),
+                ));
+                if stats.crit_t1 > 0.0 || stats.crit_t2 > 0.0 || stats.crit_t3 > 0.0 {
+                    expanded.spawn((
+                        Text::new(format!("Crit: {:.0}%/{:.0}%/{:.0}%", stats.crit_t1, stats.crit_t2, stats.crit_t3)),
+                        TextFont { font_size: 10.0, ..default() },
+                        TextColor(Color::srgb(0.6, 0.6, 0.6)),
+                    ));
+                }
+            });
+        }
     });
 }
 
