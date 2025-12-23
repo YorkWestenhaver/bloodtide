@@ -7,7 +7,7 @@ mod resources;
 mod systems;
 
 use components::{Player, Velocity};
-use resources::{load_game_data, AffinityState, ArtifactBuffs, DeckCard, GameData, GameState, PlayerDeck};
+use resources::{load_game_data, AffinityState, ArtifactBuffs, DeckCard, Director, GameData, GameState, PlayerDeck};
 use systems::{
     apply_velocity_system, camera_follow_system, creature_attack_system, creature_death_system,
     creature_evolution_system, creature_follow_system, creature_level_up_effect_system,
@@ -17,6 +17,8 @@ use systems::{
     respawn_system, screen_shake_system, spawn_hp_bars_system, spawn_test_creature_system,
     spawn_ui_system, update_hp_bars_system, update_ui_system, weapon_attack_system,
     EnemySpawnTimer, RespawnQueue, ScreenShake, EvolutionReadyState,
+    // Director systems
+    director_update_system, enemy_cleanup_system,
     // UI Panel systems
     spawn_creature_panel_system, update_creature_panel_system,
     spawn_artifact_panel_system, update_artifact_panel_system,
@@ -80,6 +82,7 @@ fn main() {
         .init_resource::<WaveAnnouncementState>()
         .init_resource::<DamageNumberOffsets>()
         .init_resource::<EvolutionReadyState>()
+        .init_resource::<Director>()
         .add_systems(Startup, (
             setup,
             spawn_ui_system,
@@ -87,13 +90,16 @@ fn main() {
             spawn_artifact_panel_system,
             spawn_affinity_display_system,
         ))
+        // Director update (runs early)
+        .add_systems(Update, director_update_system)
         // Input and spawning systems
         .add_systems(Update, (
             player_movement_system,
             spawn_test_creature_system,
             enemy_spawn_system,
+            enemy_cleanup_system,
             respawn_system,
-        ).chain())
+        ).chain().after(director_update_system))
         // AI and movement systems
         .add_systems(Update, (
             creature_follow_system,

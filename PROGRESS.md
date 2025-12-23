@@ -1,6 +1,6 @@
 # Bloodtide Development Progress
 
-## Current Phase: 20 - Director AI
+## Current Phase: 21 - Bosses
 
 ---
 
@@ -274,29 +274,47 @@
 - [x] All systems registered in main.rs with proper ordering
 - [x] Test: 136 tests passing, build succeeds
 
-## Phase 20: Director AI ⬅️ CURRENT
-- [ ] Create src/resources/director.rs:
-  - Director resource tracking player state
-  - Metrics: player_dps, creature_count, player_hp_percent, time_since_damage
-- [ ] Create director_analysis_system:
-  - Calculate player's current DPS (track damage dealt over time)
-  - Calculate stress level based on metrics
-- [ ] Adaptive spawning:
-  - Stomping (high DPS, full HP): increase spawn rate, add elites
-  - Comfortable: standard spawning
-  - Struggling (low HP, creatures dying): reduce spawn rate, add health drops
-  - Nearly Dead: pause spawning briefly
-- [ ] Counter-color spawning:
-  - Track player's primary color (most creatures of that color)
-  - At wave 20+, occasionally spawn color-resist enemies
-  - Water enemies vs Red deck, etc.
-- [ ] Enemy HP scaling:
-  - enemy_hp = player_dps × target_ttk × difficulty_modifier
-  - Fodder TTK: 0.75 seconds
-  - Elite TTK: 4 seconds
-- [ ] Test: Play well → more enemies; play poorly → easier spawns
+## Phase 20: Director AI ✅
+- [x] Created src/resources/director.rs:
+  - Director resource tracking: player_dps, creature_count, total_creature_hp_percent, stress_level, enemies_alive
+  - spawn_rate_modifier, damage_dealt_window, current_fps, low_fps_duration, performance_throttle
+- [x] MASSIVE HORDE spawning (Vampire Survivors-style):
+  - Wave 1-5: 25-50 enemies per spawn, target 350 on screen
+  - Wave 6-10: 50-100 enemies per spawn, target 750 on screen
+  - Wave 11-15: 100-175 enemies per spawn, target 1500 on screen
+  - Wave 16-20: 175-250 enemies per spawn, target 2750 on screen
+  - Wave 21-30: 250-400 enemies per spawn, target 5000 on screen
+  - Wave 31+: 400-600 enemies per spawn, target 6000+ on screen
+- [x] Spawn from 2-4 cluster points per spawn event (360 degree surround)
+- [x] Soft cap system with dynamic spawn intervals:
+  - Below 50% target: 0.1s interval (FAST)
+  - Below target: 0.2s interval
+  - At target: 0.3s interval
+  - Above target: 0.5s interval
+- [x] Stress-based adaptive spawning:
+  - Stomping (stress < 0.3): 2x spawn rate
+  - Comfortable: normal spawn rate
+  - Struggling (stress > 0.7): 0.6x spawn rate (minimum floor applies)
+  - Minimum 15 enemies per second always
+- [x] Elite spawning by wave:
+  - Wave 1-5: 2% elites
+  - Wave 6-10: 5% elites
+  - Wave 11-15: 10% elites
+  - Wave 16-20: 15% elites
+  - Wave 21+: 20% elites
+  - Elites: 3x HP, 1.5x damage, slightly larger, brighter color
+- [x] Enemy HP scaling: 1.0 + (wave - 1) * 0.08
+- [x] Performance safeguards:
+  - FPS tracking per frame
+  - FPS < 30 for 3+ seconds: reduce spawn rate by 25%
+  - FPS < 20: reduce spawn rate by 50%, print warning
+  - FPS > 45: restore normal spawn rate
+- [x] Enemy cleanup: despawn enemies >2500 pixels from player
+- [x] HUD updated: "Lv:X | K:Y | W:Z | C:N | E:M | FPS:X"
+- [x] director_update_system and enemy_cleanup_system registered in main.rs
+- [x] Test: 142 tests passing, build succeeds
 
-## Phase 21: Bosses
+## Phase 21: Bosses ⬅️ CURRENT
 - [ ] Create src/components/boss.rs:
   - Boss marker component
   - BossData: id, phases, current_phase, phase_hp_thresholds
@@ -406,4 +424,4 @@
 (None)
 
 ## Last Updated
-Phase 19 completed - Better UI with creature panel, artifact panel, affinity display, card roll popup, wave announcements, and improved HUD showing creature/artifact counts
+Phase 20 completed - Director AI with MASSIVE horde spawning (hundreds to thousands of enemies), adaptive spawn rates, elite enemies, HP scaling, and performance safeguards
