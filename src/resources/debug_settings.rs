@@ -76,9 +76,9 @@ impl DebugSettings {
         *self = Self::default();
     }
 
-    /// Check if game should be paused
+    /// Check if game should be paused (paused when any menu is open)
     pub fn is_paused(&self) -> bool {
-        self.menu_state == MenuState::PauseMenuOpen
+        self.menu_state != MenuState::Closed
     }
 
     /// Check if any menu is open
@@ -149,10 +149,10 @@ mod tests {
     }
 
     #[test]
-    fn debug_menu_does_not_pause() {
+    fn debug_menu_pauses_game() {
         let mut settings = DebugSettings::default();
         settings.menu_state = MenuState::DebugMenuOpen;
-        assert!(!settings.is_paused());
+        assert!(settings.is_paused());
         assert!(settings.is_menu_open());
     }
 

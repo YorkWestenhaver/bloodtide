@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::ui::RelativeCursorPosition;
 
 use crate::resources::{DebugSettings, GameState, MenuState, SliderRange};
 
@@ -443,6 +444,7 @@ fn spawn_slider(parent: &mut ChildBuilder, setting_id: SliderSettingId) {
                 ..default()
             },
             BackgroundColor(SLIDER_BG),
+            RelativeCursorPosition::default(),
         )).with_children(|bar| {
             // Fill
             bar.spawn((
@@ -619,39 +621,37 @@ pub fn pause_menu_visibility_system(
 // SLIDER INTERACTION
 // =============================================================================
 
-/// Handle slider bar clicks
+/// Handle slider bar clicks using RelativeCursorPosition for accurate click detection
 pub fn slider_interaction_system(
     mut debug_settings: ResMut<DebugSettings>,
-    slider_query: Query<(&DebugSlider, &Node)>,
-    bar_query: Query<(&SliderBar, &Interaction, &Node, &GlobalTransform), Changed<Interaction>>,
-    windows: Query<&Window>,
+    slider_query: Query<&DebugSlider>,
+    bar_query: Query<(&SliderBar, &Interaction, &RelativeCursorPosition)>,
 ) {
-    let window = windows.single();
+    for (slider_bar, interaction, relative_cursor) in bar_query.iter() {
+        // Only process when pressed
+        if *interaction != Interaction::Pressed {
+            continue;
+        }
 
-    for (slider_bar, interaction, node, global_transform) in bar_query.iter() {
-        if *interaction == Interaction::Pressed {
-            if let Some(cursor_pos) = window.cursor_position() {
-                // Get the bar's screen position and size
-                let bar_pos = global_transform.translation().truncate();
-                let bar_width = if let Val::Px(w) = node.width { w } else { SLIDER_BAR_WIDTH };
+        // Get the normalized cursor position within the slider bar (0.0 to 1.0)
+        let Some(normalized_pos) = relative_cursor.normalized else {
+            continue;
+        };
 
-                // Calculate click position relative to bar (0.0 to 1.0)
-                let relative_x = (cursor_pos.x - (bar_pos.x - bar_width / 2.0)) / bar_width;
-                let normalized = relative_x.clamp(0.0, 1.0);
+        // X position is what we care about (0.0 = left edge, 1.0 = right edge)
+        let normalized_x = normalized_pos.x.clamp(0.0, 1.0);
 
-                // Find the slider to get range
-                for (slider, _) in slider_query.iter() {
-                    if slider.setting_id == slider_bar.setting_id {
-                        let range = slider.max - slider.min;
-                        let raw_value = slider.min + normalized * range;
-                        // Round to step
-                        let stepped_value = (raw_value / slider.step).round() * slider.step;
-                        let final_value = stepped_value.clamp(slider.min, slider.max);
+        // Find the slider to get range
+        for slider in slider_query.iter() {
+            if slider.setting_id == slider_bar.setting_id {
+                let range = slider.max - slider.min;
+                let raw_value = slider.min + normalized_x * range;
+                // Round to step
+                let stepped_value = (raw_value / slider.step).round() * slider.step;
+                let final_value = stepped_value.clamp(slider.min, slider.max);
 
-                        set_slider_value(&mut debug_settings, slider_bar.setting_id, final_value);
-                        break;
-                    }
-                }
+                set_slider_value(&mut debug_settings, slider_bar.setting_id, final_value);
+                break;
             }
         }
     }
