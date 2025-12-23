@@ -1,6 +1,6 @@
 # Bloodtide Development Progress
 
-## Current Phase: 24 - Director Tuning
+## Current Phase: 29 - Pre-Run Deck Builder ✅
 
 ---
 
@@ -372,114 +372,68 @@
   - Test with 500+ enemies
   - Optimize if needed
 
-### Phase 29: Pre-Run Deck Builder ⬅️ NEXT
+### Phase 29: Pre-Run Deck Builder ✅
 
 **Goal:** Add a pre-run screen where player composes their deck before gameplay starts. The deck is a probability table - this UI makes that visual and editable.
 
-**Game State:**
-- New `GameState::DeckBuilder` state, game starts here instead of Playing
-- "Start Run" transitions to `GameState::Playing`
-- ESC during gameplay returns to `GameState::DeckBuilder` (restart run)
-- Deck state persists in `DeckBuilder` resource, copied to `PlayerDeck` on start
+**Completed Features:**
 
-**Screen Layout:**
+- [x] **Game State Management:**
+  - Added `GamePhase` enum (DeckBuilder, Playing) to `src/resources/debug_settings.rs`
+  - Game starts in DeckBuilder phase instead of Playing
+  - "Start Run" transitions to Playing phase
+  - "Main Menu" button in pause menu returns to DeckBuilder phase
+  - Gameplay systems (enemy spawning, director) only run during Playing phase
 
-Full-screen overlay. Dark background (#0d0d1a at 95% opacity).
+- [x] **Deck Builder UI (1200x800 panel):**
+  - Full-screen overlay with centered panel
+  - Dark theme matching spec colors
+  - Header with "DECK BUILDER" title and "START RUN" button
+  - Starting weapon selection section (tier 1 weapons only)
+  - Card list with probability bars showing weighted distribution
+  - +/- buttons to adjust card copy counts (1-10 range)
+  - Tab system for Creatures/Weapons/Artifacts
+  - Available cards section with mini-cards to add to deck
+  - Footer with total card count and type breakdown percentages
+  - "CLEAR DECK" button to reset
 
-Main container: Centered panel, 800px wide, ~500px tall, rounded corners (12px), background #1a1a2e, subtle border (#2a2a4e, 1px).
+- [x] **Starting Weapon System:**
+  - Player selects starting weapon before run begins
+  - Tier 1 weapons displayed as selectable cards
+  - Selected weapon highlighted with green border
+  - Weapon spawned and equipped when run starts
+  - Affinity from starting weapon applied immediately
 
-**Color Palette:**
-- Background: #1a1a2e
-- Panel border: #2a2a4e
-- Divider lines: #3a3a5e
-- Accent (buttons): #22c55e (green), #e94560 (red for remove/clear)
-- Text primary: #ffffff
-- Text muted: #a0a0a0
-- Bar fill - Creature: #ef4444 (red)
-- Bar fill - Weapon: #3b82f6 (blue)
-- Bar fill - Artifact: #a855f7 (purple)
-- Bar empty: #2a2a4e
+- [x] **Improved Starting Weapons:**
+  - All tier 1 weapons buffed for better early game:
+    - Ember Staff: 350 range, 3 projectiles (spread), size 14
+    - Flame Sword: 120 range, 3 projectiles, size 16
+    - Fire Dagger: 100 range, 3 projectiles, size 12
+  - Added `projectile_size` and `projectile_penetration` fields to weapon data
+  - Weapons now use configurable projectile stats instead of hardcoded values
 
-**Sections (top to bottom):**
+- [x] **Bug Fixes:**
+  - Fixed checkbox indicators always visible in pause menu (Visibility::Inherited fix)
 
-1. **Header Row**
-   - Left: "DECK BUILDER" title, 24px, bold, white
-   - Right: "START RUN" button
-     - Background #22c55e, white text, rounded 8px
-     - Hover: brighten to #34d66a
-     - Disabled state if deck empty
+**Files Created/Modified:**
+- `src/resources/debug_settings.rs` - Added GamePhase enum
+- `src/resources/deck_builder.rs` - NEW: DeckBuilderState resource with card management
+- `src/resources/mod.rs` - Export deck_builder module
+- `src/systems/deck_builder_ui.rs` - NEW: ~1100 lines of UI systems
+- `src/systems/debug_menu.rs` - Added MainMenuButton and main_menu_button_system
+- `src/systems/spawning.rs` - Added GamePhase checks to prevent spawning during DeckBuilder
+- `src/systems/combat.rs` - Updated weapon_attack_system to use weapon projectile stats
+- `src/data/mod.rs` - Added projectile_size/penetration to Weapon struct
+- `src/components/weapon.rs` - Added projectile_size/penetration to WeaponStats
+- `src/main.rs` - Registered all new systems and resources
+- `assets/data/weapons.toml` - Updated tier 1 weapon stats
 
-2. **Probability Bars Section** (main content, scrollable if >8 cards)
-   
-   Each card in deck gets a row:
-   ```
-   [Color Box] [Card Name      ] [████████░░░░░░░░] [35%] [−] [+]
-   ```
-   
-   - Color box: 16x16 square, matches card's affinity color (red/blue/green/white/black/gray)
-   - Card name: 14px, white, left-aligned, fixed width ~150px
-   - Probability bar: 200px wide, 12px tall, rounded ends (6px radius)
-     - Filled portion: colored by card type (creature=red, weapon=blue, artifact=purple)
-     - Empty portion: #2a2a4e
-     - Width = (card_weight / total_weight) * 200px
-   - Percentage: 14px, right-aligned, fixed width 45px, shows "XX%"
-   - Minus button: 24x24, circular, background #2a2a4e, "−" centered
-     - Hover: border turns #e94560 (red)
-     - Click: decrease copy count by 1
-   - Plus button: 24x24, circular, background #2a2a4e, "+" centered
-     - Hover: border turns #22c55e (green)
-     - Click: increase copy count by 1
-   
-   Row spacing: 8px vertical between rows
-   Rows sorted by: card type (Creatures → Weapons → Artifacts), then by name
-
-3. **Divider:** Horizontal line, 1px, #3a3a5e, 16px margin top/bottom
-
-4. **Add Card Section**
-   - Tab row: [Creatures] [Weapons] [Artifacts]
-     - Tab style: text buttons, selected tab has underline accent color
-     - Selected tab shows that category's available cards below
-   - Below tabs: Horizontal scrollable list of available cards (cards with 0 copies in deck)
-     - Each card: 80x50px mini-card
-       - Background: darker than panel (#12121f)
-       - Border: 1px #3a3a5e, rounded 6px
-       - Card name: 11px, centered, white
-       - Tier indicator: "T1", "T2", etc in corner, 9px, muted
-       - Hover: border brightens, slight scale (1.02x)
-       - Click: adds 1 copy to deck, card moves to probability list above
-
-5. **Footer Row**
-   - Left: "Total: X cards" - 12px, muted text
-   - Center: Type breakdown as mini horizontal bars
-     - "Creatures [███░░] 57% | Weapons [█░░░░] 14% | Artifacts [██░░░] 29%"
-     - Each mini-bar ~40px wide, 6px tall
-   - Right: [CLEAR DECK] button
-     - Background: transparent, border #e94560, text #e94560
-     - Smaller than Start Run (12px text)
-     - Hover: fill #e94560, text white
-     - Click: removes all cards from deck (with confirmation?)
-
-**Interactions & Animations:**
-- Plus/Minus adjust copy count (min 0, removes card from list; max 10 per card)
-- Probability percentages recalculate live as counts change
-- Bar widths animate smoothly (0.15s ease-out transition)
-- Hover on card row shows tooltip with full card stats:
-  - Creatures: damage, attack speed, HP, range, crit chances, abilities
-  - Weapons: damage, speed, range, affinity amount, projectile info
-  - Artifacts: all stat bonuses, target scope
-- Cards added/removed with subtle fade animation
-
-**Files to create/modify:**
-- `src/states/mod.rs` - Add GameState::DeckBuilder
-- `src/resources/deck_builder.rs` - DeckBuilder resource (working deck state)
-- `src/systems/deck_builder_ui.rs` - All UI spawn and update systems
-- `src/main.rs` - Start in DeckBuilder state, register systems
-
-**Test:**
-- Game starts in deck builder, not gameplay
-- Can add/remove cards, see probabilities update
-- Start Run begins gameplay with configured deck
-- ESC returns to deck builder
+**Test Results:**
+- All 191 tests passing
+- Game starts in deck builder
+- Can configure deck and starting weapon
+- Start Run begins gameplay with configured loadout
+- ESC opens pause menu, Main Menu returns to deck builder
 
 ---
 
@@ -521,4 +475,4 @@ Main container: Centered panel, 800px wide, ~500px tall, rounded corners (12px),
 
 ## Last Updated
 
-Added Phase 29: Pre-Run Deck Builder with detailed UI spec including probability-first layout, color palette, component specifications, hover states, and animations.
+Completed Phase 29: Pre-Run Deck Builder. Implemented full deck builder UI with starting weapon selection, card probability management, and improved tier 1 weapon stats (3 projectiles, larger size, longer range).
