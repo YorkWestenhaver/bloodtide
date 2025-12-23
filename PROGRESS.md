@@ -608,6 +608,55 @@
   - kill_rate_system
 - [x] Test: 173 tests passing, build succeeds
 
+## Phase 21G: Weapon Stats Display ✅
+
+- [x] Renamed Affinity Display section to "WEAPONS & AFFINITY":
+  - Main header now shows "WEAPONS & AFFINITY"
+  - Added "WEAPONS" subsection header above weapon list
+  - Added "AFFINITY" subsection header above affinity bars
+  - Added separator line between sections
+- [x] Created WeaponStatsDisplay component and marker components:
+  - WeaponStatsDisplay: container for weapon stats section
+  - WeaponListItem: individual weapon row with weapon_entity reference
+  - WeaponStatsSummary: container for stats summary box
+- [x] Added weapon list showing each equipped weapon:
+  - Format: "Weapon Name (TX)" where X is tier number
+  - Tier-colored text (common gray, uncommon green, rare blue, etc.)
+  - Small color indicator box showing weapon's affinity color
+- [x] Added weapon stats summary box:
+  - Wpn Damage: sum of all weapon auto_damage
+  - Wpn Speed: fastest weapon attack speed (X.X/sec)
+  - Wpn Count: number of equipped weapons
+  - Dark background box for visual separation
+- [x] Created update_weapon_stats_display_system:
+  - Queries all Weapon entities with WeaponData and WeaponStats
+  - Calculates total damage and fastest attack speed
+  - Updates UI with current weapon list and totals
+  - Runs each frame to reflect weapon changes
+- [x] Added weapon tooltips on hover (when show_advanced_tooltips enabled):
+  - Hover over weapon name shows detailed stats
+  - Title: "Weapon Name (TX)"
+  - Stats: Damage, Attack Speed, Range
+  - Affinity: "+X Color" showing affinity contribution
+  - Projectiles count (if > 1)
+  - Pattern type (if not "single")
+  - Evolution recipe (if applicable)
+- [x] Handled no weapons state:
+  - Shows "No weapons equipped" message when weapon list is empty
+  - Stats summary shows 0 for all values
+- [x] Layout structure for Weapons & Affinity panel:
+  - Section 1: WEAPONS & AFFINITY main header
+  - Section 2: WEAPONS subheader
+  - Section 3: Weapon list (each weapon name with tier)
+  - Section 4: Weapon stats summary box
+  - Section 5: Separator line
+  - Section 6: AFFINITY subheader
+  - Section 7: Affinity bars for each color
+- [x] Registered update_weapon_stats_display_system in main.rs:
+  - Added to UI panel updates system group
+  - Runs after level_up_effect_system with other panel updates
+- [x] Test: 173 tests passing, build succeeds
+
 ## Phase 22: Bosses ⬅️ CURRENT
 
 - [ ] Create src/components/boss.rs:
@@ -727,4 +776,4 @@
 
 ## Last Updated
 
-Phase 21E completed - Leveling Speed & Feedback with faster leveling (15 base kills, 1.1x multiplier), leveling sliders in debug menu, multi-level catchup system (up to 10 levels per frame), enhanced level up visuals (golden ring, screen flash, particle burst, LEVEL UP text), card roll queue for sequential popup display, milestone bonuses every 10 levels (guaranteed rare+, enhanced effects), improved creature level up (+N floating text), HUD progress bar with percentage, kill rate tracking (+N/s display), 3-line HUD layout, SFX placeholder prints
+Phase 21G completed - Weapon Stats Display with renamed "WEAPONS & AFFINITY" section header, weapon list showing each equipped weapon name and tier with tier-colored text, weapon stats summary box (Wpn Damage total, Wpn Speed fastest, Wpn Count), weapon tooltips on hover showing full stats (damage, attack speed, range, affinity, projectiles, pattern, evolution recipe), "No weapons equipped" message when empty, separator line between weapons and affinity sections, update_weapon_stats_display_system registered in main.rs

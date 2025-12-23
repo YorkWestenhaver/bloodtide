@@ -24,7 +24,7 @@ use systems::{
     // UI Panel systems
     spawn_creature_panel_system, update_creature_panel_system,
     spawn_artifact_panel_system, update_artifact_panel_system,
-    spawn_affinity_display_system, update_affinity_display_system,
+    spawn_affinity_display_system, update_affinity_display_system, update_weapon_stats_display_system,
     show_card_roll_popup_system, card_roll_popup_update_system,
     show_wave_announcement_system, wave_announcement_update_system,
     CardRollState, WaveAnnouncementState, DamageNumberOffsets,
@@ -165,6 +165,7 @@ fn main() {
         .add_systems(Update, (
             update_creature_panel_system,
             update_artifact_panel_system,
+            update_weapon_stats_display_system,
             update_affinity_display_system,
             show_card_roll_popup_system,
             card_roll_popup_update_system,

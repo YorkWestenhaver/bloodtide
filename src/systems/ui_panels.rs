@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use rand::Rng;
 
-use crate::components::{Creature, CreatureColor, CreatureStats, ProjectileConfig};
+use crate::components::{Creature, CreatureColor, CreatureStats};
+use crate::components::weapon::{Weapon, WeaponData, WeaponStats};
 use crate::resources::{AffinityState, ArtifactBuffs, DebugSettings, GameData, GameState};
 use crate::systems::death::RespawnQueue;
 use crate::systems::tooltips::{TooltipContent, TooltipTarget};
@@ -54,13 +55,27 @@ pub struct ArtifactPanel;
 #[derive(Component)]
 pub struct ArtifactPanelContent;
 
-/// Marker for the affinity display container
+/// Marker for the affinity display container (now "Weapons & Affinity")
 #[derive(Component)]
 pub struct AffinityDisplay;
 
 /// Marker for affinity display content
 #[derive(Component)]
 pub struct AffinityDisplayContent;
+
+/// Marker for the weapon stats section within affinity display
+#[derive(Component)]
+pub struct WeaponStatsDisplay;
+
+/// Marker for individual weapon row in the list
+#[derive(Component)]
+pub struct WeaponListItem {
+    pub weapon_entity: Entity,
+}
+
+/// Marker for weapon stats summary text
+#[derive(Component)]
+pub struct WeaponStatsSummary;
 
 /// Card roll popup component
 #[derive(Component)]
@@ -432,10 +447,10 @@ fn format_artifact_effect(artifact: &crate::data::Artifact) -> String {
 }
 
 // =============================================================================
-// AFFINITY DISPLAY
+// WEAPONS & AFFINITY DISPLAY
 // =============================================================================
 
-/// Spawns the affinity display below the HUD on the left side
+/// Spawns the weapons & affinity display on the left side
 pub fn spawn_affinity_display_system(mut commands: Commands) {
     commands
         .spawn((
@@ -443,7 +458,7 @@ pub fn spawn_affinity_display_system(mut commands: Commands) {
             Node {
                 position_type: PositionType::Absolute,
                 left: Val::Px(PANEL_MARGIN),
-                top: Val::Px(60.0), // Below HUD
+                top: Val::Px(PANEL_MARGIN), // Top left corner
                 width: Val::Px(250.0),
                 padding: UiRect::all(Val::Px(PANEL_PADDING)),
                 flex_direction: FlexDirection::Column,
@@ -452,16 +467,61 @@ pub fn spawn_affinity_display_system(mut commands: Commands) {
             BackgroundColor(PANEL_BACKGROUND),
         ))
         .with_children(|parent| {
+            // Main header: WEAPONS & AFFINITY
             parent.spawn((
-                Text::new("Affinity"),
+                Text::new("WEAPONS & AFFINITY"),
                 TextFont { font_size: 14.0, ..default() },
-                TextColor(Color::srgb(0.8, 0.8, 0.8)),
+                TextColor(Color::srgb(0.9, 0.9, 0.9)),
                 Node {
-                    margin: UiRect::bottom(Val::Px(6.0)),
+                    margin: UiRect::bottom(Val::Px(8.0)),
                     ..default()
                 },
             ));
 
+            // WEAPONS section header
+            parent.spawn((
+                Text::new("WEAPONS"),
+                TextFont { font_size: 12.0, ..default() },
+                TextColor(Color::srgb(0.7, 0.7, 0.7)),
+                Node {
+                    margin: UiRect::bottom(Val::Px(4.0)),
+                    ..default()
+                },
+            ));
+
+            // Weapon stats content container
+            parent.spawn((
+                WeaponStatsDisplay,
+                Node {
+                    flex_direction: FlexDirection::Column,
+                    margin: UiRect::bottom(Val::Px(8.0)),
+                    ..default()
+                },
+            ));
+
+            // Separator line
+            parent.spawn((
+                Node {
+                    width: Val::Percent(100.0),
+                    height: Val::Px(1.0),
+                    margin: UiRect::new(Val::Px(0.0), Val::Px(0.0), Val::Px(4.0), Val::Px(8.0)),
+                    ..default()
+                },
+                BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
+            ));
+
+            // AFFINITY section header
+            parent.spawn((
+                Text::new("AFFINITY"),
+                TextFont { font_size: 12.0, ..default() },
+                TextColor(Color::srgb(0.7, 0.7, 0.7)),
+                Node {
+                    margin: UiRect::bottom(Val::Px(4.0)),
+                    ..default()
+                },
+            ));
+
+            // Affinity bars content container
             parent.spawn((
                 AffinityDisplayContent,
                 Node {
@@ -509,6 +569,216 @@ pub fn update_affinity_display_system(
             ));
         }
     });
+}
+
+/// Updates the weapon stats display section
+pub fn update_weapon_stats_display_system(
+    mut commands: Commands,
+    weapon_query: Query<(Entity, &WeaponData, &WeaponStats), With<Weapon>>,
+    debug_settings: Res<DebugSettings>,
+    game_data: Res<GameData>,
+    weapon_display_query: Query<Entity, With<WeaponStatsDisplay>>,
+) {
+    let Ok(display_entity) = weapon_display_query.get_single() else {
+        return;
+    };
+
+    // Clear existing content
+    commands.entity(display_entity).despawn_descendants();
+
+    // Collect all weapons
+    let weapons: Vec<_> = weapon_query.iter().collect();
+
+    commands.entity(display_entity).with_children(|parent| {
+        if weapons.is_empty() {
+            // No weapons equipped message
+            parent.spawn((
+                Text::new("No weapons equipped"),
+                TextFont { font_size: 11.0, ..default() },
+                TextColor(Color::srgb(0.5, 0.5, 0.5)),
+                Node {
+                    margin: UiRect::bottom(Val::Px(4.0)),
+                    ..default()
+                },
+            ));
+
+            // Show zero stats
+            parent.spawn((
+                WeaponStatsSummary,
+                Node {
+                    flex_direction: FlexDirection::Column,
+                    padding: UiRect::all(Val::Px(4.0)),
+                    margin: UiRect::top(Val::Px(4.0)),
+                    ..default()
+                },
+                BackgroundColor(Color::srgba(0.1, 0.1, 0.1, 0.5)),
+            )).with_children(|summary| {
+                summary.spawn((
+                    Text::new("Wpn Damage: 0"),
+                    TextFont { font_size: 10.0, ..default() },
+                    TextColor(Color::srgb(0.6, 0.6, 0.6)),
+                ));
+                summary.spawn((
+                    Text::new("Wpn Speed: 0.0/sec"),
+                    TextFont { font_size: 10.0, ..default() },
+                    TextColor(Color::srgb(0.6, 0.6, 0.6)),
+                ));
+                summary.spawn((
+                    Text::new("Wpn Count: 0"),
+                    TextFont { font_size: 10.0, ..default() },
+                    TextColor(Color::srgb(0.6, 0.6, 0.6)),
+                ));
+            });
+        } else {
+            // Calculate totals
+            let mut total_damage = 0.0;
+            let mut fastest_speed = 0.0;
+
+            for (_, _, stats) in &weapons {
+                total_damage += stats.auto_damage;
+                if stats.auto_speed > fastest_speed {
+                    fastest_speed = stats.auto_speed;
+                }
+            }
+
+            // Weapon list
+            for (weapon_entity, data, stats) in &weapons {
+                spawn_weapon_row(
+                    parent,
+                    *weapon_entity,
+                    data,
+                    stats,
+                    debug_settings.show_advanced_tooltips,
+                    &game_data,
+                );
+            }
+
+            // Weapon stats summary box
+            parent.spawn((
+                WeaponStatsSummary,
+                Node {
+                    flex_direction: FlexDirection::Column,
+                    padding: UiRect::all(Val::Px(4.0)),
+                    margin: UiRect::top(Val::Px(4.0)),
+                    ..default()
+                },
+                BackgroundColor(Color::srgba(0.1, 0.1, 0.1, 0.5)),
+            )).with_children(|summary| {
+                summary.spawn((
+                    Text::new(format!("Wpn Damage: {:.0}", total_damage)),
+                    TextFont { font_size: 10.0, ..default() },
+                    TextColor(Color::srgb(0.8, 0.8, 0.8)),
+                ));
+                summary.spawn((
+                    Text::new(format!("Wpn Speed: {:.1}/sec", fastest_speed)),
+                    TextFont { font_size: 10.0, ..default() },
+                    TextColor(Color::srgb(0.8, 0.8, 0.8)),
+                ));
+                summary.spawn((
+                    Text::new(format!("Wpn Count: {}", weapons.len())),
+                    TextFont { font_size: 10.0, ..default() },
+                    TextColor(Color::srgb(0.8, 0.8, 0.8)),
+                ));
+            });
+        }
+    });
+}
+
+/// Spawns a single weapon row in the weapon list
+fn spawn_weapon_row(
+    parent: &mut ChildBuilder,
+    weapon_entity: Entity,
+    data: &WeaponData,
+    stats: &WeaponStats,
+    show_tooltips: bool,
+    game_data: &GameData,
+) {
+    let tier_color = get_tier_color(data.tier);
+
+    let mut row = parent.spawn((
+        WeaponListItem { weapon_entity },
+        Node {
+            flex_direction: FlexDirection::Row,
+            justify_content: JustifyContent::SpaceBetween,
+            align_items: AlignItems::Center,
+            width: Val::Percent(100.0),
+            padding: UiRect::new(Val::Px(4.0), Val::Px(4.0), Val::Px(2.0), Val::Px(2.0)),
+            margin: UiRect::bottom(Val::Px(2.0)),
+            ..default()
+        },
+        BackgroundColor(Color::srgba(0.1, 0.1, 0.1, 0.3)),
+    ));
+
+    // Add tooltip support if enabled
+    if show_tooltips {
+        row.insert((
+            Interaction::default(),
+            TooltipTarget {
+                content: TooltipContent::TitleAndDescription {
+                    title: format!("{} (T{})", data.name, data.tier),
+                    description: build_weapon_tooltip_description(data, stats, game_data),
+                },
+            },
+        ));
+    }
+
+    row.with_children(|row_inner| {
+        // Weapon name with tier
+        row_inner.spawn((
+            Text::new(format!("{} (T{})", data.name, data.tier)),
+            TextFont { font_size: 11.0, ..default() },
+            TextColor(tier_color),
+        ));
+
+        // Color indicator (small colored box)
+        row_inner.spawn((
+            Node {
+                width: Val::Px(8.0),
+                height: Val::Px(8.0),
+                ..default()
+            },
+            BackgroundColor(data.color.to_bevy_color()),
+        ));
+    });
+}
+
+/// Builds the tooltip description for a weapon
+fn build_weapon_tooltip_description(data: &WeaponData, stats: &WeaponStats, game_data: &GameData) -> String {
+    let mut lines = Vec::new();
+
+    lines.push(format!("Damage: {:.0}", stats.auto_damage));
+    lines.push(format!("Attack Speed: {:.2}/sec", stats.auto_speed));
+    lines.push(format!("Range: {:.0}", stats.auto_range));
+    lines.push(format!("Affinity: +{:.0} {}", data.affinity_amount, format_color_name(&data.color)));
+
+    if stats.projectile_count > 1 {
+        lines.push(format!("Projectiles: {}", stats.projectile_count));
+    }
+
+    if stats.projectile_pattern != "single" {
+        lines.push(format!("Pattern: {}", stats.projectile_pattern));
+    }
+
+    // Check for evolution info
+    if let Some(weapon_data) = game_data.weapons.iter().find(|w| w.id == data.id) {
+        if !weapon_data.evolution_recipe.is_empty() {
+            lines.push(format!("Evolves from: {}", weapon_data.evolution_recipe.join(" + ")));
+        }
+    }
+
+    lines.join("\n")
+}
+
+/// Format color name for display
+fn format_color_name(color: &CreatureColor) -> &'static str {
+    match color {
+        CreatureColor::Red => "Red",
+        CreatureColor::Blue => "Blue",
+        CreatureColor::Green => "Green",
+        CreatureColor::White => "White",
+        CreatureColor::Black => "Black",
+        CreatureColor::Colorless => "Colorless",
+    }
 }
 
 fn spawn_affinity_bar(parent: &mut ChildBuilder, color: CreatureColor, name: &str, value: f64) {

@@ -50,17 +50,20 @@ const PROGRESS_BAR_FILL: Color = Color::srgb(0.4, 0.8, 0.3);
 
 /// System that spawns the UI on startup
 pub fn spawn_ui_system(mut commands: Commands) {
-    // Spawn HUD container with multiple lines
+    // Spawn HUD container with multiple lines - centered at top
     commands
         .spawn((
             HudContainer,
             Node {
                 position_type: PositionType::Absolute,
-                left: Val::Px(20.0),
+                left: Val::Percent(50.0),
                 top: Val::Px(20.0),
                 padding: UiRect::all(Val::Px(10.0)),
                 flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
                 row_gap: Val::Px(4.0),
+                // Offset by half width to truly center
+                margin: UiRect::left(Val::Px(-150.0)),
                 ..default()
             },
             BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.7)),
