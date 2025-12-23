@@ -985,17 +985,52 @@ pub fn resume_button_system(
 
 /// Handle pause menu restart button
 pub fn restart_button_system(
+    mut commands: Commands,
     mut debug_settings: ResMut<DebugSettings>,
     mut game_state: ResMut<GameState>,
+    mut affinity_state: ResMut<crate::resources::AffinityState>,
+    mut artifact_buffs: ResMut<crate::resources::ArtifactBuffs>,
+    mut respawn_queue: ResMut<crate::systems::death::RespawnQueue>,
     mut button_query: Query<(&Interaction, &mut BackgroundColor), (With<RestartButton>, Changed<Interaction>)>,
+    // Query all game entities to despawn
+    creature_query: Query<Entity, With<crate::components::Creature>>,
+    enemy_query: Query<Entity, With<crate::components::Enemy>>,
+    projectile_query: Query<Entity, With<crate::systems::combat::Projectile>>,
+    weapon_query: Query<Entity, With<crate::components::Weapon>>,
 ) {
     for (interaction, mut bg) in button_query.iter_mut() {
         match *interaction {
             Interaction::Pressed => {
+                // Despawn all game entities
+                for entity in creature_query.iter() {
+                    commands.entity(entity).despawn_recursive();
+                }
+                for entity in enemy_query.iter() {
+                    commands.entity(entity).despawn_recursive();
+                }
+                for entity in projectile_query.iter() {
+                    commands.entity(entity).despawn_recursive();
+                }
+                for entity in weapon_query.iter() {
+                    commands.entity(entity).despawn_recursive();
+                }
+
                 // Reset game state
                 *game_state = GameState::default();
+
+                // Reset affinity state
+                *affinity_state = crate::resources::AffinityState::default();
+
+                // Reset artifact buffs
+                *artifact_buffs = crate::resources::ArtifactBuffs::default();
+
+                // Clear respawn queue
+                respawn_queue.entries.clear();
+
+                // Close menu and reset debug settings
                 debug_settings.menu_state = MenuState::Closed;
                 debug_settings.reset_to_defaults();
+
                 println!("Game restarted!");
             }
             Interaction::Hovered => {

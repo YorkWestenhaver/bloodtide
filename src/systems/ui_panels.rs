@@ -358,8 +358,8 @@ fn spawn_creature_row(
                 // Green up arrow if this creature will be consumed in evolution
                 if will_be_consumed {
                     name_row.spawn((
-                        Text::new("▲ "),
-                        TextFont { font_size: 12.0, ..default() },
+                        Text::new("^ "),
+                        TextFont { font_size: 14.0, ..default() },
                         TextColor(Color::srgb(0.3, 0.9, 0.3)), // Green
                     ));
                 }

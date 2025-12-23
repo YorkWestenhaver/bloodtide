@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use std::collections::{HashMap, HashSet};
 
-use crate::components::{Creature, CreatureStats};
+use crate::components::{AttackRange, Creature, CreatureStats};
 use crate::resources::{ArtifactBuffs, DebugSettings, GameData};
 use crate::systems::spawning::{spawn_creature, CREATURE_SIZE};
 
@@ -42,7 +42,7 @@ pub struct EvolutionReadyState {
 pub fn creature_xp_system(
     mut commands: Commands,
     game_data: Res<GameData>,
-    mut creature_query: Query<(Entity, &mut CreatureStats, &Transform), With<Creature>>,
+    mut creature_query: Query<(Entity, &mut CreatureStats, &mut AttackRange, &Transform), With<Creature>>,
     kill_credit_query: Query<(Entity, &PendingKillCredit)>,
 ) {
     // Process all pending kill credits
@@ -51,7 +51,7 @@ pub fn creature_xp_system(
         commands.entity(credit_entity).despawn();
 
         // Find the creature and increment its kills
-        if let Ok((creature_entity, mut stats, transform)) = creature_query.get_mut(credit.creature_entity) {
+        if let Ok((creature_entity, mut stats, mut attack_range, transform)) = creature_query.get_mut(credit.creature_entity) {
             stats.kills += 1;
 
             // Check for level up
@@ -59,11 +59,12 @@ pub fn creature_xp_system(
                 // Level up!
                 stats.level += 1;
 
-                // Apply stat boosts: +10% damage, +10% HP
+                // Apply stat boosts: +10% damage, +10% HP, +5% attack range
                 stats.base_damage *= 1.1;
                 let hp_increase = stats.max_hp * 0.1;
                 stats.max_hp += hp_increase;
                 stats.current_hp += hp_increase; // Heal by the amount of HP gained
+                attack_range.0 *= 1.05; // +5% range per level
 
                 // Get next threshold from kills_per_level array
                 if let Some(creature_data) = game_data.creatures.iter().find(|c| c.id == stats.id) {
@@ -82,8 +83,8 @@ pub fn creature_xp_system(
                 // SFX placeholder
                 println!("SFX_CREATURE_LEVEL");
                 println!(
-                    "{} leveled up to {}! (Damage: {:.1}, HP: {:.0}/{:.0})",
-                    stats.name, stats.level, stats.base_damage, stats.current_hp, stats.max_hp
+                    "{} leveled up to {}! (Damage: {:.1}, HP: {:.0}/{:.0}, Range: {:.0})",
+                    stats.name, stats.level, stats.base_damage, stats.current_hp, stats.max_hp, attack_range.0
                 );
 
                 // Spawn level up visual effect (green glow expanding ring)
