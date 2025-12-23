@@ -2,8 +2,8 @@ use bevy::prelude::*;
 use std::collections::{HashMap, HashSet};
 
 use crate::components::{Creature, CreatureStats};
-use crate::resources::GameData;
-use crate::systems::spawning::CREATURE_SIZE;
+use crate::resources::{ArtifactBuffs, DebugSettings, GameData};
+use crate::systems::spawning::{spawn_creature, CREATURE_SIZE};
 
 /// Marker for pending kill attribution
 /// This is added when a projectile kills an enemy, to be processed by creature_xp_system
@@ -164,59 +164,68 @@ pub fn creature_level_up_effect_system(
     }
 }
 
-/// System that checks for evolution-ready creatures and announces (does NOT auto-evolve)
-/// Future phases will add UI button to trigger evolution manually
+/// System that checks for evolution-ready creatures and performs evolution
+/// In auto mode: evolves immediately when 3+ same creatures exist
+/// In manual mode: evolves when player presses the configured hotkey
 pub fn creature_evolution_system(
+    mut commands: Commands,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     game_data: Res<GameData>,
+    artifact_buffs: Res<ArtifactBuffs>,
+    debug_settings: Res<DebugSettings>,
     mut evolution_state: ResMut<EvolutionReadyState>,
-    creature_query: Query<&CreatureStats, With<Creature>>,
+    creature_query: Query<(Entity, &CreatureStats, &Transform), With<Creature>>,
 ) {
-    // Group creatures by ID
-    let mut creatures_by_id: HashMap<String, usize> = HashMap::new();
+    // Don't process evolution while waiting for keybind
+    if debug_settings.waiting_for_keybind {
+        return;
+    }
 
-    for stats in creature_query.iter() {
+    // Group creatures by ID, collecting entity, stats, and position
+    let mut creatures_by_id: HashMap<String, Vec<(Entity, CreatureStats, Vec3)>> = HashMap::new();
+
+    for (entity, stats, transform) in creature_query.iter() {
         // Skip creatures that can't evolve
         if stats.evolves_into.is_empty() || stats.evolution_count == 0 {
             continue;
         }
 
-        *creatures_by_id.entry(stats.id.clone()).or_default() += 1;
+        creatures_by_id
+            .entry(stats.id.clone())
+            .or_default()
+            .push((entity, stats.clone(), transform.translation));
     }
 
     // Check each creature type for evolution readiness
-    for (creature_id, count) in creatures_by_id {
-        // Get the evolution count for this creature type
-        let evolution_count = creature_query
-            .iter()
-            .find(|stats| stats.id == creature_id)
-            .map(|stats| stats.evolution_count)
-            .unwrap_or(3);
+    for (creature_id, mut creatures) in creatures_by_id {
+        let evolution_count = creatures
+            .first()
+            .map(|(_, stats, _)| stats.evolution_count)
+            .unwrap_or(3) as usize;
 
-        if count >= evolution_count as usize {
-            // Only announce once per creature type
-            if evolution_state.announced.contains(&creature_id) {
-                continue;
-            }
+        if creatures.len() < evolution_count {
+            // Not enough creatures - clear announcement if it was set
+            evolution_state.announced.remove(&creature_id);
+            continue;
+        }
 
-            // Get the evolves_into ID
-            let evolves_into = creature_query
-                .iter()
-                .find(|stats| stats.id == creature_id)
-                .map(|stats| stats.evolves_into.clone())
-                .unwrap_or_default();
+        // We have enough creatures for evolution
+        let evolves_into = creatures
+            .first()
+            .map(|(_, stats, _)| stats.evolves_into.clone())
+            .unwrap_or_default();
 
-            if evolves_into.is_empty() {
-                continue;
-            }
+        if evolves_into.is_empty() {
+            continue;
+        }
 
-            // Get creature name for logging
-            let old_name = creature_query
-                .iter()
-                .find(|stats| stats.id == creature_id)
-                .map(|stats| stats.name.clone())
+        // Announce if not yet announced (for manual mode UI feedback)
+        if !evolution_state.announced.contains(&creature_id) {
+            let old_name = creatures
+                .first()
+                .map(|(_, stats, _)| stats.name.clone())
                 .unwrap_or_else(|| creature_id.clone());
 
-            // Get evolved creature name
             let new_name = game_data
                 .creatures
                 .iter()
@@ -224,31 +233,103 @@ pub fn creature_evolution_system(
                 .map(|c| c.name.clone())
                 .unwrap_or_else(|| evolves_into.clone());
 
-            println!("SFX_EVOLUTION");
+            println!("SFX_EVOLUTION_READY");
             println!(
                 "Evolution ready: {}x {} can become {}!",
                 evolution_count, old_name, new_name
             );
 
-            // Mark as announced
-            evolution_state.announced.insert(creature_id);
+            evolution_state.announced.insert(creature_id.clone());
+        }
+
+        // Check if we should trigger evolution
+        let should_evolve = debug_settings.auto_evolve
+            || (!debug_settings.auto_evolve
+                && keyboard_input.just_pressed(debug_settings.evolution_hotkey));
+
+        if should_evolve {
+            // Perform the evolution
+            perform_evolution(
+                &mut commands,
+                &game_data,
+                &artifact_buffs,
+                &mut creatures,
+                evolution_count,
+            );
+
+            // Clear the announcement since we consumed the creatures
+            evolution_state.announced.remove(&creature_id);
+
+            // In manual mode, only evolve one type per key press
+            if !debug_settings.auto_evolve {
+                break;
+            }
         }
     }
+}
 
-    // Clear announcements for creatures that are no longer evolution-ready
-    // (e.g., if one died and count dropped below threshold)
-    evolution_state.announced.retain(|creature_id| {
-        let count = creature_query
+/// Helper function to perform creature evolution
+fn perform_evolution(
+    commands: &mut Commands,
+    game_data: &GameData,
+    artifact_buffs: &ArtifactBuffs,
+    creatures: &mut Vec<(Entity, CreatureStats, Vec3)>,
+    count: usize,
+) {
+    // Sort by level ascending to consume lowest level creatures first
+    creatures.sort_by(|a, b| a.1.level.cmp(&b.1.level));
+
+    // Take the first `count` creatures to consume
+    let to_consume: Vec<_> = creatures.drain(..count).collect();
+
+    // Calculate average position for spawning the evolved creature
+    let avg_pos = to_consume
+        .iter()
+        .map(|(_, _, pos)| *pos)
+        .reduce(|a, b| a + b)
+        .map(|sum| sum / count as f32)
+        .unwrap_or(Vec3::ZERO);
+
+    // Get evolution target info
+    let evolved_id = &to_consume[0].1.evolves_into;
+    let old_name = &to_consume[0].1.name;
+
+    // Spawn gold flash effects at each consumed creature position and despawn them
+    for (entity, _, pos) in &to_consume {
+        spawn_evolution_effect(commands, *pos);
+        commands.entity(*entity).despawn_recursive();
+    }
+
+    // Spawn evolution effect at the new creature's spawn position
+    spawn_evolution_effect(commands, avg_pos);
+
+    // Spawn the evolved creature
+    if spawn_creature(commands, game_data, artifact_buffs, evolved_id, avg_pos).is_some() {
+        let new_name = game_data
+            .creatures
             .iter()
-            .filter(|stats| stats.id == *creature_id)
-            .count();
-        let evolution_count = creature_query
-            .iter()
-            .find(|stats| stats.id == *creature_id)
-            .map(|stats| stats.evolution_count)
-            .unwrap_or(3);
-        count >= evolution_count as usize
-    });
+            .find(|c| c.id == *evolved_id)
+            .map(|c| c.name.clone())
+            .unwrap_or_else(|| evolved_id.clone());
+
+        println!("SFX_EVOLUTION_COMPLETE");
+        println!("{}x {} evolved into {}!", count, old_name, new_name);
+    }
+}
+
+/// Spawn a gold expanding ring effect at the given position
+fn spawn_evolution_effect(commands: &mut Commands, position: Vec3) {
+    commands.spawn((
+        EvolutionEffect {
+            timer: Timer::from_seconds(0.5, TimerMode::Once),
+        },
+        Sprite {
+            color: Color::srgba(1.0, 0.8, 0.2, 0.9), // Gold
+            custom_size: Some(Vec2::new(CREATURE_SIZE * 1.5, CREATURE_SIZE * 1.5)),
+            ..default()
+        },
+        Transform::from_translation(Vec3::new(position.x, position.y, 0.8)),
+    ));
 }
 
 /// System that updates evolution effects

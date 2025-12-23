@@ -1,8 +1,28 @@
 # Bloodtide Development Progress
 
-## Current Phase: 21 - Bosses
+
+## Known Issues / Backlog
+
+### Critical (Blocking Progression)
+- [x] **Creature combination disabled** - FIXED in Phase 22
+- [ ] **Director over-spawning** - Standing still causes director to dump too many enemies (forced movement)
+
+### Visual/Polish (Not Blocking)
+- [ ] **Creature visual differentiation** - All creatures render as red squares, can't tell Fire Imp from Ember Hound
+  - Solution: Different colored squares per creature type
+  - Level indicator (L2 vs L3 visible)
+  - Evolution visual (3 fire imps → inferno imp feedback)
+- [ ] **Level 5 crown idea** - Corners get colored, crown appears in center at max level
+- [ ] **Creature range too short** - Some creatures have very little range at start; consider baseline increase OR add a long-range creature early
+
+### Debug Tools (Quality of Life)
+- [ ] **Spawn menu** - Tab key pauses, slides menu from left, allows spawning any creature for testing
+
+### Deferred
+- [ ] **21F - Wave mechanics tuning** - Adjust wave mechanics, currently deprioritized
 
 ---
+
 
 ## Phase 1: Data Loading ✅
 
@@ -657,7 +677,81 @@
   - Runs after level_up_effect_system with other panel updates
 - [x] Test: 173 tests passing, build succeeds
 
-## Phase 22: Bosses ⬅️ CURRENT
+---
+
+## Upcoming Phases
+
+### Phase 22: Creature Evolution & Combination ✅
+
+**Completed: 2048-style automatic creature combination**
+
+- [x] Fixed creature combination system:
+  - Dual mode: Auto-evolve (2048-style) or manual hotkey trigger
+  - Configurable evolution hotkey (default: R, rebindable in pause menu)
+  - 3x same creature → instant evolution when count reached
+  - Consumes lowest-level creatures first (highest levels preserved)
+- [x] Visual feedback for evolution:
+  - Green up arrow (▲) indicator next to creatures that will be consumed
+  - Evolution preview showing "→ Evolved Creature Name"
+  - Keybind hint "[R] to evolve" in manual mode
+  - Gold ring effect at each consumed creature + spawn position
+- [x] Evolution data integration:
+  - Uses evolves_into from TOML
+  - Spawns evolved creature at average position of consumed creatures
+  - New creature starts at L1 with evolved base stats
+- [x] UI additions:
+  - "Evolution" section in pause menu
+  - "Auto-Evolve (2048-style)" checkbox toggle
+  - Click-to-rebind evolution hotkey button
+- [x] Test: Get 3 Fire Imps → auto-evolves to Flame Fiend ✓
+
+### Phase 23: GPU Acceleration & Performance
+
+**Priority: HIGH - Experiencing slowdown**
+
+- [ ] Implement GPU instancing for sprite rendering
+- [ ] Spatial partitioning for collision detection
+- [ ] Batch projectile rendering
+- [ ] Profile and optimize hot paths
+- [ ] Target: 100+ creatures, 500+ enemies at 60 FPS
+- [ ] Test: Stress test with maximum entities
+
+### Phase 24: Creature Visual Differentiation
+
+**Priority: MEDIUM - Quality of life**
+
+- [ ] Different colored squares per creature ID (not just color affinity)
+  - Fire Imp: solid red
+  - Ember Hound: orange or striped
+  - Flame Fiend: darker red
+  - etc.
+- [ ] Level indicator on creature:
+  - Small number overlay OR
+  - Border thickness/glow intensity
+- [ ] Evolution tier indicator (T1/T2/T3 visible)
+- [ ] Test: Can visually distinguish all creature types at a glance
+
+### Phase 25: Debug Spawn Menu
+
+**Priority: LOW - Developer QoL**
+
+- [ ] Tab key toggles spawn menu
+- [ ] Menu slides in from left side
+- [ ] Pause game while menu open
+- [ ] List all creatures from TOML
+- [ ] Click to spawn creature at player position
+- [ ] Useful for testing creature abilities and combinations
+
+### Phase 26: Director Tuning
+
+- [ ] Fix over-spawning when stationary
+- [ ] Better pacing curve
+- [ ] Smooth difficulty transitions
+- [ ] Test: Standing still doesn't cause enemy flood
+
+### Phase 27: Bosses
+
+**Priority: DEFERRED until evolution works**
 
 - [ ] Create src/components/boss.rs:
   - Boss marker component
@@ -684,7 +778,7 @@
 - [ ] First boss: Troll Chief (Wave 10)
 - [ ] Test: Reach wave 10, fight boss, phases change, boss drops loot
 
-## Phase 23: Formation by Type
+### Phase 28: Formation by Type
 
 - [ ] Update creature AI based on CreatureType:
   - Melee: Position in front of player (toward nearest enemy)
@@ -698,7 +792,7 @@
   - Shorter attack range but higher damage
 - [ ] Test: Mixed army positions correctly, melee in front
 
-## Phase 24: Player Health + Game Over
+### Phase 29: Player Health + Game Over
 
 - [ ] Add player HP:
   - Player has health (starts at 100)
@@ -714,7 +808,7 @@
   - Option to restart
 - [ ] Test: Enemies can kill player if all creatures dead
 
-## Phase 25: Polish + Balance
+### Phase 30: Polish + Balance
 
 - [ ] Remove spacebar test spawning (creatures only from deck)
 - [ ] Balance pass:
@@ -768,12 +862,12 @@
 - Use placeholder art (colored shapes) for everything
 - Test each phase before moving to next
 - Commit after each completed phase
-- Keep spacebar spawning until Phase 24 for testing
+- Keep spacebar spawning until Phase 29 for testing
 
 ## Current Blockers
 
-(None)
+- None! Phase 22 creature evolution is now working.
 
 ## Last Updated
 
-Phase 21G completed - Weapon Stats Display with renamed "WEAPONS & AFFINITY" section header, weapon list showing each equipped weapon name and tier with tier-colored text, weapon stats summary box (Wpn Damage total, Wpn Speed fastest, Wpn Count), weapon tooltips on hover showing full stats (damage, attack speed, range, affinity, projectiles, pattern, evolution recipe), "No weapons equipped" message when empty, separator line between weapons and affinity sections, update_weapon_stats_display_system registered in main.rs
+Phase 22 complete: Creature evolution/combination system implemented with 2048-style auto-combine, configurable hotkey for manual mode, UI indicators, and visual effects. 174 tests passing.

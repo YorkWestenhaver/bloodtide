@@ -19,7 +19,7 @@ const CHECKBOX_SIZE: f32 = 20.0;
 const MENU_ANIMATION_SPEED: f32 = 5.0; // Speed of slide animation
 
 const PAUSE_MENU_WIDTH: f32 = 300.0;
-const PAUSE_MENU_HEIGHT: f32 = 400.0;
+const PAUSE_MENU_HEIGHT: f32 = 500.0; // Increased to fit evolution section
 
 const PANEL_BACKGROUND: Color = Color::srgba(0.08, 0.08, 0.12, 0.95);
 const SLIDER_BG: Color = Color::srgb(0.15, 0.15, 0.2);
@@ -120,6 +120,14 @@ pub struct QuitButton;
 #[derive(Component)]
 pub struct ToggleModeCheckbox;
 
+/// Evolution keybind button in pause menu
+#[derive(Component)]
+pub struct EvolutionKeybindButton;
+
+/// Text display for evolution keybind
+#[derive(Component)]
+pub struct EvolutionKeybindText;
+
 // =============================================================================
 // SETTING IDS
 // =============================================================================
@@ -194,6 +202,7 @@ pub enum CheckboxSettingId {
     ShowAdvancedTooltips,
     ShowExpandedCreatureStats,
     ShowExpandedAffinityStats,
+    AutoEvolve,
 }
 
 impl CheckboxSettingId {
@@ -206,6 +215,7 @@ impl CheckboxSettingId {
             Self::ShowAdvancedTooltips => "Advanced Tooltips",
             Self::ShowExpandedCreatureStats => "Expanded Creature Stats",
             Self::ShowExpandedAffinityStats => "Expanded Affinity Stats",
+            Self::AutoEvolve => "Auto-Evolve (2048-style)",
         }
     }
 }
@@ -387,6 +397,57 @@ pub fn spawn_pause_menu_system(mut commands: Commands) {
         spawn_pause_checkbox(parent, CheckboxSettingId::ShowAdvancedTooltips, "Advanced Tooltips");
         spawn_pause_checkbox(parent, CheckboxSettingId::ShowExpandedCreatureStats, "Expanded Creature Stats");
         spawn_pause_checkbox(parent, CheckboxSettingId::ShowExpandedAffinityStats, "Expanded Affinity Stats");
+
+        // Evolution section header
+        parent.spawn((
+            Text::new("Evolution"),
+            TextFont { font_size: 14.0, ..default() },
+            TextColor(Color::srgb(0.6, 0.6, 0.7)),
+            Node {
+                margin: UiRect {
+                    top: Val::Px(15.0),
+                    bottom: Val::Px(8.0),
+                    ..default()
+                },
+                ..default()
+            },
+        ));
+
+        // Auto-evolve checkbox
+        spawn_pause_checkbox(parent, CheckboxSettingId::AutoEvolve, "Auto-Evolve (2048-style)");
+
+        // Evolution keybind row
+        parent.spawn(Node {
+            width: Val::Percent(100.0),
+            height: Val::Px(BUTTON_HEIGHT),
+            margin: UiRect::bottom(Val::Px(6.0)),
+            flex_direction: FlexDirection::Row,
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            ..default()
+        }).with_children(|row| {
+            row.spawn((
+                Text::new("Evolve Hotkey: "),
+                TextFont { font_size: 14.0, ..default() },
+                TextColor(TEXT_COLOR),
+            ));
+            row.spawn((
+                EvolutionKeybindButton,
+                Button,
+                Node {
+                    padding: UiRect::new(Val::Px(10.0), Val::Px(10.0), Val::Px(4.0), Val::Px(4.0)),
+                    ..default()
+                },
+                BackgroundColor(BUTTON_BG),
+            )).with_children(|btn| {
+                btn.spawn((
+                    EvolutionKeybindText,
+                    Text::new("[R]"),
+                    TextFont { font_size: 14.0, ..default() },
+                    TextColor(Color::srgb(0.3, 0.8, 0.4)),
+                ));
+            });
+        });
 
         // Restart button
         spawn_pause_button(parent, RestartButton, "Restart Run");
@@ -637,6 +698,70 @@ pub fn debug_menu_input_system(
             debug_settings.menu_state = MenuState::DebugMenuOpen;
         } else if !shift_pressed && debug_settings.menu_state == MenuState::DebugMenuOpen {
             debug_settings.menu_state = MenuState::Closed;
+        }
+    }
+}
+
+// =============================================================================
+// EVOLUTION KEYBIND CAPTURE
+// =============================================================================
+
+/// Handle evolution keybind capture when button is clicked
+pub fn evolution_keybind_capture_system(
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut debug_settings: ResMut<DebugSettings>,
+    keybind_button_query: Query<&Interaction, (With<EvolutionKeybindButton>, Changed<Interaction>)>,
+) {
+    // Check if button was clicked to start capture
+    for interaction in keybind_button_query.iter() {
+        if *interaction == Interaction::Pressed && !debug_settings.waiting_for_keybind {
+            debug_settings.waiting_for_keybind = true;
+            return;
+        }
+    }
+
+    // If waiting for keybind, capture next key press
+    if debug_settings.waiting_for_keybind {
+        for key in keyboard_input.get_just_pressed() {
+            // Exclude modifier keys
+            if matches!(
+                *key,
+                KeyCode::ShiftLeft
+                    | KeyCode::ShiftRight
+                    | KeyCode::ControlLeft
+                    | KeyCode::ControlRight
+                    | KeyCode::AltLeft
+                    | KeyCode::AltRight
+                    | KeyCode::SuperLeft
+                    | KeyCode::SuperRight
+            ) {
+                continue;
+            }
+
+            // Escape cancels capture
+            if *key == KeyCode::Escape {
+                debug_settings.waiting_for_keybind = false;
+                break;
+            }
+
+            // Accept this key as the new hotkey
+            debug_settings.evolution_hotkey = *key;
+            debug_settings.waiting_for_keybind = false;
+            break;
+        }
+    }
+}
+
+/// Update the evolution keybind text display
+pub fn evolution_keybind_text_system(
+    debug_settings: Res<DebugSettings>,
+    mut text_query: Query<&mut Text, With<EvolutionKeybindText>>,
+) {
+    for mut text in text_query.iter_mut() {
+        if debug_settings.waiting_for_keybind {
+            **text = "Press key...".to_string();
+        } else {
+            **text = format!("[{:?}]", debug_settings.evolution_hotkey);
         }
     }
 }
@@ -966,6 +1091,7 @@ fn get_checkbox_value(settings: &DebugSettings, id: CheckboxSettingId) -> bool {
         CheckboxSettingId::ShowAdvancedTooltips => settings.show_advanced_tooltips,
         CheckboxSettingId::ShowExpandedCreatureStats => settings.show_expanded_creature_stats,
         CheckboxSettingId::ShowExpandedAffinityStats => settings.show_expanded_affinity_stats,
+        CheckboxSettingId::AutoEvolve => settings.auto_evolve,
     }
 }
 
@@ -978,6 +1104,7 @@ fn toggle_checkbox(settings: &mut DebugSettings, id: CheckboxSettingId) {
         CheckboxSettingId::ShowAdvancedTooltips => settings.show_advanced_tooltips = !settings.show_advanced_tooltips,
         CheckboxSettingId::ShowExpandedCreatureStats => settings.show_expanded_creature_stats = !settings.show_expanded_creature_stats,
         CheckboxSettingId::ShowExpandedAffinityStats => settings.show_expanded_affinity_stats = !settings.show_expanded_affinity_stats,
+        CheckboxSettingId::AutoEvolve => settings.auto_evolve = !settings.auto_evolve,
     }
 }
 

@@ -37,6 +37,7 @@ use systems::{
     slider_interaction_system, slider_fill_update_system, slider_value_text_system,
     checkbox_interaction_system, checkbox_indicator_system, toggle_mode_checkbox_system,
     reset_button_system, resume_button_system, restart_button_system, quit_button_system,
+    evolution_keybind_capture_system, evolution_keybind_text_system,
     // Leveling systems (Phase 21E)
     card_roll_queue_system, screen_flash_system, level_up_text_system, level_up_particle_system,
     kill_rate_system, CardRollQueue,
@@ -194,6 +195,8 @@ fn main() {
             resume_button_system,
             restart_button_system,
             quit_button_system,
+            evolution_keybind_capture_system,
+            evolution_keybind_text_system,
         ).after(debug_menu_input_system))
         // Tooltip systems (run after UI updates)
         .add_systems(Update, (

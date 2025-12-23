@@ -1,3 +1,4 @@
+use bevy::input::keyboard::KeyCode;
 use bevy::prelude::*;
 
 /// State of the debug/pause menus
@@ -61,6 +62,11 @@ pub struct DebugSettings {
 
     // Animation state
     pub menu_slide_progress: f32, // 0.0 = closed, 1.0 = fully open
+
+    // Evolution settings
+    pub auto_evolve: bool,           // true = 2048-style auto-combine, false = manual hotkey
+    pub evolution_hotkey: KeyCode,   // Default: KeyCode::KeyR
+    pub waiting_for_keybind: bool,   // UI state for keybind capture
 }
 
 impl Default for DebugSettings {
@@ -94,6 +100,9 @@ impl Default for DebugSettings {
             menu_state: MenuState::Closed,
             menu_toggle_mode: true,
             menu_slide_progress: 0.0,
+            auto_evolve: true,
+            evolution_hotkey: KeyCode::KeyR,
+            waiting_for_keybind: false,
         }
     }
 }
@@ -232,5 +241,13 @@ mod tests {
         assert!(SliderRange::PENETRATION.min < SliderRange::PENETRATION.max);
         assert!(SliderRange::BASE_KILLS.min < SliderRange::BASE_KILLS.max);
         assert!(SliderRange::LEVEL_SCALING.min < SliderRange::LEVEL_SCALING.max);
+    }
+
+    #[test]
+    fn default_evolution_settings() {
+        let settings = DebugSettings::default();
+        assert!(settings.auto_evolve);
+        assert_eq!(settings.evolution_hotkey, KeyCode::KeyR);
+        assert!(!settings.waiting_for_keybind);
     }
 }

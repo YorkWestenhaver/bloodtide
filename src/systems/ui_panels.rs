@@ -1,9 +1,12 @@
 use bevy::prelude::*;
 use rand::Rng;
 
+use std::collections::HashMap;
+
 use crate::components::{Creature, CreatureColor, CreatureStats};
 use crate::components::weapon::{Weapon, WeaponData, WeaponStats};
 use crate::resources::{AffinityState, ArtifactBuffs, DebugSettings, GameData, GameState};
+use crate::systems::creature_xp::EvolutionReadyState;
 use crate::systems::death::RespawnQueue;
 use crate::systems::tooltips::{TooltipContent, TooltipTarget};
 
@@ -153,6 +156,14 @@ pub fn spawn_creature_panel_system(mut commands: Commands) {
         });
 }
 
+/// Info about evolution readiness for a creature type
+struct EvolutionInfo {
+    is_ready: bool,
+    evolves_into_name: String,
+    count: usize,
+    evolution_count: u32,
+}
+
 /// Updates the creature panel to show current creatures and respawning creatures
 pub fn update_creature_panel_system(
     mut commands: Commands,
@@ -160,19 +171,100 @@ pub fn update_creature_panel_system(
     respawn_queue: Res<RespawnQueue>,
     game_data: Res<GameData>,
     debug_settings: Res<DebugSettings>,
+    evolution_state: Res<EvolutionReadyState>,
     panel_content_query: Query<Entity, With<CreaturePanelContent>>,
 ) {
     let Ok(panel_entity) = panel_content_query.get_single() else {
         return;
     };
 
+    // Count creatures by ID to determine evolution readiness
+    let mut creature_counts: HashMap<String, (usize, u32, String)> = HashMap::new(); // (count, evolution_count, evolves_into)
+    for (_, stats) in creature_query.iter() {
+        creature_counts
+            .entry(stats.id.clone())
+            .or_insert((0, stats.evolution_count, stats.evolves_into.clone()))
+            .0 += 1;
+    }
+
+    // Build evolution info map
+    let mut evolution_info: HashMap<String, EvolutionInfo> = HashMap::new();
+    for (id, (count, evolution_count, evolves_into)) in &creature_counts {
+        let is_ready = !evolves_into.is_empty()
+            && *evolution_count > 0
+            && *count >= *evolution_count as usize;
+
+        let evolves_into_name = if is_ready {
+            game_data
+                .creatures
+                .iter()
+                .find(|c| c.id == *evolves_into)
+                .map(|c| c.name.clone())
+                .unwrap_or_else(|| evolves_into.clone())
+        } else {
+            String::new()
+        };
+
+        evolution_info.insert(id.clone(), EvolutionInfo {
+            is_ready,
+            evolves_into_name,
+            count: *count,
+            evolution_count: *evolution_count,
+        });
+    }
+
     // Clear existing content
     commands.entity(panel_entity).despawn_descendants();
 
     // Add active creatures
     commands.entity(panel_entity).with_children(|parent| {
-        for (creature_entity, stats) in creature_query.iter() {
-            spawn_creature_row(parent, creature_entity, stats, debug_settings.show_expanded_creature_stats);
+        // Group creatures by ID for display
+        let mut creatures_by_id: HashMap<String, Vec<(Entity, CreatureStats)>> = HashMap::new();
+        for (entity, stats) in creature_query.iter() {
+            creatures_by_id
+                .entry(stats.id.clone())
+                .or_default()
+                .push((entity, stats.clone()));
+        }
+
+        // Sort creature groups by name for consistent display
+        let mut sorted_groups: Vec<_> = creatures_by_id.into_iter().collect();
+        sorted_groups.sort_by(|a, b| {
+            a.1.first().map(|(_, s)| &s.name).cmp(&b.1.first().map(|(_, s)| &s.name))
+        });
+
+        for (creature_id, creatures) in sorted_groups {
+            let info = evolution_info.get(&creature_id);
+            let is_evolution_ready = info.map(|i| i.is_ready).unwrap_or(false);
+            let evolution_count = info.map(|i| i.evolution_count).unwrap_or(3);
+
+            // Sort by level to show which ones will be consumed (lowest first)
+            let mut sorted_creatures = creatures;
+            sorted_creatures.sort_by(|a, b| a.1.level.cmp(&b.1.level));
+
+            for (idx, (creature_entity, stats)) in sorted_creatures.iter().enumerate() {
+                // Show green arrow for creatures that will be consumed (first N where N = evolution_count)
+                let will_be_consumed = is_evolution_ready && idx < evolution_count as usize;
+                spawn_creature_row(
+                    parent,
+                    *creature_entity,
+                    stats,
+                    debug_settings.show_expanded_creature_stats,
+                    will_be_consumed,
+                );
+            }
+
+            // Show evolution target preview after the group
+            if is_evolution_ready {
+                if let Some(info) = evolution_info.get(&creature_id) {
+                    spawn_evolution_preview(
+                        parent,
+                        &info.evolves_into_name,
+                        debug_settings.auto_evolve,
+                        debug_settings.evolution_hotkey,
+                    );
+                }
+            }
         }
 
         // Add respawning creatures
@@ -218,7 +310,13 @@ pub fn update_creature_panel_system(
     });
 }
 
-fn spawn_creature_row(parent: &mut ChildBuilder, creature_entity: Entity, stats: &CreatureStats, show_expanded: bool) {
+fn spawn_creature_row(
+    parent: &mut ChildBuilder,
+    creature_entity: Entity,
+    stats: &CreatureStats,
+    show_expanded: bool,
+    will_be_consumed: bool,
+) {
     let hp_percent = (stats.current_hp / stats.max_hp).clamp(0.0, 1.0) as f32;
     let hp_color = if hp_percent > 0.6 {
         Color::srgb(0.3, 0.8, 0.3)
@@ -244,19 +342,34 @@ fn spawn_creature_row(parent: &mut ChildBuilder, creature_entity: Entity, stats:
             content: TooltipContent::Creature(creature_entity),
         },
     )).with_children(|row| {
-        // Top row: Name, Level, Kills
+        // Top row: Name (with evolution indicator), Level, Kills
         row.spawn(Node {
             flex_direction: FlexDirection::Row,
             justify_content: JustifyContent::SpaceBetween,
             width: Val::Percent(100.0),
             ..default()
         }).with_children(|top| {
-            // Name
-            top.spawn((
-                Text::new(&stats.name),
-                TextFont { font_size: 14.0, ..default() },
-                TextColor(stats.color.to_bevy_color()),
-            ));
+            // Name with optional evolution indicator
+            top.spawn(Node {
+                flex_direction: FlexDirection::Row,
+                align_items: AlignItems::Center,
+                ..default()
+            }).with_children(|name_row| {
+                // Green up arrow if this creature will be consumed in evolution
+                if will_be_consumed {
+                    name_row.spawn((
+                        Text::new("▲ "),
+                        TextFont { font_size: 12.0, ..default() },
+                        TextColor(Color::srgb(0.3, 0.9, 0.3)), // Green
+                    ));
+                }
+                // Name
+                name_row.spawn((
+                    Text::new(&stats.name),
+                    TextFont { font_size: 14.0, ..default() },
+                    TextColor(stats.color.to_bevy_color()),
+                ));
+            });
             // Level and kills
             top.spawn((
                 Text::new(format!("Lv.{} K:{}", stats.level, stats.kills)),
@@ -314,6 +427,38 @@ fn spawn_creature_row(parent: &mut ChildBuilder, creature_entity: Entity, stats:
                     ));
                 }
             });
+        }
+    });
+}
+
+/// Spawn the evolution preview row showing what creatures will evolve into
+fn spawn_evolution_preview(
+    parent: &mut ChildBuilder,
+    evolves_into_name: &str,
+    auto_evolve: bool,
+    evolution_hotkey: KeyCode,
+) {
+    parent.spawn(Node {
+        flex_direction: FlexDirection::Column,
+        width: Val::Percent(100.0),
+        margin: UiRect::bottom(Val::Px(8.0)),
+        padding: UiRect::new(Val::Px(12.0), Val::Px(4.0), Val::Px(2.0), Val::Px(2.0)),
+        ..default()
+    }).with_children(|col| {
+        // Evolution target: "→ Flame Fiend"
+        col.spawn((
+            Text::new(format!("→ {}", evolves_into_name)),
+            TextFont { font_size: 12.0, ..default() },
+            TextColor(Color::srgb(0.5, 0.7, 0.5)), // Grayish green
+        ));
+
+        // Keybind hint (only in manual mode)
+        if !auto_evolve {
+            col.spawn((
+                Text::new(format!("[{:?}] to evolve", evolution_hotkey)),
+                TextFont { font_size: 10.0, ..default() },
+                TextColor(Color::srgb(0.4, 0.6, 0.4)),
+            ));
         }
     });
 }
