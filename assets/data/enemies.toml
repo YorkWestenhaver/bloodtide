@@ -1,0 +1,436 @@
+# Bloodtide - Enemies Data
+# Generic enemies for all game modes
+
+# =============================================================================
+# FODDER ENEMIES
+# =============================================================================
+
+[[enemies]]
+id = "goblin"
+name = "Goblin"
+enemy_class = "fodder"
+enemy_type = "melee"
+color_resist = ""
+color_weak = ""
+base_hp = 30.0
+base_damage = 5.0
+attack_speed = 1.0
+movement_speed = 80.0
+attack_range = 40.0
+ai_type = "chase"
+targets_creatures = false
+min_wave = 1
+spawn_weight = 100.0
+group_size_min = 3
+group_size_max = 8
+xp_value = 1
+phases = 0
+description = "Basic melee fodder. Runs at you and attacks."
+
+[[enemies]]
+id = "goblin_archer"
+name = "Goblin Archer"
+enemy_class = "fodder"
+enemy_type = "ranged"
+color_resist = ""
+color_weak = ""
+base_hp = 20.0
+base_damage = 8.0
+attack_speed = 0.8
+movement_speed = 60.0
+attack_range = 250.0
+ai_type = "kite"
+targets_creatures = false
+min_wave = 6
+spawn_weight = 50.0
+group_size_min = 2
+group_size_max = 5
+xp_value = 1
+phases = 0
+description = "Ranged fodder. Keeps distance and shoots arrows."
+
+[[enemies]]
+id = "wolf"
+name = "Wolf"
+enemy_class = "fodder"
+enemy_type = "fast"
+color_resist = ""
+color_weak = ""
+base_hp = 25.0
+base_damage = 10.0
+attack_speed = 1.5
+movement_speed = 150.0
+attack_range = 35.0
+ai_type = "flank"
+targets_creatures = false
+min_wave = 11
+spawn_weight = 40.0
+group_size_min = 3
+group_size_max = 6
+xp_value = 1
+phases = 0
+description = "Fast flanker. Tries to get around your frontline."
+
+[[enemies]]
+id = "skeleton"
+name = "Skeleton"
+enemy_class = "fodder"
+enemy_type = "melee"
+color_resist = ""
+color_weak = ""
+base_hp = 35.0
+base_damage = 7.0
+attack_speed = 0.9
+movement_speed = 70.0
+attack_range = 40.0
+ai_type = "chase"
+targets_creatures = false
+min_wave = 15
+spawn_weight = 60.0
+group_size_min = 4
+group_size_max = 10
+xp_value = 1
+phases = 0
+description = "Undead warrior. Nothing special but comes in large groups."
+
+[[enemies]]
+id = "bat_swarm"
+name = "Bat Swarm"
+enemy_class = "fodder"
+enemy_type = "fast"
+color_resist = ""
+color_weak = ""
+base_hp = 15.0
+base_damage = 3.0
+attack_speed = 2.0
+movement_speed = 180.0
+attack_range = 30.0
+ai_type = "chase"
+targets_creatures = true
+min_wave = 8
+spawn_weight = 30.0
+group_size_min = 5
+group_size_max = 12
+xp_value = 1
+phases = 0
+description = "Fast and annoying. Targets your creatures directly."
+
+[[enemies]]
+id = "slime"
+name = "Slime"
+enemy_class = "fodder"
+enemy_type = "melee"
+color_resist = ""
+color_weak = ""
+base_hp = 50.0
+base_damage = 4.0
+attack_speed = 0.6
+movement_speed = 40.0
+attack_range = 50.0
+ai_type = "chase"
+targets_creatures = false
+min_wave = 1
+spawn_weight = 70.0
+group_size_min = 2
+group_size_max = 5
+xp_value = 1
+phases = 0
+description = "Slow and tanky for fodder. Easy to kite."
+
+# =============================================================================
+# ELITE ENEMIES
+# =============================================================================
+
+[[enemies]]
+id = "orc_warrior"
+name = "Orc Warrior"
+enemy_class = "elite"
+enemy_type = "tank"
+color_resist = ""
+color_weak = ""
+base_hp = 200.0
+base_damage = 20.0
+attack_speed = 0.7
+movement_speed = 60.0
+attack_range = 50.0
+ai_type = "chase"
+targets_creatures = false
+min_wave = 10
+spawn_weight = 30.0
+group_size_min = 1
+group_size_max = 3
+xp_value = 5
+phases = 0
+description = "Tanky elite with a shield. Blocks some frontal damage."
+
+[[enemies]]
+id = "goblin_shaman"
+name = "Goblin Shaman"
+enemy_class = "elite"
+enemy_type = "healer"
+color_resist = ""
+color_weak = ""
+base_hp = 80.0
+base_damage = 12.0
+attack_speed = 1.0
+movement_speed = 50.0
+attack_range = 200.0
+ai_type = "support"
+targets_creatures = false
+min_wave = 21
+spawn_weight = 20.0
+group_size_min = 1
+group_size_max = 2
+xp_value = 5
+phases = 0
+description = "Heals nearby enemies. Kill it first."
+
+[[enemies]]
+id = "orc_warchief"
+name = "Orc Warchief"
+enemy_class = "elite"
+enemy_type = "commander"
+color_resist = ""
+color_weak = ""
+base_hp = 150.0
+base_damage = 25.0
+attack_speed = 0.9
+movement_speed = 70.0
+attack_range = 55.0
+ai_type = "chase"
+targets_creatures = false
+min_wave = 26
+spawn_weight = 15.0
+group_size_min = 1
+group_size_max = 1
+xp_value = 8
+phases = 0
+description = "Buffs nearby enemy damage by 25%. High priority target."
+
+[[enemies]]
+id = "shadow_assassin"
+name = "Shadow Assassin"
+enemy_class = "elite"
+enemy_type = "fast"
+color_resist = ""
+color_weak = ""
+base_hp = 100.0
+base_damage = 40.0
+attack_speed = 1.2
+movement_speed = 200.0
+attack_range = 40.0
+ai_type = "flank"
+targets_creatures = true
+min_wave = 36
+spawn_weight = 15.0
+group_size_min = 1
+group_size_max = 2
+xp_value = 5
+phases = 0
+description = "Phases through your frontline, targets your ranged creatures."
+
+[[enemies]]
+id = "necromancer"
+name = "Necromancer"
+enemy_class = "elite"
+enemy_type = "ranged"
+color_resist = ""
+color_weak = ""
+base_hp = 100.0
+base_damage = 15.0
+attack_speed = 0.8
+movement_speed = 45.0
+attack_range = 280.0
+ai_type = "kite"
+targets_creatures = false
+min_wave = 31
+spawn_weight = 15.0
+group_size_min = 1
+group_size_max = 1
+xp_value = 8
+phases = 0
+description = "Resurrects dead enemies as weaker skeletons. Very annoying."
+
+[[enemies]]
+id = "ogre"
+name = "Ogre"
+enemy_class = "elite"
+enemy_type = "tank"
+color_resist = ""
+color_weak = ""
+base_hp = 400.0
+base_damage = 35.0
+attack_speed = 0.5
+movement_speed = 45.0
+attack_range = 70.0
+ai_type = "chase"
+targets_creatures = false
+min_wave = 20
+spawn_weight = 20.0
+group_size_min = 1
+group_size_max = 2
+xp_value = 10
+phases = 0
+description = "Big, slow, hits hard. Classic tank."
+
+# =============================================================================
+# COUNTER ENEMIES (Color-specific)
+# =============================================================================
+
+[[enemies]]
+id = "water_elemental"
+name = "Water Elemental"
+enemy_class = "elite"
+enemy_type = "tank"
+color_resist = "red"
+color_weak = "green"
+base_hp = 250.0
+base_damage = 20.0
+attack_speed = 0.8
+movement_speed = 55.0
+attack_range = 60.0
+ai_type = "chase"
+targets_creatures = false
+min_wave = 46
+spawn_weight = 10.0
+group_size_min = 1
+group_size_max = 2
+xp_value = 8
+phases = 0
+description = "Takes 50% less fire damage. Director spawns these against red decks."
+
+[[enemies]]
+id = "fire_golem"
+name = "Fire Golem"
+enemy_class = "elite"
+enemy_type = "tank"
+color_resist = "red"
+color_weak = "blue"
+base_hp = 350.0
+base_damage = 30.0
+attack_speed = 0.6
+movement_speed = 40.0
+attack_range = 65.0
+ai_type = "chase"
+targets_creatures = false
+min_wave = 46
+spawn_weight = 10.0
+group_size_min = 1
+group_size_max = 1
+xp_value = 10
+phases = 0
+description = "Fire resistant golem. Forces red decks to adapt or rely on weapon damage."
+
+# =============================================================================
+# BOSSES
+# =============================================================================
+
+[[enemies]]
+id = "troll_chief"
+name = "Troll Chief"
+enemy_class = "boss"
+enemy_type = "tank"
+color_resist = ""
+color_weak = "red"
+base_hp = 2000.0
+base_damage = 40.0
+attack_speed = 0.8
+movement_speed = 50.0
+attack_range = 80.0
+ai_type = "chase"
+targets_creatures = false
+min_wave = 10
+spawn_weight = 0.0
+group_size_min = 1
+group_size_max = 1
+xp_value = 50
+phases = 2
+description = "Wave 10 boss. Phase 1: Slam attacks. Phase 2: Summons goblin adds, enrages."
+
+[[enemies]]
+id = "frost_giant"
+name = "Frost Giant"
+enemy_class = "boss"
+enemy_type = "tank"
+color_resist = "blue"
+color_weak = "red"
+base_hp = 5000.0
+base_damage = 80.0
+attack_speed = 0.6
+movement_speed = 40.0
+attack_range = 100.0
+ai_type = "chase"
+targets_creatures = false
+min_wave = 20
+spawn_weight = 0.0
+group_size_min = 1
+group_size_max = 1
+xp_value = 100
+phases = 3
+description = "Wave 20 boss. Ice breath cone, ground freeze patches, blizzard in Phase 3."
+
+[[enemies]]
+id = "dragon_knight"
+name = "Dragon Knight"
+enemy_class = "boss"
+enemy_type = "melee"
+color_resist = "red"
+color_weak = "blue"
+base_hp = 8000.0
+base_damage = 100.0
+attack_speed = 0.9
+movement_speed = 70.0
+attack_range = 90.0
+ai_type = "chase"
+targets_creatures = true
+min_wave = 30
+spawn_weight = 0.0
+group_size_min = 1
+group_size_max = 1
+xp_value = 150
+phases = 3
+description = "Wave 30 boss. Fire breath (ironic counter to red), charge attack, summons drakes."
+
+[[enemies]]
+id = "lich_king"
+name = "Lich King"
+enemy_class = "boss"
+enemy_type = "ranged"
+color_resist = ""
+color_weak = ""
+base_hp = 12000.0
+base_damage = 60.0
+attack_speed = 1.0
+movement_speed = 35.0
+attack_range = 350.0
+ai_type = "kite"
+targets_creatures = true
+min_wave = 40
+spawn_weight = 0.0
+group_size_min = 1
+group_size_max = 1
+xp_value = 200
+phases = 3
+description = "Wave 40 boss. Raises dead as skeletons, death beam, soul drain heals him."
+
+[[enemies]]
+id = "castle_lord"
+name = "Castle Lord"
+enemy_class = "boss"
+enemy_type = "melee"
+color_resist = ""
+color_weak = ""
+base_hp = 20000.0
+base_damage = 150.0
+attack_speed = 1.0
+movement_speed = 60.0
+attack_range = 100.0
+ai_type = "chase"
+targets_creatures = false
+min_wave = 50
+spawn_weight = 0.0
+group_size_min = 1
+group_size_max = 1
+xp_value = 500
+phases = 4
+description = "Final boss. All attack types. Phase 4 enrage below 25% HP is devastating."

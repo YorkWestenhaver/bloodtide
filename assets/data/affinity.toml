@@ -1,0 +1,380 @@
+# Bloodtide - Affinity Thresholds Data
+# Color affinity bonuses at various thresholds
+
+# =============================================================================
+# RED AFFINITY
+# =============================================================================
+
+[[affinity_colors]]
+color = "red"
+overflow_bonus_per_point = 1.0  # +1% damage per point above 100
+
+[[affinity_colors.thresholds]]
+min = 0
+damage_bonus = 0.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = ""
+
+[[affinity_colors.thresholds]]
+min = 11
+damage_bonus = 10.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = ""
+
+[[affinity_colors.thresholds]]
+min = 26
+damage_bonus = 25.0
+attack_speed_bonus = 10.0
+hp_bonus = 0.0
+crit_t1_bonus = 5.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = ""
+
+[[affinity_colors.thresholds]]
+min = 51
+damage_bonus = 50.0
+attack_speed_bonus = 10.0
+hp_bonus = 0.0
+crit_t1_bonus = 10.0
+crit_t2_unlock = true
+crit_t3_unlock = false
+special = ""
+
+[[affinity_colors.thresholds]]
+min = 76
+damage_bonus = 100.0
+attack_speed_bonus = 15.0
+hp_bonus = 0.0
+crit_t1_bonus = 15.0
+crit_t2_unlock = true
+crit_t3_unlock = false
+special = "burn_dot"
+
+[[affinity_colors.thresholds]]
+min = 100
+damage_bonus = 150.0
+attack_speed_bonus = 20.0
+hp_bonus = 0.0
+crit_t1_bonus = 20.0
+crit_t2_unlock = true
+crit_t3_unlock = true
+special = "burn_dot"
+
+# =============================================================================
+# BLUE AFFINITY (Control/Slow)
+# =============================================================================
+
+[[affinity_colors]]
+color = "blue"
+overflow_bonus_per_point = 0.5  # Blue gets less damage, more control
+
+[[affinity_colors.thresholds]]
+min = 0
+damage_bonus = 0.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = ""
+
+[[affinity_colors.thresholds]]
+min = 11
+damage_bonus = 5.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = "slow_5"
+
+[[affinity_colors.thresholds]]
+min = 26
+damage_bonus = 15.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = "slow_10"
+
+[[affinity_colors.thresholds]]
+min = 51
+damage_bonus = 25.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 5.0
+crit_t2_unlock = true
+crit_t3_unlock = false
+special = "slow_20"
+
+[[affinity_colors.thresholds]]
+min = 76
+damage_bonus = 40.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 10.0
+crit_t2_unlock = true
+crit_t3_unlock = false
+special = "freeze_chance"
+
+[[affinity_colors.thresholds]]
+min = 100
+damage_bonus = 60.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 15.0
+crit_t2_unlock = true
+crit_t3_unlock = true
+special = "freeze_chance"
+
+# =============================================================================
+# GREEN AFFINITY (Tank/Regen)
+# =============================================================================
+
+[[affinity_colors]]
+color = "green"
+overflow_bonus_per_point = 0.5  # Green gets HP instead of damage
+
+[[affinity_colors.thresholds]]
+min = 0
+damage_bonus = 0.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = ""
+
+[[affinity_colors.thresholds]]
+min = 11
+damage_bonus = 5.0
+attack_speed_bonus = 0.0
+hp_bonus = 15.0
+crit_t1_bonus = 0.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = ""
+
+[[affinity_colors.thresholds]]
+min = 26
+damage_bonus = 10.0
+attack_speed_bonus = 0.0
+hp_bonus = 30.0
+crit_t1_bonus = 0.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = "regen_1"
+
+[[affinity_colors.thresholds]]
+min = 51
+damage_bonus = 20.0
+attack_speed_bonus = 0.0
+hp_bonus = 50.0
+crit_t1_bonus = 5.0
+crit_t2_unlock = true
+crit_t3_unlock = false
+special = "regen_2"
+
+[[affinity_colors.thresholds]]
+min = 76
+damage_bonus = 35.0
+attack_speed_bonus = 0.0
+hp_bonus = 75.0
+crit_t1_bonus = 10.0
+crit_t2_unlock = true
+crit_t3_unlock = false
+special = "regen_3"
+
+[[affinity_colors.thresholds]]
+min = 100
+damage_bonus = 50.0
+attack_speed_bonus = 0.0
+hp_bonus = 100.0
+crit_t1_bonus = 15.0
+crit_t2_unlock = true
+crit_t3_unlock = true
+special = "regen_3"
+
+# =============================================================================
+# WHITE AFFINITY (Heal/Shield)
+# =============================================================================
+
+[[affinity_colors]]
+color = "white"
+overflow_bonus_per_point = 0.3  # White gets support bonuses
+
+[[affinity_colors.thresholds]]
+min = 0
+damage_bonus = 0.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = ""
+
+[[affinity_colors.thresholds]]
+min = 11
+damage_bonus = 5.0
+attack_speed_bonus = 0.0
+hp_bonus = 10.0
+crit_t1_bonus = 0.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = "heal_boost_10"
+
+[[affinity_colors.thresholds]]
+min = 26
+damage_bonus = 10.0
+attack_speed_bonus = 0.0
+hp_bonus = 20.0
+crit_t1_bonus = 0.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = "heal_boost_20"
+
+[[affinity_colors.thresholds]]
+min = 51
+damage_bonus = 20.0
+attack_speed_bonus = 0.0
+hp_bonus = 30.0
+crit_t1_bonus = 5.0
+crit_t2_unlock = true
+crit_t3_unlock = false
+special = "shield_on_heal"
+
+[[affinity_colors.thresholds]]
+min = 76
+damage_bonus = 35.0
+attack_speed_bonus = 0.0
+hp_bonus = 50.0
+crit_t1_bonus = 10.0
+crit_t2_unlock = true
+crit_t3_unlock = false
+special = "damage_on_heal"
+
+[[affinity_colors.thresholds]]
+min = 100
+damage_bonus = 50.0
+attack_speed_bonus = 0.0
+hp_bonus = 75.0
+crit_t1_bonus = 15.0
+crit_t2_unlock = true
+crit_t3_unlock = true
+special = "damage_on_heal"
+
+# =============================================================================
+# BLACK AFFINITY (Death/Lifesteal)
+# =============================================================================
+
+[[affinity_colors]]
+color = "black"
+overflow_bonus_per_point = 0.8  # Black gets lifesteal bonuses
+
+[[affinity_colors.thresholds]]
+min = 0
+damage_bonus = 0.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = ""
+
+[[affinity_colors.thresholds]]
+min = 11
+damage_bonus = 10.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = "lifesteal_5"
+
+[[affinity_colors.thresholds]]
+min = 26
+damage_bonus = 20.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 5.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = "lifesteal_10"
+
+[[affinity_colors.thresholds]]
+min = 51
+damage_bonus = 40.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 10.0
+crit_t2_unlock = true
+crit_t3_unlock = false
+special = "lifesteal_15"
+
+[[affinity_colors.thresholds]]
+min = 76
+damage_bonus = 70.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 15.0
+crit_t2_unlock = true
+crit_t3_unlock = false
+special = "soul_harvest"
+
+[[affinity_colors.thresholds]]
+min = 100
+damage_bonus = 100.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 20.0
+crit_t2_unlock = true
+crit_t3_unlock = true
+special = "soul_harvest"
+
+# =============================================================================
+# COLORLESS AFFINITY (Eldrazi - Raw Power)
+# =============================================================================
+
+[[affinity_colors]]
+color = "colorless"
+overflow_bonus_per_point = 2.0  # Colorless scales harder but is rare
+
+[[affinity_colors.thresholds]]
+min = 0
+damage_bonus = 0.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_unlock = false
+crit_t3_unlock = false
+special = ""
+
+[[affinity_colors.thresholds]]
+min = 25
+damage_bonus = 50.0
+attack_speed_bonus = 10.0
+hp_bonus = 25.0
+crit_t1_bonus = 10.0
+crit_t2_unlock = true
+crit_t3_unlock = false
+special = "void_damage"
+
+[[affinity_colors.thresholds]]
+min = 50
+damage_bonus = 150.0
+attack_speed_bonus = 25.0
+hp_bonus = 50.0
+crit_t1_bonus = 25.0
+crit_t2_unlock = true
+crit_t3_unlock = true
+special = "annihilator"

@@ -1,0 +1,340 @@
+# Bloodtide - Creatures Data
+# Red Deck Roster
+
+# =============================================================================
+# TIER 1 CREATURES (Base)
+# =============================================================================
+
+[[creatures]]
+id = "fire_imp"
+name = "Fire Imp"
+color = "red"
+tier = 1
+creature_type = "ranged"
+base_damage = 15.0
+attack_speed = 1.0
+base_hp = 50.0
+movement_speed = 100.0
+attack_range = 200.0
+crit_t1 = 5.0
+crit_t2 = 0.0
+crit_t3 = 0.0
+evolves_from = ""
+evolves_into = "flame_fiend"
+evolution_count = 3
+kills_per_level = [10, 25, 50, 100, 150, 200, 300, 400, 500]
+max_level = 10
+abilities = ["fireball"]
+respawn_time = 20.0
+description = "A small fire spirit that hurls fireballs at enemies."
+
+[[creatures]]
+id = "ember_hound"
+name = "Ember Hound"
+color = "red"
+tier = 1
+creature_type = "assassin"
+base_damage = 20.0
+attack_speed = 1.5
+base_hp = 40.0
+movement_speed = 150.0
+attack_range = 40.0
+crit_t1 = 8.0
+crit_t2 = 0.0
+crit_t3 = 0.0
+evolves_from = ""
+evolves_into = "hellhound"
+evolution_count = 3
+kills_per_level = [10, 25, 50, 100, 150, 200, 300, 400, 500]
+max_level = 10
+abilities = ["pounce"]
+respawn_time = 15.0
+description = "A fast fire dog that roams freely, attacking anything it sees."
+
+[[creatures]]
+id = "fire_spirit"
+name = "Fire Spirit"
+color = "red"
+tier = 1
+creature_type = "support"
+base_damage = 5.0
+attack_speed = 0.5
+base_hp = 30.0
+movement_speed = 120.0
+attack_range = 150.0
+crit_t1 = 0.0
+crit_t2 = 0.0
+crit_t3 = 0.0
+evolves_from = ""
+evolves_into = "greater_fire_spirit"
+evolution_count = 3
+kills_per_level = [15, 30, 60, 120, 180, 250, 350, 450, 600]
+max_level = 10
+abilities = ["fire_heal"]
+respawn_time = 25.0
+description = "Orbits the player, periodically healing fire creatures."
+
+# =============================================================================
+# TIER 2 CREATURES (Evolved)
+# =============================================================================
+
+[[creatures]]
+id = "flame_fiend"
+name = "Flame Fiend"
+color = "red"
+tier = 2
+creature_type = "ranged"
+base_damage = 45.0
+attack_speed = 1.2
+base_hp = 150.0
+movement_speed = 90.0
+attack_range = 225.0
+crit_t1 = 10.0
+crit_t2 = 2.0
+crit_t3 = 0.0
+evolves_from = "fire_imp"
+evolves_into = "inferno_demon"
+evolution_count = 3
+kills_per_level = [15, 35, 70, 140, 210, 300, 400, 550, 700]
+max_level = 10
+abilities = ["fireball", "burn_dot"]
+respawn_time = 30.0
+description = "A larger fire demon with faster fireballs that leave enemies burning."
+
+[[creatures]]
+id = "hellhound"
+name = "Hellhound"
+color = "red"
+tier = 2
+creature_type = "assassin"
+base_damage = 50.0
+attack_speed = 1.8
+base_hp = 100.0
+movement_speed = 180.0
+attack_range = 45.0
+crit_t1 = 12.0
+crit_t2 = 3.0
+crit_t3 = 0.0
+evolves_from = "ember_hound"
+evolves_into = "hellhound_alpha"
+evolution_count = 3
+kills_per_level = [15, 35, 70, 140, 210, 300, 400, 550, 700]
+max_level = 10
+abilities = ["pounce", "fire_trail"]
+respawn_time = 25.0
+description = "Larger and faster, leaves a trail of fire as it runs."
+
+[[creatures]]
+id = "inferno_knight"
+name = "Inferno Knight"
+color = "red"
+tier = 2
+creature_type = "melee"
+base_damage = 80.0
+attack_speed = 0.8
+base_hp = 300.0
+movement_speed = 70.0
+attack_range = 50.0
+crit_t1 = 15.0
+crit_t2 = 5.0
+crit_t3 = 0.0
+evolves_from = ""
+evolves_into = "inferno_warlord"
+evolution_count = 3
+kills_per_level = [20, 45, 90, 180, 270, 380, 500, 650, 850]
+max_level = 10
+abilities = ["shield_bash", "flame_armor"]
+respawn_time = 35.0
+description = "Armored fire warrior, serves as frontline tank."
+
+[[creatures]]
+id = "magma_elemental"
+name = "Magma Elemental"
+color = "red"
+tier = 2
+creature_type = "melee"
+base_damage = 60.0
+attack_speed = 0.6
+base_hp = 250.0
+movement_speed = 50.0
+attack_range = 60.0
+crit_t1 = 10.0
+crit_t2 = 2.0
+crit_t3 = 0.0
+evolves_from = ""
+evolves_into = ""
+evolution_count = 0
+kills_per_level = [20, 45, 90, 180, 270, 380, 500, 650, 850]
+max_level = 10
+abilities = ["ground_fire", "magma_pool"]
+respawn_time = 40.0
+description = "Slow but leaves damaging ground fire wherever it walks."
+
+[[creatures]]
+id = "greater_fire_spirit"
+name = "Greater Fire Spirit"
+color = "red"
+tier = 2
+creature_type = "support"
+base_damage = 15.0
+attack_speed = 0.7
+base_hp = 80.0
+movement_speed = 110.0
+attack_range = 200.0
+crit_t1 = 0.0
+crit_t2 = 0.0
+crit_t3 = 0.0
+evolves_from = "fire_spirit"
+evolves_into = ""
+evolution_count = 0
+kills_per_level = [20, 45, 90, 180, 270, 380, 500, 650, 850]
+max_level = 10
+abilities = ["fire_heal", "damage_aura"]
+respawn_time = 35.0
+description = "Stronger heals and provides a damage buff aura to nearby fire creatures."
+
+# =============================================================================
+# TIER 3 CREATURES (Advanced)
+# =============================================================================
+
+[[creatures]]
+id = "inferno_demon"
+name = "Inferno Demon"
+color = "red"
+tier = 3
+creature_type = "ranged"
+base_damage = 120.0
+attack_speed = 1.5
+base_hp = 400.0
+movement_speed = 80.0
+attack_range = 275.0
+crit_t1 = 15.0
+crit_t2 = 8.0
+crit_t3 = 1.0
+evolves_from = "flame_fiend"
+evolves_into = ""
+evolution_count = 0
+kills_per_level = [25, 55, 110, 220, 330, 460, 620, 800, 1000]
+max_level = 10
+abilities = ["fireball_multishot", "burn_dot", "inferno_blast"]
+respawn_time = 45.0
+description = "Massive demon that fires multiple fireballs and causes AoE burn."
+
+[[creatures]]
+id = "hellhound_alpha"
+name = "Hellhound Alpha"
+color = "red"
+tier = 3
+creature_type = "assassin"
+base_damage = 120.0
+attack_speed = 2.0
+base_hp = 250.0
+movement_speed = 200.0
+attack_range = 50.0
+crit_t1 = 18.0
+crit_t2 = 8.0
+crit_t3 = 1.0
+evolves_from = "hellhound"
+evolves_into = ""
+evolution_count = 0
+kills_per_level = [25, 55, 110, 220, 330, 460, 620, 800, 1000]
+max_level = 10
+abilities = ["pounce", "fire_trail", "pack_howl"]
+respawn_time = 40.0
+description = "Pack leader that buffs other hellhounds nearby with increased damage."
+
+[[creatures]]
+id = "inferno_warlord"
+name = "Inferno Warlord"
+color = "red"
+tier = 3
+creature_type = "melee"
+base_damage = 200.0
+attack_speed = 0.9
+base_hp = 600.0
+movement_speed = 65.0
+attack_range = 70.0
+crit_t1 = 20.0
+crit_t2 = 10.0
+crit_t3 = 2.0
+evolves_from = "inferno_knight"
+evolves_into = "inferno_titan"
+evolution_count = 3
+kills_per_level = [30, 70, 140, 280, 420, 580, 780, 1000, 1300]
+max_level = 10
+abilities = ["shield_bash", "flame_armor", "warlord_slam"]
+respawn_time = 50.0
+description = "Heavy armor, devastating AoE slam attack, extremely tanky."
+
+[[creatures]]
+id = "phoenix"
+name = "Phoenix"
+color = "red"
+tier = 3
+creature_type = "ranged"
+base_damage = 100.0
+attack_speed = 1.0
+base_hp = 200.0
+movement_speed = 100.0
+attack_range = 250.0
+crit_t1 = 20.0
+crit_t2 = 10.0
+crit_t3 = 1.0
+evolves_from = ""
+evolves_into = "eternal_phoenix"
+evolution_count = 3
+kills_per_level = [25, 55, 110, 220, 330, 460, 620, 800, 1000]
+max_level = 10
+abilities = ["fireball", "death_explosion"]
+respawn_time = 15.0
+description = "On death, explodes for massive AoE damage and respawns faster than other creatures."
+
+# =============================================================================
+# TIER 4 CREATURES (Legendary)
+# =============================================================================
+
+[[creatures]]
+id = "inferno_titan"
+name = "Inferno Titan"
+color = "red"
+tier = 4
+creature_type = "melee"
+base_damage = 500.0
+attack_speed = 0.7
+base_hp = 1500.0
+movement_speed = 45.0
+attack_range = 100.0
+crit_t1 = 25.0
+crit_t2 = 15.0
+crit_t3 = 5.0
+evolves_from = "inferno_warlord"
+evolves_into = ""
+evolution_count = 0
+kills_per_level = [50, 120, 240, 480, 720, 1000, 1400, 1900, 2500]
+max_level = 10
+abilities = ["titan_slam", "flame_armor", "meteor_strike"]
+respawn_time = 90.0
+description = "Massive, slow, absolutely devastating. One of the strongest creatures."
+
+[[creatures]]
+id = "eternal_phoenix"
+name = "Eternal Phoenix"
+color = "red"
+tier = 4
+creature_type = "ranged"
+base_damage = 250.0
+attack_speed = 1.2
+base_hp = 500.0
+movement_speed = 120.0
+attack_range = 300.0
+crit_t1 = 25.0
+crit_t2 = 15.0
+crit_t3 = 3.0
+evolves_from = "phoenix"
+evolves_into = ""
+evolution_count = 0
+kills_per_level = [50, 120, 240, 480, 720, 1000, 1400, 1900, 2500]
+max_level = 10
+abilities = ["fireball_multishot", "death_explosion_mega", "burn_aura"]
+respawn_time = 5.0
+description = "Near-instant respawn, massive death explosion, burns everything around it constantly."

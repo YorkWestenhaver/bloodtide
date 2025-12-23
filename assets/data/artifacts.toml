@@ -1,0 +1,396 @@
+# Bloodtide - Artifacts Data
+# Red Deck + Global Artifacts
+
+# =============================================================================
+# TIER 1 ARTIFACTS (Common)
+# =============================================================================
+
+[[artifacts]]
+id = "spark_gem"
+name = "Spark Gem"
+tier = 1
+target_scope = "global"
+target_color = ""
+target_type = ""
+target_creature = ""
+damage_bonus = 5.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "A minor gem that increases all creature damage by 5%."
+
+[[artifacts]]
+id = "swift_charm"
+name = "Swift Charm"
+tier = 1
+target_scope = "global"
+target_color = ""
+target_type = ""
+target_creature = ""
+damage_bonus = 0.0
+attack_speed_bonus = 5.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "A minor charm that increases attack speed by 5%."
+
+[[artifacts]]
+id = "vigor_stone"
+name = "Vigor Stone"
+tier = 1
+target_scope = "global"
+target_color = ""
+target_type = ""
+target_creature = ""
+damage_bonus = 0.0
+attack_speed_bonus = 0.0
+hp_bonus = 10.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "A minor stone that increases creature HP by 10%."
+
+[[artifacts]]
+id = "lucky_coin"
+name = "Lucky Coin"
+tier = 1
+target_scope = "global"
+target_color = ""
+target_type = ""
+target_creature = ""
+damage_bonus = 0.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 3.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "A lucky coin that adds 3% Tier 1 crit chance."
+
+# =============================================================================
+# TIER 2 ARTIFACTS (Uncommon)
+# =============================================================================
+
+[[artifacts]]
+id = "molten_core"
+name = "Molten Core"
+tier = 2
+target_scope = "color"
+target_color = "red"
+target_type = ""
+target_creature = ""
+damage_bonus = 20.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "Increases damage of all fire creatures by 20%."
+
+[[artifacts]]
+id = "burning_blood"
+name = "Burning Blood"
+tier = 2
+target_scope = "global"
+target_color = ""
+target_type = ""
+target_creature = ""
+damage_bonus = 15.0
+attack_speed_bonus = 0.0
+hp_bonus = -10.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "Increases damage by 15% but reduces HP by 10%. Risk/reward."
+
+[[artifacts]]
+id = "ember_soul"
+name = "Ember Soul"
+tier = 2
+target_scope = "type"
+target_color = ""
+target_type = "ranged"
+target_creature = ""
+damage_bonus = 25.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "Increases damage of ranged creatures by 25%."
+
+[[artifacts]]
+id = "inferno_plate"
+name = "Inferno Plate"
+tier = 2
+target_scope = "type"
+target_color = ""
+target_type = "melee"
+target_creature = ""
+damage_bonus = 0.0
+attack_speed_bonus = 0.0
+hp_bonus = 30.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "Increases HP of melee creatures by 30%."
+
+[[artifacts]]
+id = "predator_fang"
+name = "Predator Fang"
+tier = 2
+target_scope = "type"
+target_color = ""
+target_type = "assassin"
+target_creature = ""
+damage_bonus = 20.0
+attack_speed_bonus = 15.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "Assassin creatures deal 20% more damage and attack 15% faster."
+
+[[artifacts]]
+id = "critical_eye"
+name = "Critical Eye"
+tier = 2
+target_scope = "global"
+target_color = ""
+target_type = ""
+target_creature = ""
+damage_bonus = 0.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 10.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "All creatures gain 10% Tier 1 crit chance."
+
+# =============================================================================
+# TIER 3 ARTIFACTS (Rare)
+# =============================================================================
+
+[[artifacts]]
+id = "chaos_ember"
+name = "Chaos Ember"
+tier = 3
+target_scope = "color"
+target_color = "red"
+target_type = ""
+target_creature = ""
+damage_bonus = 0.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 5.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "Fire creatures gain 5% Tier 2 Mega Crit chance."
+
+[[artifacts]]
+id = "heart_of_flame"
+name = "Heart of Flame"
+tier = 3
+target_scope = "color"
+target_color = "red"
+target_type = ""
+target_creature = ""
+damage_bonus = 0.0
+attack_speed_bonus = 15.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "Fire creatures attack 15% faster."
+
+[[artifacts]]
+id = "pyromaniac"
+name = "Pyromaniac"
+tier = 3
+target_scope = "color"
+target_color = "red"
+target_type = ""
+target_creature = ""
+damage_bonus = 0.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 3.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "Fire creatures gain 3% Tier 3 Super Crit chance. Rare but devastating."
+
+[[artifacts]]
+id = "hound_collar"
+name = "Hound Collar"
+tier = 3
+target_scope = "creature"
+target_color = ""
+target_type = ""
+target_creature = "ember_hound"
+damage_bonus = 100.0
+attack_speed_bonus = 25.0
+hp_bonus = 50.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "Massive buffs to Ember Hound evolution line. +100% damage, +25% speed, +50% HP."
+
+[[artifacts]]
+id = "mega_crit_crystal"
+name = "Mega Crit Crystal"
+tier = 3
+target_scope = "global"
+target_color = ""
+target_type = ""
+target_creature = ""
+damage_bonus = 0.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 8.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "All creatures gain 8% Tier 2 Mega Crit chance."
+
+[[artifacts]]
+id = "berserker_rage"
+name = "Berserker Rage"
+tier = 3
+target_scope = "global"
+target_color = ""
+target_type = ""
+target_creature = ""
+damage_bonus = 30.0
+attack_speed_bonus = 20.0
+hp_bonus = -25.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "Glass cannon. +30% damage, +20% speed, but -25% HP."
+
+# =============================================================================
+# TIER 4 ARTIFACTS (Epic/Legendary)
+# =============================================================================
+
+[[artifacts]]
+id = "volcanic_heart"
+name = "Volcanic Heart"
+tier = 4
+target_scope = "color"
+target_color = "red"
+target_type = ""
+target_creature = ""
+damage_bonus = 50.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = "ground_fire"
+description = "Fire creatures deal 50% more damage and attacks leave fire on the ground."
+
+[[artifacts]]
+id = "phoenix_feather"
+name = "Phoenix Feather"
+tier = 4
+target_scope = "creature"
+target_color = ""
+target_type = ""
+target_creature = "phoenix"
+damage_bonus = 50.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 0.0
+crit_damage_bonus = 0.0
+special_effect = "instant_respawn"
+description = "Phoenix creatures respawn instantly and deal 50% more damage."
+
+[[artifacts]]
+id = "heart_of_the_mountain"
+name = "Heart of the Mountain"
+tier = 4
+target_scope = "color"
+target_color = "red"
+target_type = ""
+target_creature = ""
+damage_bonus = 0.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 5.0
+crit_damage_bonus = 0.0
+special_effect = ""
+description = "All fire crits have 5% chance to become Tier 3 Super Crits. Game-changer."
+
+[[artifacts]]
+id = "god_slayer"
+name = "God Slayer"
+tier = 4
+target_scope = "global"
+target_color = ""
+target_type = ""
+target_creature = ""
+damage_bonus = 0.0
+attack_speed_bonus = 0.0
+hp_bonus = 0.0
+crit_t1_bonus = 0.0
+crit_t2_bonus = 0.0
+crit_t3_bonus = 2.0
+crit_damage_bonus = 50.0
+special_effect = ""
+description = "All creatures gain 2% Tier 3 Super Crit and +50% crit damage multiplier."
+
+[[artifacts]]
+id = "infinity_shard"
+name = "Infinity Shard"
+tier = 4
+target_scope = "global"
+target_color = ""
+target_type = ""
+target_creature = ""
+damage_bonus = 25.0
+attack_speed_bonus = 25.0
+hp_bonus = 25.0
+crit_t1_bonus = 15.0
+crit_t2_bonus = 5.0
+crit_t3_bonus = 1.0
+crit_damage_bonus = 25.0
+special_effect = ""
+description = "The ultimate artifact. Boosts everything significantly."

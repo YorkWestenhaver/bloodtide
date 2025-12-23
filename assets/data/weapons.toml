@@ -1,0 +1,252 @@
+# Bloodtide - Weapons Data
+# Red Deck Roster
+
+# =============================================================================
+# TIER 1 WEAPONS (Base)
+# =============================================================================
+
+[[weapons]]
+id = "ember_staff"
+name = "Ember Staff"
+color = "red"
+tier = 1
+affinity_amount = 10.0
+auto_damage = 8.0
+auto_speed = 1.5
+auto_range = 250.0
+projectile_count = 1
+projectile_pattern = "single"
+projectile_speed = 300.0
+evolves_from = []
+evolves_into = "blazing_staff"
+evolution_recipe = ["ember_staff", "ember_staff"]
+passive_effect = ""
+description = "A basic staff that shoots small fireballs."
+
+[[weapons]]
+id = "flame_sword"
+name = "Flame Sword"
+color = "red"
+tier = 1
+affinity_amount = 15.0
+auto_damage = 12.0
+auto_speed = 1.2
+auto_range = 60.0
+projectile_count = 1
+projectile_pattern = "melee_sweep"
+projectile_speed = 0.0
+evolves_from = []
+evolves_into = "inferno_blade"
+evolution_recipe = ["flame_sword", "ember_staff"]
+passive_effect = ""
+description = "A short-range sword with a sweeping melee attack."
+
+[[weapons]]
+id = "fire_dagger"
+name = "Fire Dagger"
+color = "red"
+tier = 1
+affinity_amount = 8.0
+auto_damage = 6.0
+auto_speed = 2.5
+auto_range = 40.0
+projectile_count = 1
+projectile_pattern = "melee_stab"
+projectile_speed = 0.0
+evolves_from = []
+evolves_into = "twin_daggers"
+evolution_recipe = ["fire_dagger", "fire_dagger"]
+passive_effect = ""
+description = "Fast attacks but short range and low damage."
+
+# =============================================================================
+# TIER 2 WEAPONS (Evolved)
+# =============================================================================
+
+[[weapons]]
+id = "blazing_staff"
+name = "Blazing Staff"
+color = "red"
+tier = 2
+affinity_amount = 20.0
+auto_damage = 15.0
+auto_speed = 2.0
+auto_range = 275.0
+projectile_count = 1
+projectile_pattern = "single"
+projectile_speed = 350.0
+evolves_from = ["ember_staff", "ember_staff"]
+evolves_into = "volcanic_staff"
+evolution_recipe = ["blazing_staff", "blazing_staff"]
+passive_effect = "burn_dot"
+description = "An upgraded staff with faster attacks and burn damage on hit."
+
+[[weapons]]
+id = "inferno_blade"
+name = "Inferno Blade"
+color = "red"
+tier = 2
+affinity_amount = 25.0
+auto_damage = 20.0
+auto_speed = 1.4
+auto_range = 80.0
+projectile_count = 1
+projectile_pattern = "melee_sweep"
+projectile_speed = 0.0
+evolves_from = ["flame_sword", "ember_staff"]
+evolves_into = "inferno_greatsword"
+evolution_recipe = ["inferno_blade", "flame_sword"]
+passive_effect = "burn_dot"
+description = "A longer blade with wider sweep and burn effect."
+
+[[weapons]]
+id = "twin_daggers"
+name = "Twin Fire Daggers"
+color = "red"
+tier = 2
+affinity_amount = 18.0
+auto_damage = 10.0
+auto_speed = 3.5
+auto_range = 45.0
+projectile_count = 2
+projectile_pattern = "melee_stab"
+projectile_speed = 0.0
+evolves_from = ["fire_dagger", "fire_dagger"]
+evolves_into = ""
+evolution_recipe = []
+passive_effect = "bleed"
+description = "Extremely fast dual attacks that cause bleed."
+
+[[weapons]]
+id = "flame_wand"
+name = "Flame Wand"
+color = "red"
+tier = 2
+affinity_amount = 22.0
+auto_damage = 12.0
+auto_speed = 1.8
+auto_range = 300.0
+projectile_count = 2
+projectile_pattern = "spread"
+projectile_speed = 280.0
+evolves_from = []
+evolves_into = "phoenix_wand"
+evolution_recipe = ["flame_wand", "blazing_staff"]
+passive_effect = ""
+description = "Fires two fireballs in a spread pattern."
+
+# =============================================================================
+# TIER 3 WEAPONS (Advanced)
+# =============================================================================
+
+[[weapons]]
+id = "volcanic_staff"
+name = "Volcanic Staff"
+color = "red"
+tier = 3
+affinity_amount = 35.0
+auto_damage = 25.0
+auto_speed = 2.2
+auto_range = 300.0
+projectile_count = 3
+projectile_pattern = "spread"
+projectile_speed = 400.0
+evolves_from = ["blazing_staff", "blazing_staff"]
+evolves_into = "sun_scepter"
+evolution_recipe = ["volcanic_staff", "phoenix_wand"]
+passive_effect = "burn_dot"
+description = "Fires multiple fireballs in a spread pattern with strong burn."
+
+[[weapons]]
+id = "inferno_greatsword"
+name = "Inferno Greatsword"
+color = "red"
+tier = 3
+affinity_amount = 40.0
+auto_damage = 45.0
+auto_speed = 0.9
+auto_range = 120.0
+projectile_count = 1
+projectile_pattern = "melee_slam"
+projectile_speed = 0.0
+evolves_from = ["inferno_blade", "flame_sword"]
+evolves_into = ""
+evolution_recipe = []
+passive_effect = "ground_fire"
+description = "Massive sweep attack that leaves fire on the ground."
+
+[[weapons]]
+id = "phoenix_wand"
+name = "Phoenix Wand"
+color = "red"
+tier = 3
+affinity_amount = 30.0
+auto_damage = 18.0
+auto_speed = 2.0
+auto_range = 350.0
+projectile_count = 2
+projectile_pattern = "homing"
+projectile_speed = 250.0
+evolves_from = ["flame_wand", "blazing_staff"]
+evolves_into = "sun_scepter"
+evolution_recipe = ["phoenix_wand", "volcanic_staff"]
+passive_effect = "burn_dot"
+description = "Projectiles home in on targets, never miss."
+
+[[weapons]]
+id = "molten_hammer"
+name = "Molten Hammer"
+color = "red"
+tier = 3
+affinity_amount = 38.0
+auto_damage = 60.0
+auto_speed = 0.6
+auto_range = 80.0
+projectile_count = 1
+projectile_pattern = "melee_slam"
+projectile_speed = 0.0
+evolves_from = []
+evolves_into = ""
+evolution_recipe = []
+passive_effect = "stun"
+description = "Slow but devastating slam that stuns enemies."
+
+# =============================================================================
+# TIER 4 WEAPONS (Legendary)
+# =============================================================================
+
+[[weapons]]
+id = "sun_scepter"
+name = "Sun Scepter"
+color = "red"
+tier = 4
+affinity_amount = 50.0
+auto_damage = 35.0
+auto_speed = 2.5
+auto_range = 400.0
+projectile_count = 5
+projectile_pattern = "orbit"
+projectile_speed = 200.0
+evolves_from = ["volcanic_staff", "phoenix_wand"]
+evolves_into = ""
+evolution_recipe = []
+passive_effect = "burn_aura"
+description = "Orbital fireballs circle you constantly, massive burn aura."
+
+[[weapons]]
+id = "blade_of_the_inferno"
+name = "Blade of the Inferno"
+color = "red"
+tier = 4
+affinity_amount = 55.0
+auto_damage = 80.0
+auto_speed = 1.2
+auto_range = 150.0
+projectile_count = 1
+projectile_pattern = "melee_wave"
+projectile_speed = 400.0
+evolves_from = []
+evolves_into = ""
+evolution_recipe = []
+passive_effect = "fire_wave"
+description = "Each swing sends a wave of fire that damages everything in its path."
