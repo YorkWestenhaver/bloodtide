@@ -3,7 +3,10 @@
     "allow": [
       "Bash(cargo test:*)",
       "Bash(cargo build:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm install)",
+      "Bash(npm run build:*)"
     ]
   }
 }

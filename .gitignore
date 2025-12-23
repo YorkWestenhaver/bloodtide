@@ -25,3 +25,7 @@ Thumbs.db
 # Backup files
 *.bak
 *.orig
+
+# Benchmarking tool
+benchmarking/node_modules/
+benchmarking/dist/

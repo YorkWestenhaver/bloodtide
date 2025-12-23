@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bloodtide Balance Visualizer</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/recharts@2/umd/Recharts.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: #1a1a2e;
+      color: #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    const { useState, useMemo } = React;
+    const {
+      LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid,
+      Tooltip, Legend, ResponsiveContainer, ReferenceLine
+    } = Recharts;
+
+    // Game Balance Formulas
+    const calculateGameData = (enemyHpExponent) => {
+      const data = [];
+
+      for (let wave = 1; wave <= 30; wave++) {
+        const totalKills = wave * 50;
+
+        let cumulativeKillsNeeded = 0;
+        let playerLevel = 1;
+        while (cumulativeKillsNeeded < totalKills && playerLevel < 100) {
+          const killsForNextLevel = 25 * Math.pow(1.2, playerLevel - 1);
+          cumulativeKillsNeeded += killsForNextLevel;
+          if (cumulativeKillsNeeded <= totalKills) playerLevel++;
+        }
+
+        const numCreatures = Math.max(1, Math.floor(playerLevel * 0.6));
+        const baseDPS = 15;
+        const avgCreatureLevel = 1 + Math.floor(totalKills / (numCreatures * 50));
+        const levelMultiplier = 1 + 0.1 * avgCreatureLevel;
+        const critMult = 1.1;
+        const evolutionMult = playerLevel >= 15 ? 2.0 : 1.0;
+        const playerDPS = numCreatures * baseDPS * levelMultiplier * critMult * evolutionMult;
+
+        const enemyHP = 30 * Math.pow(enemyHpExponent, wave);
+        const spawnRate = Math.min(4, 0.8 + wave * 0.1);
+        const enemySpeed = 80;
+        const spawnDistance = 700;
+
+        const ttk = enemyHP / playerDPS;
+        const killRate = playerDPS / enemyHP;
+        const travelTime = spawnDistance / enemySpeed;
+        const enemiesAlive = spawnRate * (travelTime + ttk);
+        const pressure = spawnRate / killRate;
+
+        data.push({
+          wave,
+          playerLevel,
+          numCreatures,
+          avgCreatureLevel,
+          playerDPS: Math.round(playerDPS * 10) / 10,
+          enemyHP: Math.round(enemyHP * 10) / 10,
+          ttk: Math.round(ttk * 1000) / 1000,
+          spawnRate: Math.round(spawnRate * 100) / 100,
+          killRate: Math.round(killRate * 1000) / 1000,
+          enemiesAlive: Math.round(enemiesAlive),
+          pressure: Math.round(pressure * 100) / 100,
+          evolutionMult
+        });
+      }
+      return data;
+    };
+
+    const CustomTooltip = ({ active, payload, label }) => {
+      if (active && payload && payload.length) {
+        const data = payload[0].payload;
+        return React.createElement('div', {
+          style: {
+            backgroundColor: '#16213e',
+            border: '1px solid #0f3460',
+            borderRadius: '8px',
+            padding: '12px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+          }
+        }, [
+          React.createElement('p', { key: 'wave', style: { color: '#e94560', fontWeight: 'bold', marginBottom: '8px' }}, `Wave ${label}`),
+          React.createElement('div', { key: 'stats', style: { fontSize: '12px', lineHeight: '1.6' }}, [
+            React.createElement('p', { key: 'lvl' }, [React.createElement('span', { style: { color: '#888' }}, 'Player Level: '), data.playerLevel]),
+            React.createElement('p', { key: 'creat' }, [React.createElement('span', { style: { color: '#888' }}, 'Creatures: '), data.numCreatures]),
+            React.createElement('p', { key: 'clvl' }, [React.createElement('span', { style: { color: '#888' }}, 'Avg Creature Lvl: '), data.avgCreatureLevel]),
+            React.createElement('p', { key: 'dps' }, [React.createElement('span', { style: { color: '#4ade80' }}, 'Player DPS: '), data.playerDPS.toLocaleString()]),
+            React.createElement('p', { key: 'hp' }, [React.createElement('span', { style: { color: '#f87171' }}, 'Enemy HP: '), data.enemyHP.toLocaleString()]),
+            React.createElement('p', { key: 'ttk' }, [React.createElement('span', { style: { color: '#60a5fa' }}, 'TTK: '), `${data.ttk.toFixed(3)}s`]),
+            React.createElement('p', { key: 'spawn' }, [React.createElement('span', { style: { color: '#fbbf24' }}, 'Spawn Rate: '), `${data.spawnRate}/s`]),
+            React.createElement('p', { key: 'kill' }, [React.createElement('span', { style: { color: '#34d399' }}, 'Kill Rate: '), `${data.killRate.toFixed(3)}/s`]),
+            React.createElement('p', { key: 'alive' }, [React.createElement('span', { style: { color: '#a78bfa' }}, 'Enemies Alive: '), data.enemiesAlive]),
+            React.createElement('p', { key: 'press' }, [React.createElement('span', { style: { color: data.pressure > 1 ? '#f87171' : '#4ade80' }}, 'Pressure: '), data.pressure.toFixed(2)]),
+            data.evolutionMult > 1 ? React.createElement('p', { key: 'evo', style: { color: '#fbbf24' }}, 'Evolution Active (2x)') : null
+          ])
+        ]);
+      }
+      return null;
+    };
+
+    const ChartContainer = ({ title, children }) => {
+      return React.createElement('div', {
+        style: {
+          backgroundColor: '#16213e',
+          borderRadius: '12px',
+          padding: '20px',
+          marginBottom: '20px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+        }
+      }, [
+        React.createElement('h3', {
+          key: 'title',
+          style: { color: '#e94560', marginBottom: '16px', fontSize: '16px', fontWeight: '600' }
+        }, title),
+        children
+      ]);
+    };
+
+    const App = () => {
+      const [enemyHpExponent, setEnemyHpExponent] = useState(1.12);
+      const data = useMemo(() => calculateGameData(enemyHpExponent), [enemyHpExponent]);
+
+      const overwhelmWave = data.find(d => d.pressure > 1)?.wave;
+      const highEnemyWave = data.find(d => d.enemiesAlive > 500)?.wave;
+      const slowTtkWave = data.find(d => d.ttk > 2)?.wave;
+
+      return React.createElement('div', {
+        style: { backgroundColor: '#1a1a2e', minHeight: '100vh', padding: '24px' }
+      },
+        React.createElement('div', { style: { maxWidth: '1200px', margin: '0 auto' }}, [
+          // Header
+          React.createElement('div', { key: 'header', style: { marginBottom: '24px', textAlign: 'center' }}, [
+            React.createElement('h1', { key: 'h1', style: { color: '#e94560', fontSize: '28px', fontWeight: 'bold', marginBottom: '8px' }}, 'Bloodtide Balance Visualizer'),
+            React.createElement('p', { key: 'sub', style: { color: '#888', fontSize: '14px' }}, 'Game balance curves for Vampire Survivors-style gameplay')
+          ]),
+
+          // Controls
+          React.createElement('div', {
+            key: 'controls',
+            style: {
+              backgroundColor: '#16213e',
+              borderRadius: '12px',
+              padding: '20px',
+              marginBottom: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '24px',
+              flexWrap: 'wrap'
+            }
+          }, [
+            React.createElement('div', { key: 'slider', style: { flex: '1 1 300px' }}, [
+              React.createElement('label', {
+                key: 'label',
+                style: { color: '#e0e0e0', fontSize: '14px', display: 'block', marginBottom: '8px' }
+              }, ['Enemy HP Scaling Exponent: ', React.createElement('span', { style: { color: '#e94560', fontWeight: 'bold' }}, enemyHpExponent.toFixed(2))]),
+              React.createElement('input', {
+                key: 'input',
+                type: 'range',
+                min: '1.08',
+                max: '1.20',
+                step: '0.01',
+                value: enemyHpExponent,
+                onChange: (e) => setEnemyHpExponent(parseFloat(e.target.value)),
+                style: { width: '100%', height: '8px', borderRadius: '4px', cursor: 'pointer', accentColor: '#e94560' }
+              }),
+              React.createElement('div', {
+                key: 'labels',
+                style: { display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#666', marginTop: '4px' }
+              }, [
+                React.createElement('span', { key: 'l1' }, '1.08 (Easy)'),
+                React.createElement('span', { key: 'l2' }, '1.12 (Default)'),
+                React.createElement('span', { key: 'l3' }, '1.20 (Hard)')
+              ])
+            ]),
+            React.createElement('div', {
+              key: 'warnings',
+              style: { flex: '1 1 400px', display: 'flex', flexWrap: 'wrap', gap: '8px' }
+            }, [
+              overwhelmWave && React.createElement('div', {
+                key: 'ow',
+                style: { backgroundColor: 'rgba(248, 113, 113, 0.2)', border: '1px solid #f87171', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', color: '#f87171' }
+              }, `Overwhelmed at Wave ${overwhelmWave}`),
+              highEnemyWave && React.createElement('div', {
+                key: 'he',
+                style: { backgroundColor: 'rgba(251, 191, 36, 0.2)', border: '1px solid #fbbf24', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', color: '#fbbf24' }
+              }, `500+ enemies at Wave ${highEnemyWave}`),
+              slowTtkWave && React.createElement('div', {
+                key: 'st',
+                style: { backgroundColor: 'rgba(248, 113, 113, 0.2)', border: '1px solid #f87171', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', color: '#f87171' }
+              }, `TTK > 2s at Wave ${slowTtkWave}`),
+              !overwhelmWave && !highEnemyWave && !slowTtkWave && React.createElement('div', {
+                key: 'ok',
+                style: { backgroundColor: 'rgba(74, 222, 128, 0.2)', border: '1px solid #4ade80', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', color: '#4ade80' }
+              }, 'Balance looks healthy through Wave 30')
+            ])
+          ]),
+
+          // Chart 1: Power Curves
+          React.createElement(ChartContainer, { key: 'chart1', title: '1. Power Curves (Log Scale)' },
+            React.createElement(ResponsiveContainer, { width: '100%', height: 250 },
+              React.createElement(LineChart, { data: data, margin: { top: 10, right: 30, left: 10, bottom: 10 }}, [
+                React.createElement(CartesianGrid, { key: 'grid', strokeDasharray: '3 3', stroke: '#0f3460' }),
+                React.createElement(XAxis, { key: 'x', dataKey: 'wave', stroke: '#888', tick: { fill: '#888', fontSize: 11 }}),
+                React.createElement(YAxis, { key: 'y', scale: 'log', domain: ['auto', 'auto'], stroke: '#888', tick: { fill: '#888', fontSize: 11 }, tickFormatter: (v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v.toFixed(0) }),
+                React.createElement(Tooltip, { key: 'tooltip', content: React.createElement(CustomTooltip) }),
+                React.createElement(Legend, { key: 'legend', wrapperStyle: { fontSize: '12px' }}),
+                React.createElement(Line, { key: 'dps', type: 'monotone', dataKey: 'playerDPS', stroke: '#4ade80', strokeWidth: 2, dot: false, name: 'Player DPS' }),
+                React.createElement(Line, { key: 'hp', type: 'monotone', dataKey: 'enemyHP', stroke: '#f87171', strokeWidth: 2, dot: false, name: 'Enemy HP' })
+              ])
+            )
+          ),
+
+          // Chart 2: TTK
+          React.createElement(ChartContainer, { key: 'chart2', title: '2. Time to Kill (Ideal: 0.5-1.5s)' },
+            React.createElement(ResponsiveContainer, { width: '100%', height: 200 },
+              React.createElement(LineChart, { data: data, margin: { top: 10, right: 30, left: 10, bottom: 10 }}, [
+                React.createElement(CartesianGrid, { key: 'grid', strokeDasharray: '3 3', stroke: '#0f3460' }),
+                React.createElement(XAxis, { key: 'x', dataKey: 'wave', stroke: '#888', tick: { fill: '#888', fontSize: 11 }}),
+                React.createElement(YAxis, { key: 'y', domain: [0, 3], stroke: '#888', tick: { fill: '#888', fontSize: 11 }, tickFormatter: (v) => `${v}s` }),
+                React.createElement(Tooltip, { key: 'tooltip', content: React.createElement(CustomTooltip) }),
+                React.createElement(ReferenceLine, { key: 'ref1', y: 0.5, stroke: '#4ade80', strokeDasharray: '5 5' }),
+                React.createElement(ReferenceLine, { key: 'ref2', y: 1.5, stroke: '#4ade80', strokeDasharray: '5 5' }),
+                React.createElement(Line, { key: 'ttk', type: 'monotone', dataKey: 'ttk', stroke: '#60a5fa', strokeWidth: 2, dot: false, name: 'TTK' })
+              ])
+            )
+          ),
+
+          // Chart 3: Spawn Pressure
+          React.createElement(ChartContainer, { key: 'chart3', title: '3. Spawn Pressure (Green = Kill Rate, Red = Spawn Rate)' },
+            React.createElement(ResponsiveContainer, { width: '100%', height: 200 },
+              React.createElement(AreaChart, { data: data, margin: { top: 10, right: 30, left: 10, bottom: 10 }}, [
+                React.createElement(CartesianGrid, { key: 'grid', strokeDasharray: '3 3', stroke: '#0f3460' }),
+                React.createElement(XAxis, { key: 'x', dataKey: 'wave', stroke: '#888', tick: { fill: '#888', fontSize: 11 }}),
+                React.createElement(YAxis, { key: 'y', stroke: '#888', tick: { fill: '#888', fontSize: 11 }, tickFormatter: (v) => `${v}/s` }),
+                React.createElement(Tooltip, { key: 'tooltip', content: React.createElement(CustomTooltip) }),
+                React.createElement(Legend, { key: 'legend', wrapperStyle: { fontSize: '12px' }}),
+                React.createElement(Area, { key: 'killrate', type: 'monotone', dataKey: 'killRate', stroke: '#4ade80', fill: 'rgba(74, 222, 128, 0.3)', strokeWidth: 2, name: 'Kill Rate' }),
+                React.createElement(Line, { key: 'spawnrate', type: 'monotone', dataKey: 'spawnRate', stroke: '#f87171', strokeWidth: 2, dot: false, name: 'Spawn Rate' })
+              ])
+            )
+          ),
+
+          // Chart 4: Active Enemies
+          React.createElement(ChartContainer, { key: 'chart4', title: '4. Active Enemies at Equilibrium' },
+            React.createElement(ResponsiveContainer, { width: '100%', height: 200 },
+              React.createElement(LineChart, { data: data, margin: { top: 10, right: 30, left: 10, bottom: 10 }}, [
+                React.createElement(CartesianGrid, { key: 'grid', strokeDasharray: '3 3', stroke: '#0f3460' }),
+                React.createElement(XAxis, { key: 'x', dataKey: 'wave', stroke: '#888', tick: { fill: '#888', fontSize: 11 }}),
+                React.createElement(YAxis, { key: 'y', stroke: '#888', tick: { fill: '#888', fontSize: 11 }}),
+                React.createElement(Tooltip, { key: 'tooltip', content: React.createElement(CustomTooltip) }),
+                React.createElement(ReferenceLine, { key: 'ref', y: 500, stroke: '#fbbf24', strokeDasharray: '5 5', label: { value: 'Warning: 500', position: 'right', fill: '#fbbf24', fontSize: 11 }}),
+                React.createElement(Line, { key: 'enemies', type: 'monotone', dataKey: 'enemiesAlive', stroke: '#a78bfa', strokeWidth: 2, dot: false, name: 'Enemies Alive' })
+              ])
+            )
+          ),
+
+          // Formula Reference
+          React.createElement('div', {
+            key: 'formula',
+            style: { backgroundColor: '#16213e', borderRadius: '12px', padding: '20px', fontSize: '12px', color: '#888' }
+          }, [
+            React.createElement('h4', { key: 'h4', style: { color: '#e94560', marginBottom: '12px', fontSize: '14px' }}, 'Formula Reference'),
+            React.createElement('div', {
+              key: 'grid',
+              style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }
+            }, [
+              React.createElement('div', { key: 'player' }, [
+                React.createElement('strong', { style: { color: '#4ade80' }}, 'Player Power:'),
+                React.createElement('ul', { style: { marginLeft: '16px', marginTop: '4px', lineHeight: '1.6' }}, [
+                  React.createElement('li', { key: 'l1' }, 'Kills to level: 25 × 1.2^(level-1)'),
+                  React.createElement('li', { key: 'l2' }, 'Creatures: ~0.6 per level'),
+                  React.createElement('li', { key: 'l3' }, 'Base DPS: 15 per creature'),
+                  React.createElement('li', { key: 'l4' }, 'Level bonus: +10% per creature level'),
+                  React.createElement('li', { key: 'l5' }, 'Crit bonus: 1.1x average'),
+                  React.createElement('li', { key: 'l6' }, 'Evolution: 2x at level 15+')
+                ])
+              ]),
+              React.createElement('div', { key: 'enemy' }, [
+                React.createElement('strong', { style: { color: '#f87171' }}, 'Enemy Scaling:'),
+                React.createElement('ul', { style: { marginLeft: '16px', marginTop: '4px', lineHeight: '1.6' }}, [
+                  React.createElement('li', { key: 'l1' }, 'Wave: every 50 kills'),
+                  React.createElement('li', { key: 'l2' }, `HP: 30 × ${enemyHpExponent.toFixed(2)}^wave`),
+                  React.createElement('li', { key: 'l3' }, 'Spawn: 0.8 + wave×0.1/s (max 4)'),
+                  React.createElement('li', { key: 'l4' }, 'Speed: 80 px/s'),
+                  React.createElement('li', { key: 'l5' }, 'Distance: 700px average')
+                ])
+              ]),
+              React.createElement('div', { key: 'derived' }, [
+                React.createElement('strong', { style: { color: '#60a5fa' }}, 'Derived Metrics:'),
+                React.createElement('ul', { style: { marginLeft: '16px', marginTop: '4px', lineHeight: '1.6' }}, [
+                  React.createElement('li', { key: 'l1' }, 'TTK = Enemy HP / Player DPS'),
+                  React.createElement('li', { key: 'l2' }, 'Enemies = spawn × (travel + TTK)'),
+                  React.createElement('li', { key: 'l3' }, 'Kill Rate = DPS / HP'),
+                  React.createElement('li', { key: 'l4' }, 'Pressure = spawn / kill rate')
+                ])
+              ])
+            ])
+          ])
+        ])
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+</html>
