@@ -30,6 +30,9 @@ pub const ENEMY_DESPAWN_DISTANCE: f32 = 2500.0;
 /// Minimum enemies spawned per second (floor)
 pub const MIN_ENEMIES_PER_SECOND: u32 = 15;
 
+/// Maximum enemies allowed on screen at once (performance cap)
+pub const MAX_ENEMIES: u32 = 2000;
+
 /// Kills needed to advance to the next wave
 pub const KILLS_PER_WAVE: u32 = 50;
 
@@ -461,6 +464,11 @@ pub fn enemy_spawn_system(
 
     // Update enemy count in director
     director.enemies_alive = enemy_query.iter().count() as u32;
+
+    // Don't spawn if at enemy cap (performance limit)
+    if director.enemies_alive >= MAX_ENEMIES {
+        return;
+    }
 
     // Apply wave/level overrides from debug settings
     if let Some(wave_override) = debug_settings.current_wave_override {

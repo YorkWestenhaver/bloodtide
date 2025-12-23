@@ -7,7 +7,7 @@ mod resources;
 mod systems;
 
 use components::{Player, Velocity};
-use resources::{load_game_data, AffinityState, ArtifactBuffs, DebugSettings, DeckCard, Director, GameData, GameState, PlayerDeck};
+use resources::{load_game_data, AffinityState, ArtifactBuffs, DebugSettings, DeckCard, Director, GameData, GameState, PlayerDeck, SpatialGrid, ProjectilePool, DamageNumberPool};
 use systems::{
     apply_velocity_system, camera_follow_system, creature_attack_system, creature_death_system,
     creature_evolution_system, creature_follow_system, creature_level_up_effect_system,
@@ -42,6 +42,10 @@ use systems::{
     // Leveling systems (Phase 21E)
     card_roll_queue_system, screen_flash_system, level_up_text_system, level_up_particle_system,
     kill_rate_system, CardRollQueue,
+    // Spatial grid system
+    update_spatial_grid_system,
+    // Pooling system
+    init_pools_system,
 };
 
 fn main() {
@@ -102,6 +106,9 @@ fn main() {
         .init_resource::<DebugSettings>()
         .init_resource::<TooltipState>()
         .init_resource::<CardRollQueue>()
+        .init_resource::<SpatialGrid>()
+        .init_resource::<ProjectilePool>()
+        .init_resource::<DamageNumberPool>()
         .add_systems(Startup, (
             setup,
             spawn_ui_system,
@@ -110,6 +117,7 @@ fn main() {
             spawn_affinity_display_system,
             spawn_debug_menu_system,
             spawn_pause_menu_system,
+            init_pools_system,
         ))
         // Director update (runs early)
         .add_systems(Update, director_update_system)
@@ -127,8 +135,9 @@ fn main() {
             enemy_chase_system,
             apply_velocity_system,
         ).chain().after(player_movement_system))
-        // Combat systems
+        // Combat systems (spatial grid updates first for efficient enemy lookups)
         .add_systems(Update, (
+            update_spatial_grid_system,
             creature_attack_system,
             enemy_attack_system,
             weapon_attack_system,

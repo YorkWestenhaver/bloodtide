@@ -5,7 +5,7 @@ use crate::components::{
     Player, ProjectileConfig, ProjectileType, Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
 };
 use crate::math::{calculate_damage_with_crits, CritTier};
-use crate::resources::{get_affinity_bonuses, AffinityState, ArtifactBuffs, DebugSettings, GameData};
+use crate::resources::{get_affinity_bonuses, AffinityState, ArtifactBuffs, DebugSettings, GameData, SpatialGrid, ProjectilePool, DamageNumberPool};
 use crate::systems::creature_xp::PendingKillCredit;
 
 /// Projectile speed in pixels per second
@@ -81,7 +81,17 @@ impl DamageNumber {
             start_alpha: 1.0,
         }
     }
+
+    /// Reset for reuse from pool
+    pub fn reset(&mut self) {
+        self.lifetime = Timer::from_seconds(DAMAGE_NUMBER_LIFETIME, TimerMode::Once);
+        self.start_alpha = 1.0;
+    }
 }
+
+/// Marker for entities that came from a pool (projectiles, damage numbers)
+#[derive(Component)]
+pub struct Pooled;
 
 /// Get projectile color based on crit tier
 fn get_projectile_color(base_color: Color, crit_tier: CritTier) -> Color {
@@ -169,6 +179,8 @@ pub fn creature_attack_system(
     affinity_state: Res<AffinityState>,
     game_data: Res<GameData>,
     debug_settings: Res<DebugSettings>,
+    spatial_grid: Res<SpatialGrid>,
+    mut projectile_pool: ResMut<ProjectilePool>,
     mut creature_query: Query<(
         Entity,
         &CreatureStats,
@@ -176,8 +188,9 @@ pub fn creature_attack_system(
         &AttackRange,
         &ProjectileConfig,
         &Transform,
-    )>,
-    enemy_query: Query<(Entity, &Transform), With<Enemy>>,
+    ), With<Creature>>,
+    enemy_query: Query<&Transform, With<Enemy>>,
+    mut projectile_query: Query<(&mut Projectile, &mut Velocity, &mut Sprite, &mut Transform, &mut Visibility), (With<Projectile>, Without<Creature>, Without<Enemy>)>,
 ) {
     // Don't process if game is paused
     if debug_settings.is_paused() {
@@ -193,16 +206,21 @@ pub fn creature_attack_system(
         if attack_timer.timer.just_finished() {
             let creature_pos = creature_transform.translation.truncate();
 
-            // Find nearest enemy within range
+            // Find nearest enemy within range using spatial grid
             let mut nearest_enemy: Option<(Entity, f32, Vec2)> = None;
 
-            for (enemy_entity, enemy_transform) in enemy_query.iter() {
-                let enemy_pos = enemy_transform.translation.truncate();
-                let distance = creature_pos.distance(enemy_pos);
+            // Only check enemies in nearby grid cells (huge performance win)
+            let nearby_enemies = spatial_grid.get_entities_in_radius(creature_pos, attack_range.0);
 
-                if distance <= attack_range.0 {
-                    if nearest_enemy.is_none() || distance < nearest_enemy.unwrap().1 {
-                        nearest_enemy = Some((enemy_entity, distance, enemy_pos));
+            for enemy_entity in nearby_enemies {
+                if let Ok(enemy_transform) = enemy_query.get(enemy_entity) {
+                    let enemy_pos = enemy_transform.translation.truncate();
+                    let distance = creature_pos.distance(enemy_pos);
+
+                    if distance <= attack_range.0 {
+                        if nearest_enemy.is_none() || distance < nearest_enemy.unwrap().1 {
+                            nearest_enemy = Some((enemy_entity, distance, enemy_pos));
+                        }
                     }
                 }
             }
@@ -298,34 +316,62 @@ pub fn creature_attack_system(
                         projectile_color,
                     );
 
-                    commands.spawn((
-                        Projectile {
-                            target: target_entity,
-                            damage: crit_result.final_damage,
-                            crit_tier: crit_result.tier,
-                            lifetime: Timer::from_seconds(lifetime_duration, TimerMode::Once),
-                            source_creature: Some(creature_entity),
-                            size: projectile_size,
-                            speed: projectile_speed,
-                            penetration_remaining: projectile_penetration,
-                            enemies_hit: Vec::new(),
-                            projectile_type: projectile_config.projectile_type,
-                        },
-                        Velocity {
-                            x: direction.x * projectile_speed,
-                            y: direction.y * projectile_speed,
-                        },
-                        Sprite {
-                            color: sprite_color,
-                            custom_size: Some(sprite_size),
-                            ..default()
-                        },
-                        Transform::from_translation(Vec3::new(
-                            creature_pos.x,
-                            creature_pos.y,
-                            0.6, // Above creatures
-                        )),
-                    ));
+                    // Try to get a projectile from the pool
+                    if let Some(pooled_entity) = projectile_pool.get() {
+                        // Reuse pooled projectile
+                        if let Ok((mut proj, mut vel, mut sprite, mut transform, mut vis)) = projectile_query.get_mut(pooled_entity) {
+                            proj.target = target_entity;
+                            proj.damage = crit_result.final_damage;
+                            proj.crit_tier = crit_result.tier;
+                            proj.lifetime = Timer::from_seconds(lifetime_duration, TimerMode::Once);
+                            proj.source_creature = Some(creature_entity);
+                            proj.size = projectile_size;
+                            proj.speed = projectile_speed;
+                            proj.penetration_remaining = projectile_penetration;
+                            proj.enemies_hit.clear();
+                            proj.projectile_type = projectile_config.projectile_type;
+
+                            vel.x = direction.x * projectile_speed;
+                            vel.y = direction.y * projectile_speed;
+
+                            sprite.color = sprite_color;
+                            sprite.custom_size = Some(sprite_size);
+
+                            transform.translation = Vec3::new(creature_pos.x, creature_pos.y, 0.6);
+
+                            *vis = Visibility::Visible;
+                        }
+                    } else {
+                        // Pool exhausted, fall back to spawning (shouldn't happen often)
+                        commands.spawn((
+                            Projectile {
+                                target: target_entity,
+                                damage: crit_result.final_damage,
+                                crit_tier: crit_result.tier,
+                                lifetime: Timer::from_seconds(lifetime_duration, TimerMode::Once),
+                                source_creature: Some(creature_entity),
+                                size: projectile_size,
+                                speed: projectile_speed,
+                                penetration_remaining: projectile_penetration,
+                                enemies_hit: Vec::new(),
+                                projectile_type: projectile_config.projectile_type,
+                            },
+                            Velocity {
+                                x: direction.x * projectile_speed,
+                                y: direction.y * projectile_speed,
+                            },
+                            Sprite {
+                                color: sprite_color,
+                                custom_size: Some(sprite_size),
+                                ..default()
+                            },
+                            Transform::from_translation(Vec3::new(
+                                creature_pos.x,
+                                creature_pos.y,
+                                0.6, // Above creatures
+                            )),
+                        ));
+                    }
                 }
             }
         }
@@ -363,9 +409,18 @@ pub fn projectile_system(
     mut commands: Commands,
     time: Res<Time>,
     debug_settings: Res<DebugSettings>,
-    player_query: Query<&Transform, With<Player>>,
-    mut projectile_query: Query<(Entity, &mut Projectile, &Transform, &mut Sprite, &mut Velocity)>,
-    mut enemy_query: Query<(Entity, &Transform, &mut EnemyStats), With<Enemy>>,
+    mut projectile_pool: ResMut<ProjectilePool>,
+    mut damage_number_pool: ResMut<DamageNumberPool>,
+    player_query: Query<&Transform, (With<Player>, Without<Projectile>, Without<Enemy>, Without<DamageNumber>)>,
+    mut projectile_query: Query<
+        (Entity, &mut Projectile, &mut Transform, &mut Sprite, &mut Velocity, &mut Visibility, Option<&Pooled>),
+        (With<Projectile>, Without<Player>, Without<Enemy>, Without<DamageNumber>)
+    >,
+    mut enemy_query: Query<(Entity, &Transform, &mut EnemyStats), (With<Enemy>, Without<Player>, Without<Projectile>, Without<DamageNumber>)>,
+    mut damage_number_query: Query<
+        (&mut DamageNumber, &mut Text2d, &mut TextFont, &mut TextColor, &mut Transform, &mut Visibility),
+        (With<DamageNumber>, Without<Projectile>, Without<Enemy>, Without<Player>)
+    >,
     mut screen_shake: ResMut<ScreenShake>,
 ) {
     // Don't process if game is paused
@@ -384,21 +439,39 @@ pub fn projectile_system(
     // Collect explosions to spawn after the main loop
     let mut pending_explosions: Vec<(Vec2, f32, f64, Option<Entity>, Vec<Entity>)> = Vec::new();
 
-    for (projectile_entity, mut projectile, projectile_transform, mut sprite, mut velocity) in projectile_query.iter_mut() {
+    // Collect entities to return to pool (can't modify pool while iterating)
+    let mut to_release: Vec<Entity> = Vec::new();
+
+    for (projectile_entity, mut projectile, projectile_transform, mut sprite, mut velocity, mut visibility, is_pooled) in projectile_query.iter_mut() {
+        // Skip hidden pooled projectiles (they're inactive)
+        if *visibility == Visibility::Hidden {
+            continue;
+        }
+
         // Tick lifetime
         projectile.lifetime.tick(time.delta());
 
-        // Despawn if lifetime expired
+        // Despawn/release if lifetime expired
         if projectile.lifetime.finished() {
-            commands.entity(projectile_entity).despawn();
+            if is_pooled.is_some() {
+                *visibility = Visibility::Hidden;
+                to_release.push(projectile_entity);
+            } else {
+                commands.entity(projectile_entity).despawn();
+            }
             continue;
         }
 
         let projectile_pos = projectile_transform.translation.truncate();
 
-        // Despawn if too far from player
+        // Despawn/release if too far from player
         if projectile_pos.distance(player_pos) > PROJECTILE_DESPAWN_DISTANCE {
-            commands.entity(projectile_entity).despawn();
+            if is_pooled.is_some() {
+                *visibility = Visibility::Hidden;
+                to_release.push(projectile_entity);
+            } else {
+                commands.entity(projectile_entity).despawn();
+            }
             continue;
         }
 
@@ -445,20 +518,33 @@ pub fn projectile_system(
                     CritTier::Super => 34.0,
                 };
 
-                commands.spawn((
-                    DamageNumber::new(),
-                    Text2d::new(damage_text),
-                    TextFont {
-                        font_size,
-                        ..default()
-                    },
-                    TextColor(damage_color),
-                    Transform::from_translation(Vec3::new(
-                        enemy_pos.x,
-                        enemy_pos.y + 20.0, // Start slightly above enemy
-                        10.0, // Above everything
-                    )),
-                ));
+                // Try to get damage number from pool
+                if let Some(pooled_entity) = damage_number_pool.get() {
+                    if let Ok((mut dmg_num, mut text, mut text_font, mut text_color, mut transform, mut vis)) = damage_number_query.get_mut(pooled_entity) {
+                        dmg_num.reset();
+                        *text = Text2d::new(damage_text);
+                        text_font.font_size = font_size;
+                        *text_color = TextColor(damage_color);
+                        transform.translation = Vec3::new(enemy_pos.x, enemy_pos.y + 20.0, 10.0);
+                        *vis = Visibility::Visible;
+                    }
+                } else {
+                    // Pool exhausted, fall back to spawning
+                    commands.spawn((
+                        DamageNumber::new(),
+                        Text2d::new(damage_text),
+                        TextFont {
+                            font_size,
+                            ..default()
+                        },
+                        TextColor(damage_color),
+                        Transform::from_translation(Vec3::new(
+                            enemy_pos.x,
+                            enemy_pos.y + 20.0, // Start slightly above enemy
+                            10.0, // Above everything
+                        )),
+                    ));
+                }
 
                 // Trigger screen shake for Mega and Super crits
                 match projectile.crit_tier {
@@ -487,7 +573,13 @@ pub fn projectile_system(
                         ));
                     }
 
-                    commands.entity(projectile_entity).despawn();
+                    // Return to pool or despawn
+                    if is_pooled.is_some() {
+                        *visibility = Visibility::Hidden;
+                        to_release.push(projectile_entity);
+                    } else {
+                        commands.entity(projectile_entity).despawn();
+                    }
                     break; // Exit the enemy loop since projectile is gone
                 } else {
                     // Projectile continues flying - apply visual wear
@@ -536,9 +628,14 @@ pub fn projectile_system(
         }
     }
 
+    // Return projectiles to pool
+    for entity in to_release {
+        projectile_pool.release(entity);
+    }
+
     // Apply chain redirections
     for (entity, target_pos) in pending_chains {
-        if let Ok((_, projectile, transform, _, mut velocity)) = projectile_query.get_mut(entity) {
+        if let Ok((_, projectile, transform, _, mut velocity, _, _)) = projectile_query.get_mut(entity) {
             let projectile_pos = transform.translation.truncate();
             let direction = (target_pos - projectile_pos).normalize_or_zero();
             velocity.x = direction.x * projectile.speed;
@@ -770,15 +867,26 @@ pub fn piercing_rotation_system(
 pub fn damage_number_system(
     mut commands: Commands,
     time: Res<Time>,
-    mut query: Query<(Entity, &mut DamageNumber, &mut Transform, &mut TextColor)>,
+    mut damage_number_pool: ResMut<DamageNumberPool>,
+    mut query: Query<(Entity, &mut DamageNumber, &mut Transform, &mut TextColor, &mut Visibility, Option<&Pooled>)>,
 ) {
-    for (entity, mut damage_number, mut transform, mut text_color) in query.iter_mut() {
+    for (entity, mut damage_number, mut transform, mut text_color, mut visibility, is_pooled) in query.iter_mut() {
+        // Skip hidden pooled damage numbers (they're inactive)
+        if *visibility == Visibility::Hidden {
+            continue;
+        }
+
         // Tick lifetime
         damage_number.lifetime.tick(time.delta());
 
-        // Despawn if lifetime expired
+        // Despawn/release if lifetime expired
         if damage_number.lifetime.finished() {
-            commands.entity(entity).despawn();
+            if is_pooled.is_some() {
+                *visibility = Visibility::Hidden;
+                damage_number_pool.release(entity);
+            } else {
+                commands.entity(entity).despawn();
+            }
             continue;
         }
 
@@ -980,4 +1088,80 @@ pub fn weapon_attack_system(
             }
         }
     }
+}
+
+/// System to update the spatial grid with enemy positions
+/// This should run before creature_attack_system for optimal performance
+pub fn update_spatial_grid_system(
+    mut spatial_grid: ResMut<SpatialGrid>,
+    enemy_query: Query<(Entity, &Transform), With<Enemy>>,
+) {
+    // Clear the grid each frame
+    spatial_grid.clear();
+
+    // Insert all enemies into the grid
+    for (entity, transform) in enemy_query.iter() {
+        let pos = transform.translation.truncate();
+        spatial_grid.insert(entity, pos);
+    }
+}
+
+/// System to initialize projectile and damage number pools at startup
+/// Pre-spawns hidden entities that can be reused
+pub fn init_pools_system(
+    mut commands: Commands,
+    mut projectile_pool: ResMut<ProjectilePool>,
+    mut damage_number_pool: ResMut<DamageNumberPool>,
+) {
+    use crate::resources::{PROJECTILE_POOL_SIZE, DAMAGE_NUMBER_POOL_SIZE};
+
+    // Pre-spawn projectiles (hidden, off-screen)
+    for _ in 0..PROJECTILE_POOL_SIZE {
+        let entity = commands.spawn((
+            Pooled,
+            Projectile {
+                target: Entity::PLACEHOLDER,
+                damage: 0.0,
+                crit_tier: CritTier::None,
+                lifetime: Timer::from_seconds(PROJECTILE_LIFETIME, TimerMode::Once),
+                source_creature: None,
+                size: PROJECTILE_SIZE,
+                speed: PROJECTILE_SPEED,
+                penetration_remaining: 1,
+                enemies_hit: Vec::new(),
+                projectile_type: ProjectileType::Basic,
+            },
+            Velocity::default(),
+            Sprite {
+                color: Color::WHITE,
+                custom_size: Some(Vec2::new(PROJECTILE_SIZE, PROJECTILE_SIZE)),
+                ..default()
+            },
+            Transform::from_translation(Vec3::new(-10000.0, -10000.0, 0.6)),
+            Visibility::Hidden,
+        )).id();
+        projectile_pool.available.push(entity);
+    }
+
+    // Pre-spawn damage numbers (hidden, off-screen)
+    for _ in 0..DAMAGE_NUMBER_POOL_SIZE {
+        let entity = commands.spawn((
+            Pooled,
+            DamageNumber::new(),
+            Text2d::new("0"),
+            TextFont {
+                font_size: 16.0,
+                ..default()
+            },
+            TextColor(Color::WHITE),
+            Transform::from_translation(Vec3::new(-10000.0, -10000.0, 10.0)),
+            Visibility::Hidden,
+        )).id();
+        damage_number_pool.available.push(entity);
+    }
+
+    println!("Initialized pools: {} projectiles, {} damage numbers",
+        projectile_pool.available_count(),
+        damage_number_pool.available_count()
+    );
 }

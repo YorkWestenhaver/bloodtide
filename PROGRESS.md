@@ -279,9 +279,15 @@
   - T2: Green border, T3: Blue border, T4: Purple border, T5+: Gold border
 - [x] Test: Build and tests pass, visual differentiation implemented
 
-### Phase 24: Director Tuning ⬅️ CURRENT
+### Phase 24: Director Tuning & GPU Optimization ⬅️ CURRENT
 
-- [ ] Fix over-spawning when stationary
+- [x] Add enemy cap (MAX_ENEMIES = 2000) to prevent over-spawning
+- [x] Add spatial grid for O(1) enemy lookups in collision detection
+  - SpatialGrid resource with 256px cells
+  - update_spatial_grid_system runs before combat
+  - creature_attack_system uses grid instead of iterating all enemies
+- [ ] Implement projectile pooling (pre-allocate, toggle visibility)
+- [ ] Implement damage number pooling
 - [ ] Better pacing curve
 - [ ] Smooth difficulty transitions
 - [ ] Test: Standing still doesn't cause enemy flood
@@ -414,4 +420,4 @@
 
 ## Last Updated
 
-Phase 23 (Creature Visual Differentiation) completed. Added unique colors per creature ID, level labels below creatures, and tier borders for tier 2+ creatures.
+Phase 24 GPU Optimization in progress. Added enemy cap (MAX_ENEMIES = 2000) and spatial grid for efficient collision detection. Projectile and damage number pooling still pending.
