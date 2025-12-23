@@ -114,6 +114,7 @@ pub fn spawn_creature(
         creature_data.projectile_spread,
         creature_data.projectile_size,
         creature_data.projectile_speed,
+        creature_data.projectile_penetration,
     );
 
     let entity = commands

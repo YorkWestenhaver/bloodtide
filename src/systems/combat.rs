@@ -17,8 +17,14 @@ pub const PROJECTILE_SIZE: f32 = 8.0;
 /// Weapon projectile size in pixels (smaller than creature projectiles)
 pub const WEAPON_PROJECTILE_SIZE: f32 = 6.0;
 
-/// Maximum projectile lifetime in seconds
+/// Maximum projectile lifetime in seconds (short for non-penetrating)
 pub const PROJECTILE_LIFETIME: f32 = 1.0;
+
+/// Maximum projectile lifetime for penetrating projectiles (longer to allow passing through enemies)
+pub const PROJECTILE_MAX_LIFETIME: f32 = 3.0;
+
+/// Maximum distance from player before projectiles despawn
+pub const PROJECTILE_DESPAWN_DISTANCE: f32 = 1200.0;
 
 /// Floating damage number lifetime in seconds
 pub const DAMAGE_NUMBER_LIFETIME: f32 = 0.8;
@@ -39,6 +45,10 @@ pub struct Projectile {
     pub size: f32,
     /// Speed of this projectile in pixels per second
     pub speed: f32,
+    /// How many more enemies this projectile can hit before despawning
+    pub penetration_remaining: u32,
+    /// Entities this projectile has already hit (to prevent double damage)
+    pub enemies_hit: Vec<Entity>,
 }
 
 /// Screen shake resource
@@ -204,6 +214,14 @@ pub fn creature_attack_system(
                 let projectile_count = projectile_count.max(1); // Ensure at least 1 projectile
                 let projectile_size = projectile_config.size * debug_settings.projectile_size_multiplier;
                 let projectile_speed = projectile_config.speed * debug_settings.projectile_speed_multiplier;
+                let projectile_penetration = projectile_config.penetration + debug_settings.global_penetration_bonus;
+
+                // Use longer lifetime for penetrating projectiles
+                let lifetime_duration = if projectile_penetration > 1 {
+                    PROJECTILE_MAX_LIFETIME
+                } else {
+                    PROJECTILE_LIFETIME
+                };
 
                 // Spawn multiple projectiles with spread
                 for i in 0..projectile_count {
@@ -229,10 +247,12 @@ pub fn creature_attack_system(
                             target: target_entity,
                             damage: crit_result.final_damage,
                             crit_tier: crit_result.tier,
-                            lifetime: Timer::from_seconds(PROJECTILE_LIFETIME, TimerMode::Once),
+                            lifetime: Timer::from_seconds(lifetime_duration, TimerMode::Once),
                             source_creature: Some(creature_entity),
                             size: projectile_size,
                             speed: projectile_speed,
+                            penetration_remaining: projectile_penetration,
+                            enemies_hit: Vec::new(),
                         },
                         Velocity {
                             x: direction.x * projectile_speed,
@@ -255,13 +275,14 @@ pub fn creature_attack_system(
     }
 }
 
-/// System that handles projectile movement and collision
+/// System that handles projectile movement and collision with penetration support
 pub fn projectile_system(
     mut commands: Commands,
     time: Res<Time>,
     debug_settings: Res<DebugSettings>,
-    mut projectile_query: Query<(Entity, &mut Projectile, &Transform)>,
-    mut enemy_query: Query<(&Transform, &mut EnemyStats), With<Enemy>>,
+    player_query: Query<&Transform, With<Player>>,
+    mut projectile_query: Query<(Entity, &mut Projectile, &Transform, &mut Sprite)>,
+    mut enemy_query: Query<(Entity, &Transform, &mut EnemyStats), With<Enemy>>,
     mut screen_shake: ResMut<ScreenShake>,
 ) {
     // Don't process if game is paused
@@ -269,7 +290,13 @@ pub fn projectile_system(
         return;
     }
 
-    for (projectile_entity, mut projectile, projectile_transform) in projectile_query.iter_mut() {
+    // Get player position for distance-based despawning
+    let player_pos = player_query
+        .get_single()
+        .map(|t| t.translation.truncate())
+        .unwrap_or(Vec2::ZERO);
+
+    for (projectile_entity, mut projectile, projectile_transform, mut sprite) in projectile_query.iter_mut() {
         // Tick lifetime
         projectile.lifetime.tick(time.delta());
 
@@ -279,14 +306,30 @@ pub fn projectile_system(
             continue;
         }
 
-        // Check if target still exists and get its position
-        if let Ok((enemy_transform, mut enemy_stats)) = enemy_query.get_mut(projectile.target) {
-            let projectile_pos = projectile_transform.translation.truncate();
+        let projectile_pos = projectile_transform.translation.truncate();
+
+        // Despawn if too far from player
+        if projectile_pos.distance(player_pos) > PROJECTILE_DESPAWN_DISTANCE {
+            commands.entity(projectile_entity).despawn();
+            continue;
+        }
+
+        // Check all enemies for collision (not just the original target)
+        // This allows penetrating projectiles to hit any enemy they pass through
+        for (enemy_entity, enemy_transform, mut enemy_stats) in enemy_query.iter_mut() {
+            // Skip enemies we've already hit
+            if projectile.enemies_hit.contains(&enemy_entity) {
+                continue;
+            }
+
             let enemy_pos = enemy_transform.translation.truncate();
             let distance = projectile_pos.distance(enemy_pos);
 
-            // Hit detection - if projectile is close enough to target
+            // Hit detection - if projectile is close enough to enemy
             if distance < 20.0 {
+                // Add this enemy to the hit list
+                projectile.enemies_hit.push(enemy_entity);
+
                 // Check if this hit will kill the enemy
                 let will_kill = enemy_stats.current_hp - projectile.damage <= 0.0;
 
@@ -340,12 +383,36 @@ pub fn projectile_system(
                     _ => {}
                 }
 
-                // Despawn projectile
-                commands.entity(projectile_entity).despawn();
+                // Decrement penetration
+                projectile.penetration_remaining = projectile.penetration_remaining.saturating_sub(1);
+
+                // Check if projectile should despawn
+                if projectile.penetration_remaining == 0 {
+                    commands.entity(projectile_entity).despawn();
+                    break; // Exit the enemy loop since projectile is gone
+                } else {
+                    // Projectile continues flying - apply visual wear
+                    // Reduce size slightly (10% per hit)
+                    projectile.size *= 0.9;
+                    sprite.custom_size = Some(Vec2::new(projectile.size, projectile.size));
+
+                    // Reduce speed slightly (10% per hit)
+                    projectile.speed *= 0.9;
+
+                    // Brief visual pulse effect - make it brighter momentarily
+                    // The sprite color will fade back naturally as we're just setting it once
+                    let current_color = sprite.color.to_srgba();
+                    sprite.color = Color::srgba(
+                        (current_color.red * 1.5).min(1.0),
+                        (current_color.green * 1.5).min(1.0),
+                        (current_color.blue * 1.5).min(1.0),
+                        current_color.alpha,
+                    );
+                }
+
+                // Only hit one enemy per frame to prevent multiple hits in same position
+                break;
             }
-        } else {
-            // Target no longer exists, despawn projectile
-            commands.entity(projectile_entity).despawn();
         }
     }
 }
@@ -541,6 +608,8 @@ pub fn weapon_attack_system(
                             source_creature: None, // Weapon projectiles don't give creature XP
                             size: WEAPON_PROJECTILE_SIZE,
                             speed: projectile_speed,
+                            penetration_remaining: 1, // Weapons have base 1 penetration
+                            enemies_hit: Vec::new(),
                         },
                         Velocity {
                             x: rotated_dir.x * projectile_speed,

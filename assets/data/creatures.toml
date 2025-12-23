@@ -31,6 +31,7 @@ projectile_count = 1
 projectile_spread = 0.0
 projectile_size = 8.0
 projectile_speed = 500.0
+projectile_penetration = 1
 
 [[creatures]]
 id = "ember_hound"
@@ -58,6 +59,7 @@ projectile_count = 1
 projectile_spread = 0.0
 projectile_size = 6.0
 projectile_speed = 600.0
+projectile_penetration = 1
 
 [[creatures]]
 id = "fire_spirit"
@@ -85,6 +87,7 @@ projectile_count = 1
 projectile_spread = 0.0
 projectile_size = 6.0
 projectile_speed = 400.0
+projectile_penetration = 1
 
 # =============================================================================
 # TIER 2 CREATURES (Evolved)
@@ -116,6 +119,7 @@ projectile_count = 2
 projectile_spread = 0.3
 projectile_size = 10.0
 projectile_speed = 550.0
+projectile_penetration = 2
 
 [[creatures]]
 id = "hellhound"
@@ -143,6 +147,7 @@ projectile_count = 1
 projectile_spread = 0.0
 projectile_size = 8.0
 projectile_speed = 700.0
+projectile_penetration = 2
 
 [[creatures]]
 id = "inferno_knight"
@@ -170,6 +175,7 @@ projectile_count = 1
 projectile_spread = 0.0
 projectile_size = 12.0
 projectile_speed = 400.0
+projectile_penetration = 3
 
 [[creatures]]
 id = "magma_elemental"
@@ -197,6 +203,7 @@ projectile_count = 1
 projectile_spread = 0.0
 projectile_size = 14.0
 projectile_speed = 350.0
+projectile_penetration = 2
 
 [[creatures]]
 id = "greater_fire_spirit"
@@ -224,6 +231,7 @@ projectile_count = 2
 projectile_spread = 0.4
 projectile_size = 7.0
 projectile_speed = 450.0
+projectile_penetration = 3
 
 # =============================================================================
 # TIER 3 CREATURES (Advanced)
@@ -255,6 +263,7 @@ projectile_count = 3
 projectile_spread = 0.5
 projectile_size = 12.0
 projectile_speed = 600.0
+projectile_penetration = 4
 
 [[creatures]]
 id = "hellhound_alpha"
@@ -282,6 +291,7 @@ projectile_count = 2
 projectile_spread = 0.2
 projectile_size = 10.0
 projectile_speed = 800.0
+projectile_penetration = 3
 
 [[creatures]]
 id = "inferno_warlord"
@@ -309,6 +319,7 @@ projectile_count = 1
 projectile_spread = 0.0
 projectile_size = 16.0
 projectile_speed = 450.0
+projectile_penetration = 5
 
 [[creatures]]
 id = "phoenix"
@@ -336,6 +347,7 @@ projectile_count = 2
 projectile_spread = 0.3
 projectile_size = 10.0
 projectile_speed = 550.0
+projectile_penetration = 4
 
 # =============================================================================
 # TIER 4 CREATURES (Legendary)
@@ -367,6 +379,7 @@ projectile_count = 3
 projectile_spread = 0.4
 projectile_size = 20.0
 projectile_speed = 500.0
+projectile_penetration = 8
 
 [[creatures]]
 id = "eternal_phoenix"
@@ -394,3 +407,4 @@ projectile_count = 5
 projectile_spread = 0.8
 projectile_size = 14.0
 projectile_speed = 650.0
+projectile_penetration = 10

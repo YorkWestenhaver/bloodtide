@@ -34,6 +34,7 @@ pub struct DebugSettings {
     pub projectile_size_multiplier: f32,  // Multiplied by base size
     pub projectile_speed_multiplier: f32, // Multiplied by base speed
     pub attack_speed_multiplier: f32,     // Multiplied by attack speed
+    pub global_penetration_bonus: u32,    // Added to base penetration
 
     // Overrides (None = use normal, Some(X) = force to X)
     pub current_wave_override: Option<u32>,
@@ -68,6 +69,7 @@ impl Default for DebugSettings {
             projectile_size_multiplier: 1.0,
             projectile_speed_multiplier: 1.0,
             attack_speed_multiplier: 1.0,
+            global_penetration_bonus: 0,
             current_wave_override: None,
             current_level_override: None,
             god_mode: false,
@@ -113,6 +115,7 @@ impl SliderRange {
     pub const PROJECTILE_SIZE: SliderRange = SliderRange { min: 0.25, max: 4.0, step: 0.25 };
     pub const PROJECTILE_SPEED: SliderRange = SliderRange { min: 0.25, max: 3.0, step: 0.25 };
     pub const ATTACK_SPEED: SliderRange = SliderRange { min: 0.1, max: 5.0, step: 0.1 };
+    pub const PENETRATION: SliderRange = SliderRange { min: 0.0, max: 20.0, step: 1.0 };
 }
 
 #[cfg(test)]
@@ -135,6 +138,7 @@ mod tests {
         assert_eq!(settings.projectile_size_multiplier, 1.0);
         assert_eq!(settings.projectile_speed_multiplier, 1.0);
         assert_eq!(settings.attack_speed_multiplier, 1.0);
+        assert_eq!(settings.global_penetration_bonus, 0);
     }
 
     #[test]
@@ -200,5 +204,6 @@ mod tests {
         assert!(SliderRange::PROJECTILE_SIZE.min < SliderRange::PROJECTILE_SIZE.max);
         assert!(SliderRange::PROJECTILE_SPEED.min < SliderRange::PROJECTILE_SPEED.max);
         assert!(SliderRange::ATTACK_SPEED.min < SliderRange::ATTACK_SPEED.max);
+        assert!(SliderRange::PENETRATION.min < SliderRange::PENETRATION.max);
     }
 }

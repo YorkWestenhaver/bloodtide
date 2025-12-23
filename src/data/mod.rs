@@ -36,11 +36,15 @@ pub struct Creature {
     pub projectile_size: f32,
     #[serde(default = "default_projectile_speed")]
     pub projectile_speed: f32,
+    // Penetration (how many enemies a projectile can hit)
+    #[serde(default = "default_projectile_penetration")]
+    pub projectile_penetration: u32,
 }
 
 fn default_projectile_count() -> u32 { 1 }
 fn default_projectile_size() -> f32 { 8.0 }
 fn default_projectile_speed() -> f32 { 500.0 }
+fn default_projectile_penetration() -> u32 { 1 }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct CreaturesFile {

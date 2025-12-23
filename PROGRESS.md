@@ -413,6 +413,46 @@
   - Proper formatting: count shows +/- bonus, others show multiplier
 - [x] Test: 158 tests passing, build succeeds
 
+## Phase 21B: Penetration System ✅
+
+- [x] Added projectile_penetration field to ProjectileConfig:
+  - penetration: u32 (how many enemies the projectile can hit)
+- [x] Updated Creature data struct in data/mod.rs:
+  - Added projectile_penetration field with serde default of 1
+- [x] Updated Projectile component with penetration tracking:
+  - penetration_remaining: u32 (decrements on each hit)
+  - enemies_hit: Vec<Entity> (tracks which enemies already hit, prevents double damage)
+- [x] Updated creatures.toml with penetration values for all creatures:
+  - Tier 1: penetration 1 (single hit)
+  - Tier 2: penetration 2-3
+  - Tier 3: penetration 3-5
+  - Tier 4: penetration 8-10
+- [x] Updated projectile spawning:
+  - Initialize penetration_remaining from creature's projectile_penetration + debug bonus
+  - Initialize enemies_hit as empty Vec
+  - Use longer lifetime (3s) for penetrating projectiles (vs 1s for non-penetrating)
+- [x] Rewrote projectile_system hit detection for penetration:
+  - Check all enemies for collision (not just original target)
+  - Skip enemies already in enemies_hit list
+  - On hit: add enemy to list, deal damage, decrement penetration_remaining
+  - If penetration_remaining == 0: despawn projectile
+  - If penetration_remaining > 0: projectile continues flying
+  - Only hit one enemy per frame to prevent multi-hit in same position
+- [x] Visual feedback for penetration:
+  - On hit without despawn: projectile flashes brighter (color * 1.5)
+  - Projectile shrinks 10% per hit (visual wear)
+  - Projectile slows 10% per hit
+- [x] Added global_penetration_bonus to DebugSettings:
+  - Range 0-20, step 1, default 0
+  - Added to base penetration for all creature projectiles
+- [x] Updated debug menu UI:
+  - Added "Penetration Bonus" slider in Projectiles section
+  - Shows +X format for display
+- [x] Added projectile cleanup for performance:
+  - Maximum lifetime of 3 seconds for penetrating projectiles
+  - Despawn projectiles >1200 pixels from player
+- [x] Test: 158 tests passing, build succeeds
+
 ## Phase 21: Changes to Combat System
 
 - [ ] TBD
@@ -536,4 +576,4 @@
 
 ## Last Updated
 
-Phase 21A completed - Projectile Stats Foundation with ProjectileConfig component (count, spread, size, speed), multi-shot spread attacks, debug menu projectile sliders, and attack speed multiplier
+Phase 21B completed - Penetration System with projectile penetration (pass through multiple enemies), enemies_hit tracking (no double damage), tier-based penetration values (T1=1, T2=2-3, T3=3-5, T4=8-10), visual wear effects, debug menu slider, and performance cleanup
