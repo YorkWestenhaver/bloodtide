@@ -17,6 +17,8 @@ use systems::{
     respawn_system, screen_shake_system, spawn_hp_bars_system, spawn_test_creature_system,
     spawn_ui_system, update_hp_bars_system, update_ui_system, weapon_attack_system,
     EnemySpawnTimer, RespawnQueue, ScreenShake, EvolutionReadyState,
+    // Projectile type systems
+    homing_projectile_system, piercing_rotation_system, explosion_effect_system, chain_effect_system,
     // Director systems
     director_update_system, enemy_cleanup_system,
     // UI Panel systems
@@ -120,7 +122,11 @@ fn main() {
             creature_attack_system,
             enemy_attack_system,
             weapon_attack_system,
+            homing_projectile_system,  // Run homing before projectile movement/collision
             projectile_system,
+            piercing_rotation_system,  // Rotate piercing projectiles after collision
+            explosion_effect_system,
+            chain_effect_system,
             damage_number_system,
         ).chain().after(apply_velocity_system))
         // Death and effects systems

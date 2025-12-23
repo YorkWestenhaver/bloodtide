@@ -161,8 +161,37 @@ impl AttackTimer {
 #[derive(Component)]
 pub struct AttackRange(pub f32);
 
+/// Projectile behavior type
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
+pub enum ProjectileType {
+    /// Standard square projectile
+    #[default]
+    Basic,
+    /// Thin rectangle that rotates in travel direction (visual only, penetration handles mechanic)
+    Piercing,
+    /// On final hit, deals AoE damage to nearby enemies
+    Explosive,
+    /// Curves toward nearest enemy
+    Homing,
+    /// On hit, redirects toward nearby enemy (chain count = penetration)
+    Chain,
+}
+
+impl ProjectileType {
+    pub fn from_str(s: &str) -> Self {
+        match s.to_lowercase().as_str() {
+            "basic" => ProjectileType::Basic,
+            "piercing" => ProjectileType::Piercing,
+            "explosive" => ProjectileType::Explosive,
+            "homing" => ProjectileType::Homing,
+            "chain" => ProjectileType::Chain,
+            _ => ProjectileType::Basic,
+        }
+    }
+}
+
 /// Projectile configuration for creatures
-/// Controls projectile count, spread, size, speed, and penetration
+/// Controls projectile count, spread, size, speed, penetration, and type
 #[derive(Component, Clone, Debug)]
 pub struct ProjectileConfig {
     /// Number of projectiles to fire per attack
@@ -175,6 +204,8 @@ pub struct ProjectileConfig {
     pub speed: f32,
     /// How many enemies the projectile can penetrate (hit) before despawning
     pub penetration: u32,
+    /// Projectile behavior type
+    pub projectile_type: ProjectileType,
 }
 
 impl Default for ProjectileConfig {
@@ -185,13 +216,14 @@ impl Default for ProjectileConfig {
             size: 8.0,
             speed: 500.0,
             penetration: 1,
+            projectile_type: ProjectileType::Basic,
         }
     }
 }
 
 impl ProjectileConfig {
-    pub fn new(count: u32, spread: f32, size: f32, speed: f32, penetration: u32) -> Self {
-        Self { count, spread, size, speed, penetration }
+    pub fn new(count: u32, spread: f32, size: f32, speed: f32, penetration: u32, projectile_type: ProjectileType) -> Self {
+        Self { count, spread, size, speed, penetration, projectile_type }
     }
 }
 
@@ -470,26 +502,62 @@ mod tests {
         assert_eq!(config.size, 8.0);
         assert_eq!(config.speed, 500.0);
         assert_eq!(config.penetration, 1);
+        assert_eq!(config.projectile_type, ProjectileType::Basic);
     }
 
     #[test]
     fn projectile_config_new_preserves_values() {
-        let config = ProjectileConfig::new(3, 0.5, 12.0, 600.0, 5);
+        let config = ProjectileConfig::new(3, 0.5, 12.0, 600.0, 5, ProjectileType::Explosive);
         assert_eq!(config.count, 3);
         assert_eq!(config.spread, 0.5);
         assert_eq!(config.size, 12.0);
         assert_eq!(config.speed, 600.0);
         assert_eq!(config.penetration, 5);
+        assert_eq!(config.projectile_type, ProjectileType::Explosive);
     }
 
     #[test]
     fn projectile_config_clone_works() {
-        let config = ProjectileConfig::new(5, 1.0, 10.0, 400.0, 3);
+        let config = ProjectileConfig::new(5, 1.0, 10.0, 400.0, 3, ProjectileType::Homing);
         let cloned = config.clone();
         assert_eq!(cloned.count, config.count);
         assert_eq!(cloned.spread, config.spread);
         assert_eq!(cloned.size, config.size);
         assert_eq!(cloned.speed, config.speed);
         assert_eq!(cloned.penetration, config.penetration);
+        assert_eq!(cloned.projectile_type, config.projectile_type);
+    }
+
+    // =========================================================================
+    // ProjectileType Tests
+    // =========================================================================
+
+    #[test]
+    fn projectile_type_from_str_parses_all_types() {
+        assert_eq!(ProjectileType::from_str("basic"), ProjectileType::Basic);
+        assert_eq!(ProjectileType::from_str("piercing"), ProjectileType::Piercing);
+        assert_eq!(ProjectileType::from_str("explosive"), ProjectileType::Explosive);
+        assert_eq!(ProjectileType::from_str("homing"), ProjectileType::Homing);
+        assert_eq!(ProjectileType::from_str("chain"), ProjectileType::Chain);
+    }
+
+    #[test]
+    fn projectile_type_from_str_is_case_insensitive() {
+        assert_eq!(ProjectileType::from_str("BASIC"), ProjectileType::Basic);
+        assert_eq!(ProjectileType::from_str("Basic"), ProjectileType::Basic);
+        assert_eq!(ProjectileType::from_str("EXPLOSIVE"), ProjectileType::Explosive);
+        assert_eq!(ProjectileType::from_str("Homing"), ProjectileType::Homing);
+    }
+
+    #[test]
+    fn projectile_type_from_str_defaults_to_basic_for_unknown() {
+        assert_eq!(ProjectileType::from_str("unknown"), ProjectileType::Basic);
+        assert_eq!(ProjectileType::from_str(""), ProjectileType::Basic);
+        assert_eq!(ProjectileType::from_str("laser"), ProjectileType::Basic);
+    }
+
+    #[test]
+    fn projectile_type_default_is_basic() {
+        assert_eq!(ProjectileType::default(), ProjectileType::Basic);
     }
 }

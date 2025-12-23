@@ -39,12 +39,16 @@ pub struct Creature {
     // Penetration (how many enemies a projectile can hit)
     #[serde(default = "default_projectile_penetration")]
     pub projectile_penetration: u32,
+    // Projectile behavior type (basic, piercing, explosive, homing, chain)
+    #[serde(default = "default_projectile_type")]
+    pub projectile_type: String,
 }
 
 fn default_projectile_count() -> u32 { 1 }
 fn default_projectile_size() -> f32 { 8.0 }
 fn default_projectile_speed() -> f32 { 500.0 }
 fn default_projectile_penetration() -> u32 { 1 }
+fn default_projectile_type() -> String { "basic".to_string() }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct CreaturesFile {

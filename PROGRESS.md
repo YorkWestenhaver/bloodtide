@@ -453,9 +453,58 @@
   - Despawn projectiles >1200 pixels from player
 - [x] Test: 158 tests passing, build succeeds
 
-## Phase 21: Changes to Combat System
+## Phase 21C: Projectile Types ✅
 
-- [ ] TBD
+- [x] Added ProjectileType enum to creature.rs:
+  - Basic: Standard square projectile (default)
+  - Piercing: Thin rectangle that rotates toward travel direction
+  - Explosive: On final hit, deals AoE damage to nearby enemies
+  - Homing: Curves toward nearest enemy
+  - Chain: On hit, redirects toward nearby enemy (chain count = penetration)
+- [x] Updated ProjectileConfig with projectile_type field
+- [x] Updated Projectile component with projectile_type tracking
+- [x] Updated Creature data struct in data/mod.rs:
+  - Added projectile_type field with serde default of "basic"
+- [x] Updated creatures.toml with projectile_type for all creatures:
+  - fire_imp: basic
+  - ember_hound/hellhound: piercing (fast assassins)
+  - fire_spirit/greater_fire_spirit: homing (support)
+  - magma_elemental/inferno_demon/phoenix/inferno_titan/eternal_phoenix: explosive
+  - hellhound_alpha: chain (pack synergy)
+  - flame_fiend/inferno_knight/inferno_warlord: basic
+- [x] Implemented visual differentiation:
+  - Basic: Standard square, base color
+  - Piercing: Elongated rectangle (2x width, 0.5x height), rotates to face travel direction
+  - Explosive: Slightly larger (1.2x), orange tinted
+  - Homing: Smaller (0.8x), cyan tinted
+  - Chain: Base size, electric blue tinted
+- [x] Implemented Piercing behavior:
+  - piercing_rotation_system: rotates projectile Transform to face velocity direction
+- [x] Implemented Explosive behavior:
+  - On final hit (penetration_remaining == 0), creates AoE explosion
+  - AoE radius: 100 pixels
+  - AoE damage: 50% of projectile damage with distance falloff
+  - Spawns visual explosion effect (expanding orange circle)
+  - AoE can grant kill credit to source creature
+- [x] Implemented Homing behavior:
+  - homing_projectile_system: adjusts velocity to curve toward nearest enemy
+  - Turn rate: 3.0 radians/second
+  - Blends current direction with desired direction over time
+- [x] Implemented Chain behavior:
+  - On hit (when penetration_remaining > 0), finds nearest unhit enemy within 150px
+  - Redirects projectile velocity toward new target
+  - Spawns visual chain lightning effect (blue line between positions)
+- [x] Added visual effect systems:
+  - ExplosionEffect component: expanding circle that fades out over 0.3s
+  - ChainEffect component: blue line that fades out over 0.15s
+  - explosion_effect_system and chain_effect_system update and despawn effects
+- [x] Updated spawn_creature to pass projectile_type to ProjectileConfig::new()
+- [x] Registered new systems in main.rs:
+  - homing_projectile_system (before projectile_system)
+  - piercing_rotation_system (after projectile_system)
+  - explosion_effect_system
+  - chain_effect_system
+- [x] Test: 162 tests passing, build succeeds
 
 ## Phase 22: Bosses ⬅️ CURRENT
 
@@ -576,4 +625,4 @@
 
 ## Last Updated
 
-Phase 21B completed - Penetration System with projectile penetration (pass through multiple enemies), enemies_hit tracking (no double damage), tier-based penetration values (T1=1, T2=2-3, T3=3-5, T4=8-10), visual wear effects, debug menu slider, and performance cleanup
+Phase 21C completed - Projectile Types with 5 behaviors (Basic, Piercing, Explosive, Homing, Chain), visual differentiation (shape/color tinting), explosion AoE damage, homing curves, chain redirects, and visual effects (expanding explosions, chain lightning lines)

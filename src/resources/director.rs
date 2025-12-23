@@ -44,27 +44,47 @@ impl Default for Director {
 }
 
 impl Director {
-    /// Get target enemy count for current wave
+    /// Get target enemy count for current wave - LINEAR scaling for early game
     pub fn get_target_enemy_count(wave: u32) -> u32 {
         match wave {
-            1..=5 => 350,      // 250-500 target
-            6..=10 => 750,     // 500-1000 target
-            11..=15 => 1500,   // 1000-2000 target
-            16..=20 => 2750,   // 2000-3500 target
-            21..=30 => 5000,   // 3500-7500 target
-            _ => 6000,         // 5000+ for very late waves
+            // Very gentle start - linear scaling from wave 1-10
+            1 => 15,           // Just a handful to start
+            2 => 25,
+            3 => 40,
+            4 => 60,
+            5 => 85,
+            6 => 115,
+            7 => 150,
+            8 => 190,
+            9 => 235,
+            10 => 285,
+            // Start ramping up more after wave 10
+            11..=15 => 300 + (wave - 10) * 100,  // 400-800
+            16..=20 => 800 + (wave - 15) * 200,  // 1000-1800
+            21..=30 => 1800 + (wave - 20) * 300, // 2100-4800
+            _ => 5000 + (wave - 30) * 100,       // 5000+ scaling
         }
     }
 
-    /// Get enemies to spawn per spawn event based on wave
+    /// Get enemies to spawn per spawn event based on wave - MUCH gentler early game
     pub fn get_enemies_per_spawn(wave: u32) -> (u32, u32) {
         match wave {
-            1..=5 => (25, 50),
-            6..=10 => (50, 100),
-            11..=15 => (100, 175),
-            16..=20 => (175, 250),
-            21..=30 => (250, 400),
-            _ => (400, 600),
+            // Very small spawns early - let player build up
+            1 => (2, 4),       // Just a trickle
+            2 => (3, 5),
+            3 => (4, 7),
+            4 => (5, 9),
+            5 => (6, 11),
+            6 => (8, 14),
+            7 => (10, 17),
+            8 => (12, 20),
+            9 => (15, 25),
+            10 => (18, 30),
+            // Now start ramping up
+            11..=15 => (25, 45),
+            16..=20 => (50, 90),
+            21..=30 => (100, 180),
+            _ => (200, 350),
         }
     }
 
@@ -84,28 +104,47 @@ impl Director {
         let target = Self::get_target_enemy_count(wave) as f32;
         let ratio = self.enemies_alive as f32 / target.max(1.0);
 
-        let base_interval = if ratio < 0.5 {
-            0.1  // Way below target - FAST spawning
-        } else if ratio < 1.0 {
-            0.2  // Below target - normal fast
-        } else if ratio < 1.5 {
-            0.3  // At target - slightly slower
-        } else {
-            0.5  // Above target - slower but still spawning
+        // Base interval depends on wave - early waves spawn slower
+        let wave_base = match wave {
+            1..=3 => 1.5,    // Very slow early - give player time
+            4..=6 => 1.0,    // Still gentle
+            7..=10 => 0.7,   // Starting to pick up
+            11..=15 => 0.4,  // Getting serious
+            _ => 0.2,        // Late game - fast spawns
         };
 
-        // Apply stress modifier
-        let stress_modifier = match self.stress_level {
-            s if s < 0.3 => 0.5,  // Stomping - spawn faster
-            s if s > 0.7 => 1.5,  // Struggling - spawn slower
-            _ => 1.0,             // Comfortable
+        // Adjust based on how close we are to target
+        let ratio_modifier = if ratio < 0.5 {
+            0.7  // Below target - spawn a bit faster
+        } else if ratio < 1.0 {
+            1.0  // Approaching target - normal
+        } else if ratio < 1.5 {
+            1.5  // At target - slow down
+        } else {
+            2.5  // Over target - spawn much slower
+        };
+
+        // Apply stress modifier - but less aggressive in early waves
+        let stress_modifier = if wave <= 5 {
+            // Early waves: minimal stress adjustment
+            match self.stress_level {
+                s if s > 0.8 => 1.3,  // Only slow down if really struggling
+                _ => 1.0,
+            }
+        } else {
+            // Later waves: normal stress adjustment
+            match self.stress_level {
+                s if s < 0.3 => 0.7,  // Stomping - spawn faster
+                s if s > 0.7 => 1.5,  // Struggling - spawn slower
+                _ => 1.0,             // Comfortable
+            }
         };
 
         // Apply performance throttle
-        let interval = base_interval * stress_modifier / self.spawn_rate_modifier * (1.0 / self.performance_throttle);
+        let interval = wave_base * ratio_modifier * stress_modifier / self.spawn_rate_modifier * (1.0 / self.performance_throttle);
 
-        // Clamp to reasonable range - never go slower than 0.8s between spawns
-        interval.clamp(0.08, 0.8)
+        // Clamp to reasonable range
+        interval.clamp(0.15, 3.0)
     }
 
     /// Get HP scaling modifier for current wave

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::components::{
     AttackRange, AttackTimer, Creature, CreatureStats, Enemy, EnemyAttackTimer, EnemyStats,
-    Player, ProjectileConfig, Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
+    Player, ProjectileConfig, ProjectileType, Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
 };
 use crate::math::{calculate_damage_with_crits, CritTier};
 use crate::resources::{get_affinity_bonuses, AffinityState, ArtifactBuffs, DebugSettings, GameData};
@@ -49,6 +49,8 @@ pub struct Projectile {
     pub penetration_remaining: u32,
     /// Entities this projectile has already hit (to prevent double damage)
     pub enemies_hit: Vec<Entity>,
+    /// Projectile behavior type
+    pub projectile_type: ProjectileType,
 }
 
 /// Screen shake resource
@@ -98,6 +100,53 @@ fn get_damage_number_color(crit_tier: CritTier) -> Color {
         CritTier::Normal => Color::srgb(1.0, 1.0, 0.2),   // Yellow
         CritTier::Mega => Color::srgb(1.0, 0.5, 0.0),     // Orange
         CritTier::Super => Color::srgb(1.0, 0.2, 0.2),    // Red
+    }
+}
+
+/// Get visual properties (size, color) for projectile type
+fn get_projectile_visual(projectile_type: ProjectileType, base_size: f32, base_color: Color) -> (Vec2, Color) {
+    match projectile_type {
+        ProjectileType::Basic => {
+            // Standard square
+            (Vec2::new(base_size, base_size), base_color)
+        }
+        ProjectileType::Piercing => {
+            // Thin elongated rectangle
+            (Vec2::new(base_size * 2.0, base_size * 0.5), base_color)
+        }
+        ProjectileType::Explosive => {
+            // Slightly larger, tinted orange
+            let Srgba { red, green, blue, alpha } = base_color.to_srgba();
+            let tinted = Color::srgba(
+                (red + 0.3).min(1.0),
+                green * 0.7,
+                blue * 0.5,
+                alpha,
+            );
+            (Vec2::new(base_size * 1.2, base_size * 1.2), tinted)
+        }
+        ProjectileType::Homing => {
+            // Diamond shape (rotated square), tinted cyan
+            let Srgba { red, green, blue, alpha } = base_color.to_srgba();
+            let tinted = Color::srgba(
+                red * 0.7,
+                (green + 0.2).min(1.0),
+                (blue + 0.3).min(1.0),
+                alpha,
+            );
+            (Vec2::new(base_size * 0.8, base_size * 0.8), tinted)
+        }
+        ProjectileType::Chain => {
+            // Bright electric blue tint
+            let Srgba { red, green, blue, alpha } = base_color.to_srgba();
+            let tinted = Color::srgba(
+                red * 0.5,
+                (green * 0.8 + 0.2).min(1.0),
+                (blue + 0.5).min(1.0),
+                alpha,
+            );
+            (Vec2::new(base_size, base_size), tinted)
+        }
     }
 }
 
@@ -242,6 +291,13 @@ pub fn creature_attack_system(
                         base_direction.x * sin_angle + base_direction.y * cos_angle,
                     );
 
+                    // Get visual properties based on projectile type
+                    let (sprite_size, sprite_color) = get_projectile_visual(
+                        projectile_config.projectile_type,
+                        projectile_size,
+                        projectile_color,
+                    );
+
                     commands.spawn((
                         Projectile {
                             target: target_entity,
@@ -253,14 +309,15 @@ pub fn creature_attack_system(
                             speed: projectile_speed,
                             penetration_remaining: projectile_penetration,
                             enemies_hit: Vec::new(),
+                            projectile_type: projectile_config.projectile_type,
                         },
                         Velocity {
                             x: direction.x * projectile_speed,
                             y: direction.y * projectile_speed,
                         },
                         Sprite {
-                            color: projectile_color,
-                            custom_size: Some(Vec2::new(projectile_size, projectile_size)),
+                            color: sprite_color,
+                            custom_size: Some(sprite_size),
                             ..default()
                         },
                         Transform::from_translation(Vec3::new(
@@ -275,13 +332,39 @@ pub fn creature_attack_system(
     }
 }
 
+/// AoE explosion radius for explosive projectiles
+pub const EXPLOSIVE_AOE_RADIUS: f32 = 100.0;
+
+/// Chain lightning search radius
+pub const CHAIN_SEARCH_RADIUS: f32 = 150.0;
+
+/// Homing turn rate (radians per second)
+pub const HOMING_TURN_RATE: f32 = 3.0;
+
+/// Pending explosion effect to spawn after projectile system
+#[derive(Component)]
+pub struct PendingExplosion {
+    pub position: Vec2,
+    pub radius: f32,
+    pub damage: f64,
+    pub source_creature: Option<Entity>,
+    pub enemies_to_skip: Vec<Entity>,
+}
+
+/// Pending chain target to redirect projectile
+#[derive(Component)]
+pub struct PendingChain {
+    pub projectile_entity: Entity,
+    pub new_target_pos: Vec2,
+}
+
 /// System that handles projectile movement and collision with penetration support
 pub fn projectile_system(
     mut commands: Commands,
     time: Res<Time>,
     debug_settings: Res<DebugSettings>,
     player_query: Query<&Transform, With<Player>>,
-    mut projectile_query: Query<(Entity, &mut Projectile, &Transform, &mut Sprite)>,
+    mut projectile_query: Query<(Entity, &mut Projectile, &Transform, &mut Sprite, &mut Velocity)>,
     mut enemy_query: Query<(Entity, &Transform, &mut EnemyStats), With<Enemy>>,
     mut screen_shake: ResMut<ScreenShake>,
 ) {
@@ -296,7 +379,12 @@ pub fn projectile_system(
         .map(|t| t.translation.truncate())
         .unwrap_or(Vec2::ZERO);
 
-    for (projectile_entity, mut projectile, projectile_transform, mut sprite) in projectile_query.iter_mut() {
+    // Collect chain redirections to apply after the main loop
+    let mut pending_chains: Vec<(Entity, Vec2)> = Vec::new();
+    // Collect explosions to spawn after the main loop
+    let mut pending_explosions: Vec<(Vec2, f32, f64, Option<Entity>, Vec<Entity>)> = Vec::new();
+
+    for (projectile_entity, mut projectile, projectile_transform, mut sprite, mut velocity) in projectile_query.iter_mut() {
         // Tick lifetime
         projectile.lifetime.tick(time.delta());
 
@@ -386,8 +474,19 @@ pub fn projectile_system(
                 // Decrement penetration
                 projectile.penetration_remaining = projectile.penetration_remaining.saturating_sub(1);
 
-                // Check if projectile should despawn
+                // Check if projectile should despawn (final hit)
                 if projectile.penetration_remaining == 0 {
+                    // Handle explosive projectiles - AoE on final hit
+                    if projectile.projectile_type == ProjectileType::Explosive {
+                        pending_explosions.push((
+                            projectile_pos,
+                            EXPLOSIVE_AOE_RADIUS,
+                            projectile.damage * 0.5, // AoE deals 50% damage
+                            projectile.source_creature,
+                            projectile.enemies_hit.clone(),
+                        ));
+                    }
+
                     commands.entity(projectile_entity).despawn();
                     break; // Exit the enemy loop since projectile is gone
                 } else {
@@ -399,8 +498,29 @@ pub fn projectile_system(
                     // Reduce speed slightly (10% per hit)
                     projectile.speed *= 0.9;
 
+                    // Handle chain projectiles - redirect toward nearby enemy
+                    if projectile.projectile_type == ProjectileType::Chain {
+                        // Find nearest enemy that hasn't been hit
+                        let mut nearest_chain_target: Option<(Vec2, f32)> = None;
+                        for (other_enemy, other_transform, _) in enemy_query.iter() {
+                            if projectile.enemies_hit.contains(&other_enemy) {
+                                continue;
+                            }
+                            let other_pos = other_transform.translation.truncate();
+                            let chain_dist = projectile_pos.distance(other_pos);
+                            if chain_dist < CHAIN_SEARCH_RADIUS {
+                                if nearest_chain_target.is_none() || chain_dist < nearest_chain_target.unwrap().1 {
+                                    nearest_chain_target = Some((other_pos, chain_dist));
+                                }
+                            }
+                        }
+
+                        if let Some((target_pos, _)) = nearest_chain_target {
+                            pending_chains.push((projectile_entity, target_pos));
+                        }
+                    }
+
                     // Brief visual pulse effect - make it brighter momentarily
-                    // The sprite color will fade back naturally as we're just setting it once
                     let current_color = sprite.color.to_srgba();
                     sprite.color = Color::srgba(
                         (current_color.red * 1.5).min(1.0),
@@ -414,6 +534,235 @@ pub fn projectile_system(
                 break;
             }
         }
+    }
+
+    // Apply chain redirections
+    for (entity, target_pos) in pending_chains {
+        if let Ok((_, projectile, transform, _, mut velocity)) = projectile_query.get_mut(entity) {
+            let projectile_pos = transform.translation.truncate();
+            let direction = (target_pos - projectile_pos).normalize_or_zero();
+            velocity.x = direction.x * projectile.speed;
+            velocity.y = direction.y * projectile.speed;
+
+            // Spawn chain lightning visual effect
+            spawn_chain_effect(&mut commands, projectile_pos, target_pos);
+        }
+    }
+
+    // Spawn explosions
+    for (pos, radius, damage, source, enemies_hit) in pending_explosions {
+        spawn_explosion_effect(&mut commands, pos, radius);
+
+        // Deal AoE damage to nearby enemies (excluding already hit ones)
+        for (enemy_entity, enemy_transform, mut enemy_stats) in enemy_query.iter_mut() {
+            if enemies_hit.contains(&enemy_entity) {
+                continue;
+            }
+            let enemy_pos = enemy_transform.translation.truncate();
+            let dist = pos.distance(enemy_pos);
+            if dist < radius {
+                // Damage falloff based on distance
+                let falloff = 1.0 - (dist / radius);
+                let final_damage = damage * falloff as f64;
+
+                let will_kill = enemy_stats.current_hp - final_damage <= 0.0;
+                enemy_stats.current_hp -= final_damage;
+
+                if will_kill {
+                    if let Some(source_creature) = source {
+                        commands.spawn(PendingKillCredit {
+                            creature_entity: source_creature,
+                        });
+                    }
+                }
+
+                // Spawn damage number for AoE hit
+                commands.spawn((
+                    DamageNumber::new(),
+                    Text2d::new(format_damage(final_damage)),
+                    TextFont {
+                        font_size: 14.0,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(1.0, 0.6, 0.2)), // Orange for AoE
+                    Transform::from_translation(Vec3::new(
+                        enemy_pos.x,
+                        enemy_pos.y + 20.0,
+                        10.0,
+                    )),
+                ));
+            }
+        }
+    }
+}
+
+/// Spawn explosion visual effect
+fn spawn_explosion_effect(commands: &mut Commands, position: Vec2, radius: f32) {
+    // Spawn expanding circle effect
+    commands.spawn((
+        ExplosionEffect {
+            timer: Timer::from_seconds(0.3, TimerMode::Once),
+            max_radius: radius,
+        },
+        Sprite {
+            color: Color::srgba(1.0, 0.5, 0.1, 0.6), // Orange with transparency
+            custom_size: Some(Vec2::new(20.0, 20.0)), // Start small
+            ..default()
+        },
+        Transform::from_translation(Vec3::new(position.x, position.y, 0.7)),
+    ));
+}
+
+/// Spawn chain lightning visual effect
+fn spawn_chain_effect(commands: &mut Commands, from: Vec2, to: Vec2) {
+    let midpoint = (from + to) / 2.0;
+    let direction = to - from;
+    let length = direction.length();
+    let angle = direction.y.atan2(direction.x);
+
+    commands.spawn((
+        ChainEffect {
+            timer: Timer::from_seconds(0.15, TimerMode::Once),
+        },
+        Sprite {
+            color: Color::srgba(0.4, 0.8, 1.0, 0.8), // Electric blue
+            custom_size: Some(Vec2::new(length, 3.0)), // Thin line
+            ..default()
+        },
+        Transform::from_translation(Vec3::new(midpoint.x, midpoint.y, 0.7))
+            .with_rotation(Quat::from_rotation_z(angle)),
+    ));
+}
+
+/// Explosion visual effect component
+#[derive(Component)]
+pub struct ExplosionEffect {
+    pub timer: Timer,
+    pub max_radius: f32,
+}
+
+/// Chain lightning visual effect component
+#[derive(Component)]
+pub struct ChainEffect {
+    pub timer: Timer,
+}
+
+/// System to update explosion visual effects
+pub fn explosion_effect_system(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut ExplosionEffect, &mut Sprite, &mut Transform)>,
+) {
+    for (entity, mut effect, mut sprite, mut _transform) in query.iter_mut() {
+        effect.timer.tick(time.delta());
+
+        if effect.timer.finished() {
+            commands.entity(entity).despawn();
+            continue;
+        }
+
+        // Expand the circle
+        let progress = effect.timer.fraction();
+        let current_size = effect.max_radius * 2.0 * progress;
+        sprite.custom_size = Some(Vec2::new(current_size, current_size));
+
+        // Fade out
+        let alpha = 0.6 * (1.0 - progress);
+        let current = sprite.color.to_srgba();
+        sprite.color = Color::srgba(current.red, current.green, current.blue, alpha);
+    }
+}
+
+/// System to update chain lightning visual effects
+pub fn chain_effect_system(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut ChainEffect, &mut Sprite)>,
+) {
+    for (entity, mut effect, mut sprite) in query.iter_mut() {
+        effect.timer.tick(time.delta());
+
+        if effect.timer.finished() {
+            commands.entity(entity).despawn();
+            continue;
+        }
+
+        // Fade out
+        let progress = effect.timer.fraction();
+        let alpha = 0.8 * (1.0 - progress);
+        let current = sprite.color.to_srgba();
+        sprite.color = Color::srgba(current.red, current.green, current.blue, alpha);
+    }
+}
+
+/// System that handles homing projectile behavior
+pub fn homing_projectile_system(
+    time: Res<Time>,
+    debug_settings: Res<DebugSettings>,
+    mut projectile_query: Query<(&Projectile, &Transform, &mut Velocity)>,
+    enemy_query: Query<&Transform, With<Enemy>>,
+) {
+    if debug_settings.is_paused() {
+        return;
+    }
+
+    for (projectile, transform, mut velocity) in projectile_query.iter_mut() {
+        if projectile.projectile_type != ProjectileType::Homing {
+            continue;
+        }
+
+        let projectile_pos = transform.translation.truncate();
+
+        // Find nearest enemy
+        let mut nearest_enemy: Option<(Vec2, f32)> = None;
+        for enemy_transform in enemy_query.iter() {
+            let enemy_pos = enemy_transform.translation.truncate();
+
+            // Skip enemies already hit
+            // Note: We can't check this directly here since we don't have the entity
+            // The homing will still work, it just might curve toward an already-hit enemy briefly
+
+            let dist = projectile_pos.distance(enemy_pos);
+            if nearest_enemy.is_none() || dist < nearest_enemy.unwrap().1 {
+                nearest_enemy = Some((enemy_pos, dist));
+            }
+        }
+
+        if let Some((target_pos, _)) = nearest_enemy {
+            // Calculate desired direction
+            let desired_direction = (target_pos - projectile_pos).normalize_or_zero();
+
+            // Current direction
+            let current_direction = Vec2::new(velocity.x, velocity.y).normalize_or_zero();
+
+            // Blend toward desired direction based on turn rate
+            let turn_amount = HOMING_TURN_RATE * time.delta_secs();
+            let new_direction = (current_direction + desired_direction * turn_amount).normalize_or_zero();
+
+            // Apply new direction while maintaining speed
+            velocity.x = new_direction.x * projectile.speed;
+            velocity.y = new_direction.y * projectile.speed;
+        }
+    }
+}
+
+/// System that rotates piercing projectiles to face their travel direction
+pub fn piercing_rotation_system(
+    debug_settings: Res<DebugSettings>,
+    mut projectile_query: Query<(&Projectile, &Velocity, &mut Transform)>,
+) {
+    if debug_settings.is_paused() {
+        return;
+    }
+
+    for (projectile, velocity, mut transform) in projectile_query.iter_mut() {
+        if projectile.projectile_type != ProjectileType::Piercing {
+            continue;
+        }
+
+        // Calculate rotation angle from velocity
+        let angle = velocity.y.atan2(velocity.x);
+        transform.rotation = Quat::from_rotation_z(angle);
     }
 }
 
@@ -610,6 +959,7 @@ pub fn weapon_attack_system(
                             speed: projectile_speed,
                             penetration_remaining: 1, // Weapons have base 1 penetration
                             enemies_hit: Vec::new(),
+                            projectile_type: ProjectileType::Basic, // Weapons use basic projectiles
                         },
                         Velocity {
                             x: rotated_dir.x * projectile_speed,

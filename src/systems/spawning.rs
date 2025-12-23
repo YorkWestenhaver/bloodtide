@@ -3,8 +3,8 @@ use rand::Rng;
 
 use crate::components::{
     AttackRange, AttackTimer, Creature, CreatureColor, CreatureStats, CreatureType, Enemy,
-    EnemyAttackTimer, EnemyClass, EnemyStats, EnemyType, Player, ProjectileConfig, Velocity, Weapon, WeaponAttackTimer,
-    WeaponData, WeaponStats,
+    EnemyAttackTimer, EnemyClass, EnemyStats, EnemyType, Player, ProjectileConfig, ProjectileType,
+    Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
 };
 use crate::resources::{AffinityState, ArtifactBuffs, DebugSettings, Director, GameData, GameState};
 use crate::systems::death::RespawnQueue;
@@ -115,6 +115,7 @@ pub fn spawn_creature(
         creature_data.projectile_size,
         creature_data.projectile_speed,
         creature_data.projectile_penetration,
+        ProjectileType::from_str(&creature_data.projectile_type),
     );
 
     let entity = commands
