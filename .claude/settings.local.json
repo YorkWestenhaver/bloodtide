@@ -6,7 +6,12 @@
       "Bash(git checkout:*)",
       "Bash(mkdir:*)",
       "Bash(npm install)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(convert:*)",
+      "Bash(ls:*)",
+      "Bash(magick identify:*)",
+      "Bash(grep:*)",
+      "Bash(magick:*)"
     ]
   }
 }

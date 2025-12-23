@@ -1,13 +1,15 @@
 use bevy::prelude::*;
+use bevy::sprite::TextureAtlas;
 
-use crate::components::{Creature, CreatureStats, Enemy, EnemyStats, Player};
-use crate::resources::{DebugSettings, GameState};
+use crate::components::{Creature, CreatureStats, DeathAnimation, Enemy, EnemyStats, Player};
+use crate::resources::{DeathSprites, DebugSettings, GameState};
 
 /// System that checks for and handles enemy deaths
 pub fn enemy_death_system(
     mut commands: Commands,
     mut game_state: ResMut<GameState>,
     debug_settings: Res<DebugSettings>,
+    death_sprites: Option<Res<DeathSprites>>,
     enemy_query: Query<(Entity, &EnemyStats, &Transform), With<Enemy>>,
 ) {
     // Don't process if game is paused
@@ -17,19 +19,39 @@ pub fn enemy_death_system(
 
     for (entity, stats, transform) in enemy_query.iter() {
         if stats.current_hp <= 0.0 {
-            // Spawn death effect (small white flash)
             let death_pos = transform.translation;
-            commands.spawn((
-                DeathEffect {
-                    timer: Timer::from_seconds(0.2, TimerMode::Once),
-                },
-                Sprite {
-                    color: Color::srgba(1.0, 1.0, 1.0, 0.8),
-                    custom_size: Some(Vec2::new(20.0, 20.0)),
-                    ..default()
-                },
-                Transform::from_translation(Vec3::new(death_pos.x, death_pos.y, 0.7)),
-            ));
+            // Preserve scale from enemy (elites are larger)
+            let scale = transform.scale;
+
+            // Spawn death animation if sprites are loaded, otherwise fall back to simple flash
+            if let Some(ref sprites) = death_sprites {
+                // Spawn animated death using unified spritesheet starting at frame 3 (death1)
+                commands.spawn((
+                    DeathAnimation::new(stats.id.clone(), death_pos),
+                    Sprite::from_atlas_image(
+                        sprites.imp_spritesheet.clone(),
+                        TextureAtlas {
+                            layout: sprites.imp_atlas.clone(),
+                            index: 3, // Frame 3 = death1 (hit recoil)
+                        },
+                    ),
+                    Transform::from_translation(Vec3::new(death_pos.x, death_pos.y, 0.7))
+                        .with_scale(scale),
+                ));
+            } else {
+                // Fallback: simple white flash (no sprites loaded)
+                commands.spawn((
+                    DeathEffect {
+                        timer: Timer::from_seconds(0.2, TimerMode::Once),
+                    },
+                    Sprite {
+                        color: Color::srgba(1.0, 1.0, 1.0, 0.8),
+                        custom_size: Some(Vec2::new(20.0, 20.0)),
+                        ..default()
+                    },
+                    Transform::from_translation(Vec3::new(death_pos.x, death_pos.y, 0.7)),
+                ));
+            }
 
             // Despawn the enemy
             commands.entity(entity).despawn();

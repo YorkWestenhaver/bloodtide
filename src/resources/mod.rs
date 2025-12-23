@@ -8,6 +8,7 @@ pub mod game_data;
 pub mod game_state;
 pub mod pools;
 pub mod spatial;
+pub mod sprite_assets;
 
 pub use affinity::*;
 pub use artifact_buffs::*;
@@ -19,3 +20,4 @@ pub use game_data::*;
 pub use game_state::*;
 pub use pools::*;
 pub use spatial::*;
+pub use sprite_assets::*;

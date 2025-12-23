@@ -1,0 +1,66 @@
+{
+  "sprite_sheets": {
+    "imp": {
+      "file": "imp_spritesheet.svg",
+      "export_to": "imp_spritesheet.png",
+      "frame_width": 32,
+      "frame_height": 40,
+      "total_frames": 6,
+      "transparent_background": true,
+      "animations": {
+        "idle": {
+          "frames": [0],
+          "frame_duration_ms": 0,
+          "loop": false
+        },
+        "walk": {
+          "frames": [1, 2],
+          "frame_duration_ms": 150,
+          "loop": true
+        },
+        "death": {
+          "frames": [3, 4, 5],
+          "frame_duration_ms": 120,
+          "loop": false,
+          "on_complete": "spawn_blood_pool"
+        }
+      },
+      "frame_descriptions": {
+        "0": "idle - standing neutral pose",
+        "1": "walk1 - left foot forward",
+        "2": "walk2 - right foot forward", 
+        "3": "death1 - hit recoil, eyes flash white",
+        "4": "death2 - body splitting, blood spray",
+        "5": "death3 - corpse chunks in blood pool with guts"
+      }
+    },
+    "blood_splatters": {
+      "file": "blood_splatters.svg",
+      "export_to": "blood_splatters.png",
+      "frame_width": 16,
+      "frame_height": 16,
+      "total_frames": 4,
+      "transparent_background": true,
+      "usage": "decal",
+      "z_order": -1,
+      "spawn_count_on_death": "3-5 random",
+      "fade_after_seconds": 30,
+      "frame_descriptions": {
+        "0": "small drip",
+        "1": "medium pool",
+        "2": "spray pattern",
+        "3": "large pool"
+      }
+    }
+  },
+  "export_instructions": {
+    "tool": "inkscape or resvg or imagemagick",
+    "command_inkscape": "inkscape --export-type=png --export-background-opacity=0 INPUT.svg",
+    "command_resvg": "resvg INPUT.svg OUTPUT.png",
+    "notes": [
+      "MUST preserve transparency - no white background",
+      "Do not add any background rectangle",
+      "Export at 2x scale for crisp pixels if needed"
+    ]
+  }
+}

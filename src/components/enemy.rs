@@ -4,6 +4,67 @@ use bevy::prelude::*;
 #[derive(Component)]
 pub struct Enemy;
 
+/// Animation state for sprite-based enemies
+#[derive(Component, Clone, Copy, PartialEq, Eq, Debug, Default)]
+pub enum AnimationState {
+    #[default]
+    Idle,
+    Walking,
+    Dying,
+}
+
+/// Sprite animation controller
+#[derive(Component)]
+pub struct SpriteAnimation {
+    /// Current animation state
+    pub state: AnimationState,
+    /// Timer for advancing animation frames
+    pub frame_timer: Timer,
+    /// Current frame index in the spritesheet
+    pub current_frame: usize,
+}
+
+impl SpriteAnimation {
+    /// Create a new animation in idle state (frame 0)
+    pub fn new() -> Self {
+        Self {
+            state: AnimationState::Idle,
+            frame_timer: Timer::from_seconds(0.15, TimerMode::Repeating),
+            current_frame: 0,
+        }
+    }
+
+    /// Transition to walking animation (frames 1-2)
+    pub fn start_walking(&mut self) {
+        if self.state != AnimationState::Dying {
+            self.state = AnimationState::Walking;
+            self.current_frame = 1;
+            self.frame_timer = Timer::from_seconds(0.15, TimerMode::Repeating);
+        }
+    }
+
+    /// Transition to idle animation (frame 0)
+    pub fn go_idle(&mut self) {
+        if self.state != AnimationState::Dying {
+            self.state = AnimationState::Idle;
+            self.current_frame = 0;
+        }
+    }
+
+    /// Transition to dying animation (frames 3-4-5)
+    pub fn start_dying(&mut self) {
+        self.state = AnimationState::Dying;
+        self.current_frame = 3;
+        self.frame_timer = Timer::from_seconds(0.12, TimerMode::Repeating);
+    }
+}
+
+impl Default for SpriteAnimation {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Enemy class/tier
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum EnemyClass {

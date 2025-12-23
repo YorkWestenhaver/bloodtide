@@ -1,7 +1,9 @@
 pub mod ai;
+pub mod animation;
 pub mod combat;
 pub mod creature_xp;
 pub mod death;
+pub mod death_animation;
 pub mod debug_menu;
 pub mod deck_builder_ui;
 pub mod hp_bars;
@@ -13,9 +15,11 @@ pub mod ui;
 pub mod ui_panels;
 
 pub use ai::*;
+pub use animation::*;
 pub use combat::*;
 pub use creature_xp::*;
 pub use death::*;
+pub use death_animation::*;
 pub use debug_menu::*;
 pub use deck_builder_ui::*;
 pub use hp_bars::*;

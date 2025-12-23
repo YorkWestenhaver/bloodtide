@@ -4,9 +4,10 @@ use rand::Rng;
 use crate::components::{
     AttackRange, AttackTimer, Creature, CreatureColor, CreatureStats, CreatureType, Enemy,
     EnemyAttackTimer, EnemyClass, EnemyStats, EnemyType, Player, ProjectileConfig, ProjectileType,
-    Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats, get_creature_color_by_id,
+    SpriteAnimation, Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
+    get_creature_color_by_id,
 };
-use crate::resources::{AffinityState, ArtifactBuffs, DebugSettings, Director, GameData, GameState};
+use crate::resources::{AffinityState, ArtifactBuffs, DeathSprites, DebugSettings, Director, GameData, GameState};
 use crate::systems::death::RespawnQueue;
 
 /// Size of creature sprites in pixels
@@ -292,6 +293,7 @@ fn get_enemy_color(enemy_id: &str, is_elite: bool) -> Color {
 pub fn spawn_enemy_scaled(
     commands: &mut Commands,
     game_data: &GameData,
+    death_sprites: Option<&DeathSprites>,
     enemy_id: &str,
     position: Vec3,
     wave: u32,
@@ -330,26 +332,47 @@ pub fn spawn_enemy_scaled(
         enemy_data.attack_range,
     );
 
-    // Get color based on enemy type and elite status
-    let enemy_color = get_enemy_color(enemy_id, is_elite);
+    // Elites are slightly larger (scale factor for sprite)
+    let scale = if is_elite { 0.5 } else { 0.4 };
 
-    // Elites are slightly larger
-    let size = if is_elite { ENEMY_SIZE * 1.3 } else { ENEMY_SIZE };
-
-    let entity = commands
-        .spawn((
-            Enemy,
-            stats,
-            Velocity::default(),
-            EnemyAttackTimer::new(enemy_data.attack_speed),
-            Sprite {
-                color: enemy_color,
-                custom_size: Some(Vec2::new(size, size)),
-                ..default()
-            },
-            Transform::from_translation(position),
-        ))
-        .id();
+    // Use imp spritesheet if available, otherwise fall back to colored square
+    let entity = if let Some(sprites) = death_sprites {
+        commands
+            .spawn((
+                Enemy,
+                stats,
+                Velocity::default(),
+                EnemyAttackTimer::new(enemy_data.attack_speed),
+                SpriteAnimation::new(), // Start in idle state (frame 0)
+                Sprite::from_atlas_image(
+                    sprites.imp_spritesheet.clone(),
+                    bevy::sprite::TextureAtlas {
+                        layout: sprites.imp_atlas.clone(),
+                        index: 0, // Frame 0 = idle
+                    },
+                ),
+                Transform::from_translation(position).with_scale(Vec3::splat(scale)),
+            ))
+            .id()
+    } else {
+        // Fallback: colored square (no sprites loaded)
+        let enemy_color = get_enemy_color(enemy_id, is_elite);
+        let size = if is_elite { ENEMY_SIZE * 1.3 } else { ENEMY_SIZE };
+        commands
+            .spawn((
+                Enemy,
+                stats,
+                Velocity::default(),
+                EnemyAttackTimer::new(enemy_data.attack_speed),
+                Sprite {
+                    color: enemy_color,
+                    custom_size: Some(Vec2::new(size, size)),
+                    ..default()
+                },
+                Transform::from_translation(position),
+            ))
+            .id()
+    };
 
     Some(entity)
 }
@@ -361,7 +384,7 @@ pub fn spawn_enemy(
     enemy_id: &str,
     position: Vec3,
 ) -> Option<Entity> {
-    spawn_enemy_scaled(commands, game_data, enemy_id, position, 1, false)
+    spawn_enemy_scaled(commands, game_data, None, enemy_id, position, 1, false)
 }
 
 /// System to spawn a test creature (Fire Imp) when spacebar is pressed
@@ -449,6 +472,7 @@ pub fn enemy_spawn_system(
     debug_settings: Res<DebugSettings>,
     game_phase: Res<crate::resources::GamePhase>,
     game_data: Res<GameData>,
+    death_sprites: Option<Res<DeathSprites>>,
     player_query: Query<&Transform, With<Player>>,
     enemy_query: Query<&Enemy>,
 ) {
@@ -554,6 +578,7 @@ pub fn enemy_spawn_system(
                     spawn_enemy_scaled(
                         &mut commands,
                         &game_data,
+                        death_sprites.as_deref(),
                         enemy_id,
                         spawn_pos,
                         game_state.current_wave,
