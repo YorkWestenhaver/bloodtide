@@ -12,7 +12,8 @@
       "Bash(magick identify:*)",
       "Bash(grep:*)",
       "Bash(magick:*)",
-      "Bash(resvg:*)"
+      "Bash(resvg:*)",
+      "Bash(wc:*)"
     ]
   }
 }
