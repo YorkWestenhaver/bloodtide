@@ -543,6 +543,71 @@
   - Systems run after update_creature_panel_system in chain
 - [x] Test: 164 tests passing, build succeeds
 
+## Phase 21E: Leveling Speed & Feedback ✅
+
+- [x] Adjusted leveling formula for faster progression:
+  - Base kills for level 1: 15 (down from 25)
+  - Multiplier per level: 1.1x (down from 1.2x)
+  - Added base_kills_per_level and level_scaling_multiplier to DebugSettings
+  - Updated calculate_next_level_threshold() to accept multiplier parameter
+- [x] Added leveling sliders to debug menu:
+  - "Base Kills/Level" slider (range 5-50, step 1, default 15)
+  - "Level Scaling" slider (range 1.0-2.0, step 0.05, default 1.1)
+  - New "Leveling" section in debug menu
+- [x] Implemented multi-level catchup:
+  - If kill_count >= kills_for_next_level * 2, level up multiple times
+  - Processes all level ups in one frame with safety cap of 10 levels
+  - Each level up adds to pending_level_ups counter for effect spawning
+- [x] Added level up visual improvements:
+  - LevelUpEffect: expanding golden ring (bigger for milestones)
+  - LevelUpScreenFlash: brief white screen flash (0.1s)
+  - LevelUpParticle: burst of golden particles (12 particles, 24 for milestones)
+  - Particles fade and shrink as they fly outward
+- [x] Added LEVEL UP text announcement:
+  - LevelUpText component with timer and level number
+  - Animation: scale up (0.15s), hold (0.8s), fade out
+  - Yellow text for normal, gold text for milestones
+  - Spawns at center of screen above player
+- [x] Implemented card roll queue for multi-level ups:
+  - CardRollQueue resource with pending rolls and delay timer
+  - card_roll_queue_system: processes queue with 0.5s delays between popups
+  - PendingCardRoll struct: card_name, card_type, tier, is_milestone
+  - Cards still applied immediately, popups shown sequentially
+- [x] Added level 10/20/30 milestone bonuses:
+  - Detected by current_level % 10 == 0
+  - Guaranteed rare+ card (tier 3 minimum)
+  - Enhanced visual effects: larger ring, more particles, gold color
+  - SFX_MILESTONE placeholder print
+- [x] Improved creature level up feedback:
+  - CreatureLevelUpText: floating +[level] text above creature
+  - Text floats upward and fades over 0.6s
+  - Green color matching creature level up ring
+  - SFX_CREATURE_LEVEL placeholder print
+- [x] Added progress bar for next level in HUD:
+  - LevelProgressBar and LevelProgressFill components
+  - Visual bar (100px wide, 8px tall) next to level text
+  - Fills based on kill_count / kills_for_next_level percentage
+  - Level text shows "Level X (Y%)" format
+- [x] Added kill rate tracking and display:
+  - kills_this_second, kills_last_second, kill_rate_timer in GameState
+  - kill_rate_system: updates kill rate every second
+  - HUD shows "(+N/s)" when kills_last_second > 0
+- [x] Updated HUD layout to 3 lines:
+  - Line 1: Level with percentage and progress bar
+  - Line 2: Kills with rate (+N/s) and Wave
+  - Line 3: Creatures (C:N), Enemies (E:N), FPS, DPS, status (GOD, PAUSED)
+  - Components: HudLine1, HudLine2, HudLine3
+- [x] Added SFX placeholder prints:
+  - SFX_LEVEL_UP: normal level up
+  - SFX_MILESTONE: milestone level (10, 20, 30...)
+  - SFX_CREATURE_LEVEL: creature levels up
+  - SFX_EVOLUTION: creature evolution ready
+- [x] Registered new systems in main.rs:
+  - CardRollQueue resource
+  - card_roll_queue_system, screen_flash_system, level_up_text_system, level_up_particle_system
+  - kill_rate_system
+- [x] Test: 173 tests passing, build succeeds
+
 ## Phase 22: Bosses ⬅️ CURRENT
 
 - [ ] Create src/components/boss.rs:
@@ -662,4 +727,4 @@
 
 ## Last Updated
 
-Phase 21D completed - Tooltips & Stat Visibility with display settings in DebugSettings, Display Options section in Pause Menu (3 new checkboxes), complete tooltip system (TooltipTarget, TooltipState, hover tracking with delay), creature panel tooltips showing full stats (level, kills, HP, damage, crit chances, projectile info, evolution)
+Phase 21E completed - Leveling Speed & Feedback with faster leveling (15 base kills, 1.1x multiplier), leveling sliders in debug menu, multi-level catchup system (up to 10 levels per frame), enhanced level up visuals (golden ring, screen flash, particle burst, LEVEL UP text), card roll queue for sequential popup display, milestone bonuses every 10 levels (guaranteed rare+, enhanced effects), improved creature level up (+N floating text), HUD progress bar with percentage, kill rate tracking (+N/s display), 3-line HUD layout, SFX placeholder prints

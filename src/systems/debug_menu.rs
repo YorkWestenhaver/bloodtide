@@ -140,6 +140,8 @@ pub enum SliderSettingId {
     ProjectileSpeed,
     AttackSpeed,
     PenetrationBonus,
+    BaseKillsPerLevel,
+    LevelScaling,
     WaveOverride,
     LevelOverride,
 }
@@ -161,6 +163,8 @@ impl SliderSettingId {
             Self::ProjectileSpeed => "Projectile Speed",
             Self::AttackSpeed => "Attack Speed",
             Self::PenetrationBonus => "Penetration Bonus",
+            Self::BaseKillsPerLevel => "Base Kills/Level",
+            Self::LevelScaling => "Level Scaling",
             Self::WaveOverride => "Wave Override",
             Self::LevelOverride => "Level Override",
         }
@@ -174,6 +178,8 @@ impl SliderSettingId {
             Self::ProjectileCount => SliderRange::PROJECTILE_COUNT,
             Self::ProjectileSize | Self::ProjectileSpeed => SliderRange::PROJECTILE_SIZE,
             Self::PenetrationBonus => SliderRange::PENETRATION,
+            Self::BaseKillsPerLevel => SliderRange::BASE_KILLS,
+            Self::LevelScaling => SliderRange::LEVEL_SCALING,
             Self::WaveOverride | Self::LevelOverride => SliderRange::WAVE_LEVEL,
         }
     }
@@ -265,6 +271,11 @@ pub fn spawn_debug_menu_system(mut commands: Commands) {
         spawn_slider(parent, SliderSettingId::ProjectileSpeed);
         spawn_slider(parent, SliderSettingId::AttackSpeed);
         spawn_slider(parent, SliderSettingId::PenetrationBonus);
+
+        // Leveling section
+        spawn_section_header(parent, "Leveling");
+        spawn_slider(parent, SliderSettingId::BaseKillsPerLevel);
+        spawn_slider(parent, SliderSettingId::LevelScaling);
 
         // Override section
         spawn_section_header(parent, "Overrides");
@@ -912,6 +923,8 @@ fn get_slider_value(settings: &DebugSettings, id: SliderSettingId) -> f32 {
         SliderSettingId::ProjectileSpeed => settings.projectile_speed_multiplier,
         SliderSettingId::AttackSpeed => settings.attack_speed_multiplier,
         SliderSettingId::PenetrationBonus => settings.global_penetration_bonus as f32,
+        SliderSettingId::BaseKillsPerLevel => settings.base_kills_per_level as f32,
+        SliderSettingId::LevelScaling => settings.level_scaling_multiplier,
         SliderSettingId::WaveOverride => settings.current_wave_override.map(|v| v as f32).unwrap_or(0.0),
         SliderSettingId::LevelOverride => settings.current_level_override.map(|v| v as f32).unwrap_or(0.0),
     }
@@ -933,6 +946,8 @@ fn set_slider_value(settings: &mut DebugSettings, id: SliderSettingId, value: f3
         SliderSettingId::ProjectileSpeed => settings.projectile_speed_multiplier = value,
         SliderSettingId::AttackSpeed => settings.attack_speed_multiplier = value,
         SliderSettingId::PenetrationBonus => settings.global_penetration_bonus = value as u32,
+        SliderSettingId::BaseKillsPerLevel => settings.base_kills_per_level = value as u32,
+        SliderSettingId::LevelScaling => settings.level_scaling_multiplier = value,
         SliderSettingId::WaveOverride => {
             settings.current_wave_override = if value < 1.0 { None } else { Some(value as u32) };
         }

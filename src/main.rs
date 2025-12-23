@@ -37,6 +37,9 @@ use systems::{
     slider_interaction_system, slider_fill_update_system, slider_value_text_system,
     checkbox_interaction_system, checkbox_indicator_system, toggle_mode_checkbox_system,
     reset_button_system, resume_button_system, restart_button_system, quit_button_system,
+    // Leveling systems (Phase 21E)
+    card_roll_queue_system, screen_flash_system, level_up_text_system, level_up_particle_system,
+    kill_rate_system, CardRollQueue,
 };
 
 fn main() {
@@ -96,6 +99,7 @@ fn main() {
         .init_resource::<Director>()
         .init_resource::<DebugSettings>()
         .init_resource::<TooltipState>()
+        .init_resource::<CardRollQueue>()
         .add_systems(Startup, (
             setup,
             spawn_ui_system,
@@ -152,6 +156,10 @@ fn main() {
             update_hp_bars_system,
             level_check_system,
             level_up_effect_system,
+            card_roll_queue_system,
+            screen_flash_system,
+            level_up_text_system,
+            level_up_particle_system,
         ).chain().after(creature_xp_system))
         // UI panel updates
         .add_systems(Update, (
@@ -165,6 +173,7 @@ fn main() {
         ).after(level_up_effect_system))
         // UI and camera (run last)
         .add_systems(Update, (
+            kill_rate_system,
             update_ui_system,
             camera_follow_system,
             screen_shake_system,

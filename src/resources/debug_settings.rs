@@ -36,6 +36,10 @@ pub struct DebugSettings {
     pub attack_speed_multiplier: f32,     // Multiplied by attack speed
     pub global_penetration_bonus: u32,    // Added to base penetration
 
+    // Leveling settings
+    pub base_kills_per_level: u32,        // Base kills needed for level 1 (default 15)
+    pub level_scaling_multiplier: f32,    // Multiplier per level (default 1.1)
+
     // Overrides (None = use normal, Some(X) = force to X)
     pub current_wave_override: Option<u32>,
     pub current_level_override: Option<u32>,
@@ -76,6 +80,8 @@ impl Default for DebugSettings {
             projectile_speed_multiplier: 1.0,
             attack_speed_multiplier: 1.0,
             global_penetration_bonus: 0,
+            base_kills_per_level: 15,
+            level_scaling_multiplier: 1.1,
             current_wave_override: None,
             current_level_override: None,
             god_mode: false,
@@ -126,6 +132,8 @@ impl SliderRange {
     pub const PROJECTILE_SPEED: SliderRange = SliderRange { min: 0.25, max: 3.0, step: 0.25 };
     pub const ATTACK_SPEED: SliderRange = SliderRange { min: 0.1, max: 5.0, step: 0.1 };
     pub const PENETRATION: SliderRange = SliderRange { min: 0.0, max: 20.0, step: 1.0 };
+    pub const BASE_KILLS: SliderRange = SliderRange { min: 5.0, max: 50.0, step: 1.0 };
+    pub const LEVEL_SCALING: SliderRange = SliderRange { min: 1.0, max: 2.0, step: 0.05 };
 }
 
 #[cfg(test)]
@@ -149,6 +157,13 @@ mod tests {
         assert_eq!(settings.projectile_speed_multiplier, 1.0);
         assert_eq!(settings.attack_speed_multiplier, 1.0);
         assert_eq!(settings.global_penetration_bonus, 0);
+    }
+
+    #[test]
+    fn default_leveling_settings() {
+        let settings = DebugSettings::default();
+        assert_eq!(settings.base_kills_per_level, 15);
+        assert_eq!(settings.level_scaling_multiplier, 1.1);
     }
 
     #[test]
@@ -215,5 +230,7 @@ mod tests {
         assert!(SliderRange::PROJECTILE_SPEED.min < SliderRange::PROJECTILE_SPEED.max);
         assert!(SliderRange::ATTACK_SPEED.min < SliderRange::ATTACK_SPEED.max);
         assert!(SliderRange::PENETRATION.min < SliderRange::PENETRATION.max);
+        assert!(SliderRange::BASE_KILLS.min < SliderRange::BASE_KILLS.max);
+        assert!(SliderRange::LEVEL_SCALING.min < SliderRange::LEVEL_SCALING.max);
     }
 }

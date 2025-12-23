@@ -18,6 +18,12 @@ pub struct CreatureLevelUpEffect {
     pub timer: Timer,
 }
 
+/// Floating +1 text when creature levels up
+#[derive(Component)]
+pub struct CreatureLevelUpText {
+    pub timer: Timer,
+}
+
 /// Visual effect for creature evolution
 #[derive(Component)]
 pub struct EvolutionEffect {
@@ -73,12 +79,14 @@ pub fn creature_xp_system(
                 let overflow = stats.kills.saturating_sub(stats.kills_for_next_level);
                 stats.kills = overflow;
 
+                // SFX placeholder
+                println!("SFX_CREATURE_LEVEL");
                 println!(
                     "{} leveled up to {}! (Damage: {:.1}, HP: {:.0}/{:.0})",
                     stats.name, stats.level, stats.base_damage, stats.current_hp, stats.max_hp
                 );
 
-                // Spawn level up visual effect
+                // Spawn level up visual effect (green glow expanding ring)
                 let pos = transform.translation;
                 commands.spawn((
                     CreatureLevelUpEffect {
@@ -91,6 +99,20 @@ pub fn creature_xp_system(
                     },
                     Transform::from_translation(Vec3::new(pos.x, pos.y, 0.75)),
                 ));
+
+                // Spawn +1 floating text
+                commands.spawn((
+                    CreatureLevelUpText {
+                        timer: Timer::from_seconds(0.6, TimerMode::Once),
+                    },
+                    Text2d::new(format!("+{}", stats.level)),
+                    TextFont {
+                        font_size: 18.0,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(0.4, 1.0, 0.4)), // Green
+                    Transform::from_translation(Vec3::new(pos.x, pos.y + 30.0, 10.0)),
+                ));
             }
         }
     }
@@ -101,7 +123,12 @@ pub fn creature_level_up_effect_system(
     mut commands: Commands,
     time: Res<Time>,
     mut effect_query: Query<(Entity, &mut CreatureLevelUpEffect, &mut Sprite, &mut Transform)>,
+    mut text_query: Query<
+        (Entity, &mut CreatureLevelUpText, &mut Transform, &mut TextColor),
+        Without<CreatureLevelUpEffect>,
+    >,
 ) {
+    // Update ring effects
     for (entity, mut effect, mut sprite, mut transform) in effect_query.iter_mut() {
         effect.timer.tick(time.delta());
 
@@ -114,6 +141,24 @@ pub fn creature_level_up_effect_system(
         sprite.color = Color::srgba(0.4, 1.0, 0.4, alpha);
 
         if effect.timer.finished() {
+            commands.entity(entity).despawn();
+        }
+    }
+
+    // Update floating text
+    for (entity, mut text_effect, mut transform, mut text_color) in text_query.iter_mut() {
+        text_effect.timer.tick(time.delta());
+
+        let progress = text_effect.timer.fraction();
+
+        // Float upward
+        transform.translation.y += 40.0 * time.delta_secs();
+
+        // Fade out
+        let alpha = 1.0 - progress;
+        *text_color = TextColor(Color::srgba(0.4, 1.0, 0.4, alpha));
+
+        if text_effect.timer.finished() {
             commands.entity(entity).despawn();
         }
     }
@@ -179,6 +224,7 @@ pub fn creature_evolution_system(
                 .map(|c| c.name.clone())
                 .unwrap_or_else(|| evolves_into.clone());
 
+            println!("SFX_EVOLUTION");
             println!(
                 "Evolution ready: {}x {} can become {}!",
                 evolution_count, old_name, new_name
