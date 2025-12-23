@@ -140,6 +140,7 @@ pub enum SliderSettingId {
     EnemyDamage,
     EnemySpeed,
     SpawnRate,
+    MaxEnemies,
     CritT1,
     CritT2,
     CritT3,
@@ -163,6 +164,7 @@ impl SliderSettingId {
             Self::EnemyDamage => "Enemy Damage",
             Self::EnemySpeed => "Enemy Speed",
             Self::SpawnRate => "Spawn Rate",
+            Self::MaxEnemies => "Max Enemies",
             Self::CritT1 => "Crit T1 Bonus",
             Self::CritT2 => "Crit T2 Bonus",
             Self::CritT3 => "Crit T3 Bonus",
@@ -182,6 +184,7 @@ impl SliderSettingId {
         match self {
             Self::PlayerSpeed | Self::CreatureSpeed | Self::EnemySpeed | Self::SpawnRate | Self::AttackSpeed => SliderRange::SPEED,
             Self::CreatureDamage | Self::EnemyDamage => SliderRange::DAMAGE,
+            Self::MaxEnemies => SliderRange::MAX_ENEMIES,
             Self::CritT1 | Self::CritT2 | Self::CritT3 => SliderRange::CRIT,
             Self::ProjectileCount => SliderRange::PROJECTILE_COUNT,
             Self::ProjectileSize | Self::ProjectileSpeed => SliderRange::PROJECTILE_SIZE,
@@ -269,6 +272,7 @@ pub fn spawn_debug_menu_system(mut commands: Commands) {
         // Spawn section
         spawn_section_header(parent, "Spawning");
         spawn_slider(parent, SliderSettingId::SpawnRate);
+        spawn_slider(parent, SliderSettingId::MaxEnemies);
 
         // Crit section
         spawn_section_header(parent, "Crit Bonuses");
@@ -299,7 +303,6 @@ pub fn spawn_debug_menu_system(mut commands: Commands) {
         spawn_checkbox(parent, CheckboxSettingId::GodMode);
         spawn_checkbox(parent, CheckboxSettingId::ShowFps);
         spawn_checkbox(parent, CheckboxSettingId::ShowEnemyCount);
-        spawn_checkbox(parent, CheckboxSettingId::ShowDamageNumbers);
 
         // Reset button
         parent.spawn((
@@ -400,6 +403,7 @@ pub fn spawn_pause_menu_system(mut commands: Commands) {
         spawn_pause_checkbox(parent, CheckboxSettingId::ShowAdvancedTooltips, "Advanced Tooltips");
         spawn_pause_checkbox(parent, CheckboxSettingId::ShowExpandedCreatureStats, "Expanded Creature Stats");
         spawn_pause_checkbox(parent, CheckboxSettingId::ShowExpandedAffinityStats, "Expanded Affinity Stats");
+        spawn_pause_checkbox(parent, CheckboxSettingId::ShowDamageNumbers, "Show Damage Numbers");
 
         // Evolution section header
         parent.spawn((
@@ -1078,6 +1082,7 @@ fn get_slider_value(settings: &DebugSettings, id: SliderSettingId) -> f32 {
         SliderSettingId::EnemyDamage => settings.enemy_damage_multiplier,
         SliderSettingId::EnemySpeed => settings.enemy_speed_multiplier,
         SliderSettingId::SpawnRate => settings.enemy_spawn_rate_multiplier,
+        SliderSettingId::MaxEnemies => settings.max_enemies as f32,
         SliderSettingId::CritT1 => settings.crit_t1_bonus,
         SliderSettingId::CritT2 => settings.crit_t2_bonus,
         SliderSettingId::CritT3 => settings.crit_t3_bonus,
@@ -1101,6 +1106,7 @@ fn set_slider_value(settings: &mut DebugSettings, id: SliderSettingId, value: f3
         SliderSettingId::EnemyDamage => settings.enemy_damage_multiplier = value,
         SliderSettingId::EnemySpeed => settings.enemy_speed_multiplier = value,
         SliderSettingId::SpawnRate => settings.enemy_spawn_rate_multiplier = value,
+        SliderSettingId::MaxEnemies => settings.max_enemies = value as u32,
         SliderSettingId::CritT1 => settings.crit_t1_bonus = value,
         SliderSettingId::CritT2 => settings.crit_t2_bonus = value,
         SliderSettingId::CritT3 => settings.crit_t3_bonus = value,

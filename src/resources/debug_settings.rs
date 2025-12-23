@@ -24,6 +24,7 @@ pub struct DebugSettings {
 
     // Spawn rate
     pub enemy_spawn_rate_multiplier: f32,
+    pub max_enemies: u32, // Hard cap on enemy count
 
     // Crit bonuses (added to base crit chance)
     pub crit_t1_bonus: f32,
@@ -79,6 +80,7 @@ impl Default for DebugSettings {
             creature_damage_multiplier: 1.0,
             enemy_damage_multiplier: 1.0,
             enemy_spawn_rate_multiplier: 1.0,
+            max_enemies: 1500,
             crit_t1_bonus: 0.0,
             crit_t2_bonus: 0.0,
             crit_t3_bonus: 0.0,
@@ -145,6 +147,7 @@ impl SliderRange {
     pub const PENETRATION: SliderRange = SliderRange { min: 0.0, max: 20.0, step: 1.0 };
     pub const BASE_KILLS: SliderRange = SliderRange { min: 5.0, max: 50.0, step: 1.0 };
     pub const LEVEL_SCALING: SliderRange = SliderRange { min: 1.0, max: 2.0, step: 0.05 };
+    pub const MAX_ENEMIES: SliderRange = SliderRange { min: 100.0, max: 5000.0, step: 100.0 };
 }
 
 #[cfg(test)]

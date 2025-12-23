@@ -465,8 +465,8 @@ pub fn enemy_spawn_system(
     // Update enemy count in director
     director.enemies_alive = enemy_query.iter().count() as u32;
 
-    // Don't spawn if at enemy cap (performance limit)
-    if director.enemies_alive >= MAX_ENEMIES {
+    // Don't spawn if at enemy cap (performance limit, configurable via debug menu)
+    if director.enemies_alive >= debug_settings.max_enemies {
         return;
     }
 
