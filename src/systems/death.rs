@@ -37,11 +37,6 @@ pub fn enemy_death_system(
             // Increment kill counts
             game_state.kill_count += 1;
             game_state.total_kills += 1;
-
-            println!(
-                "{} killed! Total kills: {}",
-                stats.name, game_state.total_kills
-            );
         }
     }
 }
@@ -143,11 +138,6 @@ pub fn creature_death_system(
 
             // Get respawn time based on tier
             let respawn_time = get_respawn_time(stats.tier);
-
-            println!(
-                "{} died! Respawning in {:.0} seconds...",
-                stats.name, respawn_time
-            );
 
             // Add to respawn queue
             respawn_queue.entries.push(RespawnEntry {

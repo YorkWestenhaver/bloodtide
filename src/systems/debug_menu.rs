@@ -1046,8 +1046,6 @@ pub fn restart_button_system(
                 // Close menu and reset debug settings
                 debug_settings.menu_state = MenuState::Closed;
                 debug_settings.reset_to_defaults();
-
-                println!("Game restarted!");
             }
             Interaction::Hovered => {
                 *bg = BackgroundColor(BUTTON_HOVER);
@@ -1130,8 +1128,6 @@ pub fn main_menu_button_system(
 
                 // Return to deck builder phase
                 *game_phase = crate::resources::GamePhase::DeckBuilder;
-
-                println!("Returned to main menu!");
             }
             Interaction::Hovered => {
                 *bg = BackgroundColor(BUTTON_HOVER);

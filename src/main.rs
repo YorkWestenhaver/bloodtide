@@ -64,16 +64,6 @@ fn main() {
         }
     };
 
-    // Print loaded data counts
-    println!(
-        "Loaded {} creatures, {} weapons, {} artifacts, {} enemies, {} affinity colors",
-        game_data.creatures.len(),
-        game_data.weapons.len(),
-        game_data.artifacts.len(),
-        game_data.enemies.len(),
-        game_data.affinity_colors.len()
-    );
-
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
@@ -230,16 +220,7 @@ fn main() {
         .run();
 }
 
-fn setup(mut commands: Commands, game_data: Res<GameData>) {
-    // Log game data loaded
-    println!(
-        "Game initialized with {} creatures, {} weapons, {} artifacts, {} enemies",
-        game_data.creatures.len(),
-        game_data.weapons.len(),
-        game_data.artifacts.len(),
-        game_data.enemies.len()
-    );
-
+fn setup(mut commands: Commands) {
     // Spawn camera
     commands.spawn(Camera2d);
 
@@ -301,8 +282,4 @@ fn setup(mut commands: Commands, game_data: Res<GameData>) {
         Transform::from_xyz(0.0, 0.0, 1.0), // Above background
     ));
 
-    println!("Player spawned at origin. Use WASD or arrow keys to move.");
-    println!("Press SPACE to spawn Fire Imps!");
-    println!("Goblins spawn every 1.5 seconds and chase you!");
-    println!("Fire Imps auto-attack nearby goblins!");
 }

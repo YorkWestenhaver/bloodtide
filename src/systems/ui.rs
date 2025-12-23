@@ -142,8 +142,6 @@ pub fn spawn_ui_system(mut commands: Commands) {
                 TextColor(Color::srgb(0.7, 0.7, 0.7)),
             ));
         });
-
-    println!("UI spawned");
 }
 
 /// System that updates kill rate tracking

@@ -141,11 +141,6 @@ pub fn spawn_creature(
         ))
         .id();
 
-    println!(
-        "Spawned {} (Tier {} {}, range: {:.0}, HP: {:.0}) at ({:.0}, {:.0})",
-        stats.name, stats.tier, creature_data.creature_type, attack_range, modified_hp, position.x, position.y
-    );
-
     Some(entity)
 }
 
@@ -193,11 +188,6 @@ pub fn spawn_weapon(
             WeaponAttackTimer::new(weapon_data.auto_speed),
         ))
         .id();
-
-    println!(
-        "Weapon acquired: {} - +{:.0} {} Affinity",
-        data.name, data.affinity_amount, weapon_data.color
-    );
 
     Some(entity)
 }
@@ -263,9 +253,6 @@ pub fn try_weapon_evolution(
             // Spawn evolved weapon
             let evolved_id = &weapon.id;
             if spawn_weapon(commands, game_data, affinity_state, evolved_id).is_some() {
-                if let Some(evolved_weapon) = game_data.weapons.iter().find(|w| w.id == *evolved_id) {
-                    println!("Weapons combined into {}!", evolved_weapon.name);
-                }
                 return Some(evolved_id.clone());
             }
         }
@@ -483,13 +470,11 @@ pub fn enemy_spawn_system(
         if game_state.current_wave != wave_override {
             game_state.current_wave = wave_override;
             game_state.kills_at_wave_start = game_state.total_kills;
-            println!("Debug: Wave forced to {}", wave_override);
         }
     }
     if let Some(level_override) = debug_settings.current_level_override {
         if game_state.current_level != level_override {
             game_state.current_level = level_override;
-            println!("Debug: Level forced to {}", level_override);
         }
     }
 
@@ -499,10 +484,6 @@ pub fn enemy_spawn_system(
         if kills_this_wave >= KILLS_PER_WAVE {
             game_state.current_wave += 1;
             game_state.kills_at_wave_start = game_state.total_kills;
-            println!(
-                "========== WAVE {} STARTED! ==========",
-                game_state.current_wave
-            );
         }
     }
 
@@ -691,12 +672,7 @@ pub fn respawn_system(
             );
 
             // Spawn the creature
-            if spawn_creature(&mut commands, &game_data, &artifact_buffs, &entry.creature_id, spawn_pos).is_some() {
-                println!(
-                    "{} respawned!",
-                    entry.creature_id
-                );
-            }
+            spawn_creature(&mut commands, &game_data, &artifact_buffs, &entry.creature_id, spawn_pos);
 
             completed_indices.push(index);
         }

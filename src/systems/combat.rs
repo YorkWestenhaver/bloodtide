@@ -1164,9 +1164,4 @@ pub fn init_pools_system(
         )).id();
         damage_number_pool.available.push(entity);
     }
-
-    println!("Initialized pools: {} projectiles, {} damage numbers",
-        projectile_pool.available_count(),
-        damage_number_pool.available_count()
-    );
 }

@@ -80,13 +80,6 @@ pub fn creature_xp_system(
                 let overflow = stats.kills.saturating_sub(stats.kills_for_next_level);
                 stats.kills = overflow;
 
-                // SFX placeholder
-                println!("SFX_CREATURE_LEVEL");
-                println!(
-                    "{} leveled up to {}! (Damage: {:.1}, HP: {:.0}/{:.0}, Range: {:.0})",
-                    stats.name, stats.level, stats.base_damage, stats.current_hp, stats.max_hp, attack_range.0
-                );
-
                 // Spawn level up visual effect (green glow expanding ring)
                 let pos = transform.translation;
                 commands.spawn((
@@ -220,26 +213,8 @@ pub fn creature_evolution_system(
             continue;
         }
 
-        // Announce if not yet announced (for manual mode UI feedback)
+        // Track announced evolutions (for manual mode UI feedback)
         if !evolution_state.announced.contains(&creature_id) {
-            let old_name = creatures
-                .first()
-                .map(|(_, stats, _)| stats.name.clone())
-                .unwrap_or_else(|| creature_id.clone());
-
-            let new_name = game_data
-                .creatures
-                .iter()
-                .find(|c| c.id == evolves_into)
-                .map(|c| c.name.clone())
-                .unwrap_or_else(|| evolves_into.clone());
-
-            println!("SFX_EVOLUTION_READY");
-            println!(
-                "Evolution ready: {}x {} can become {}!",
-                evolution_count, old_name, new_name
-            );
-
             evolution_state.announced.insert(creature_id.clone());
         }
 
@@ -293,7 +268,6 @@ fn perform_evolution(
 
     // Get evolution target info
     let evolved_id = &to_consume[0].1.evolves_into;
-    let old_name = &to_consume[0].1.name;
 
     // Spawn gold flash effects at each consumed creature position and despawn them
     for (entity, _, pos) in &to_consume {
@@ -305,17 +279,7 @@ fn perform_evolution(
     spawn_evolution_effect(commands, avg_pos);
 
     // Spawn the evolved creature
-    if spawn_creature(commands, game_data, artifact_buffs, evolved_id, avg_pos).is_some() {
-        let new_name = game_data
-            .creatures
-            .iter()
-            .find(|c| c.id == *evolved_id)
-            .map(|c| c.name.clone())
-            .unwrap_or_else(|| evolved_id.clone());
-
-        println!("SFX_EVOLUTION_COMPLETE");
-        println!("{}x {} evolved into {}!", count, old_name, new_name);
-    }
+    spawn_creature(commands, game_data, artifact_buffs, evolved_id, avg_pos);
 }
 
 /// Spawn a gold expanding ring effect at the given position

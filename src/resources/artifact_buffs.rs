@@ -51,7 +51,6 @@ impl ArtifactBuffs {
     pub fn apply_artifact(&mut self, game_data: &GameData, artifact_id: &str) {
         // Find the artifact data
         let Some(artifact) = game_data.artifacts.iter().find(|a| a.id == artifact_id) else {
-            println!("Warning: Artifact '{}' not found in game data", artifact_id);
             return;
         };
 
@@ -98,11 +97,6 @@ impl ArtifactBuffs {
 
         // Track the acquired artifact
         self.acquired_artifacts.push(artifact_id.to_string());
-
-        println!(
-            "Artifact acquired: {} - {}",
-            artifact.name, artifact.description
-        );
     }
 
     /// Get total combined bonuses for a specific creature

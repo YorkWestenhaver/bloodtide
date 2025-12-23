@@ -140,21 +140,6 @@ pub fn level_check_system(
         // Check if this is a milestone level (every 10 levels)
         let is_milestone = game_state.current_level % 10 == 0;
 
-        // Print SFX placeholder
-        if is_milestone {
-            println!("SFX_MILESTONE");
-            println!(
-                "MILESTONE LEVEL {}! Next level at {} kills.",
-                game_state.current_level, game_state.kills_for_next_level
-            );
-        } else {
-            println!("SFX_LEVEL_UP");
-            println!(
-                "LEVEL UP! Now level {}. Next level at {} kills.",
-                game_state.current_level, game_state.kills_for_next_level
-            );
-        }
-
         // Roll a card from the deck
         // Milestones get guaranteed rare+ (tier 3+)
         if let Some(card) = player_deck.roll_card() {
@@ -167,8 +152,6 @@ pub fn level_check_system(
                 CardType::Weapon => "Weapon",
                 CardType::Artifact => "Artifact",
             };
-
-            println!("Rolled card: {}!", card.id);
 
             // Queue the card roll for display
             card_roll_queue.pending.push(PendingCardRoll {

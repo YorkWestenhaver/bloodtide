@@ -1194,16 +1194,10 @@ pub fn deck_builder_start_run_system(
                     // Spawn starting weapon if one is selected
                     if let Some(ref weapon_id) = deck_state.starting_weapon {
                         spawn_weapon(&mut commands, &game_data, &mut affinity_state, weapon_id);
-                        println!("Starting with weapon: {}", weapon_id);
                     }
 
                     // Transition to playing
                     *game_phase = GamePhase::Playing;
-                    println!(
-                        "Starting run with {} cards, total weight: {}",
-                        player_deck.cards.len(),
-                        player_deck.total_weight
-                    );
                 }
             }
             Interaction::Hovered => {
