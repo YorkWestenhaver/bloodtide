@@ -51,7 +51,7 @@ use systems::{
     spawn_deck_builder_system, deck_builder_visibility_system, deck_builder_update_cards_system,
     deck_builder_available_cards_system, deck_builder_tab_system, deck_builder_button_system,
     deck_builder_add_card_system, deck_builder_start_run_system, deck_builder_clear_deck_system,
-    deck_builder_footer_system,
+    deck_builder_footer_system, deck_builder_weapon_select_system,
 };
 
 fn main() {
@@ -211,6 +211,7 @@ fn main() {
         .add_systems(Update, (
             deck_builder_visibility_system,
             deck_builder_tab_system,
+            deck_builder_weapon_select_system,
             deck_builder_button_system,
             deck_builder_add_card_system,
             deck_builder_start_run_system,

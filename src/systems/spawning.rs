@@ -177,6 +177,8 @@ pub fn spawn_weapon(
         weapon_data.projectile_count,
         weapon_data.projectile_pattern.clone(),
         weapon_data.projectile_speed,
+        weapon_data.projectile_size,
+        weapon_data.projectile_penetration,
     );
 
     // Add affinity for this weapon's color

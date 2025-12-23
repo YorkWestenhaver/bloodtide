@@ -46,6 +46,8 @@ impl DeckBuilderCard {
 pub struct DeckBuilderState {
     pub cards: Vec<DeckBuilderCard>,
     pub selected_tab: CardTab,
+    /// Selected starting weapon (weapon id)
+    pub starting_weapon: Option<String>,
 }
 
 impl Default for DeckBuilderState {
@@ -59,6 +61,7 @@ impl Default for DeckBuilderState {
                 DeckBuilderCard::artifact("molten_core", 2),
             ],
             selected_tab: CardTab::Creatures,
+            starting_weapon: Some("ember_staff".to_string()),
         }
     }
 }
@@ -199,7 +202,7 @@ mod tests {
 
     #[test]
     fn add_new_card() {
-        let mut state = DeckBuilderState { cards: vec![], selected_tab: CardTab::Creatures };
+        let mut state = DeckBuilderState { cards: vec![], selected_tab: CardTab::Creatures, starting_weapon: None };
         state.add_card(CardType::Creature, "fire_imp");
         assert!(state.has_card("fire_imp"));
         assert_eq!(state.cards[0].copies, 1);
@@ -207,7 +210,7 @@ mod tests {
 
     #[test]
     fn add_existing_card_increments_copies() {
-        let mut state = DeckBuilderState { cards: vec![], selected_tab: CardTab::Creatures };
+        let mut state = DeckBuilderState { cards: vec![], selected_tab: CardTab::Creatures, starting_weapon: None };
         state.add_card(CardType::Creature, "fire_imp");
         state.add_card(CardType::Creature, "fire_imp");
         assert_eq!(state.cards.len(), 1);
@@ -216,7 +219,7 @@ mod tests {
 
     #[test]
     fn copies_capped_at_10() {
-        let mut state = DeckBuilderState { cards: vec![], selected_tab: CardTab::Creatures };
+        let mut state = DeckBuilderState { cards: vec![], selected_tab: CardTab::Creatures, starting_weapon: None };
         for _ in 0..15 {
             state.add_card(CardType::Creature, "fire_imp");
         }
@@ -225,7 +228,7 @@ mod tests {
 
     #[test]
     fn remove_card_decrements_copies() {
-        let mut state = DeckBuilderState { cards: vec![], selected_tab: CardTab::Creatures };
+        let mut state = DeckBuilderState { cards: vec![], selected_tab: CardTab::Creatures, starting_weapon: None };
         state.add_card(CardType::Creature, "fire_imp");
         state.add_card(CardType::Creature, "fire_imp");
         state.remove_card("fire_imp");
@@ -234,7 +237,7 @@ mod tests {
 
     #[test]
     fn remove_card_removes_at_zero() {
-        let mut state = DeckBuilderState { cards: vec![], selected_tab: CardTab::Creatures };
+        let mut state = DeckBuilderState { cards: vec![], selected_tab: CardTab::Creatures, starting_weapon: None };
         state.add_card(CardType::Creature, "fire_imp");
         state.remove_card("fire_imp");
         assert!(!state.has_card("fire_imp"));
@@ -243,7 +246,7 @@ mod tests {
 
     #[test]
     fn probability_calculation() {
-        let mut state = DeckBuilderState { cards: vec![], selected_tab: CardTab::Creatures };
+        let mut state = DeckBuilderState { cards: vec![], selected_tab: CardTab::Creatures, starting_weapon: None };
         state.add_card(CardType::Creature, "fire_imp");
         state.add_card(CardType::Creature, "fire_imp");
         state.add_card(CardType::Creature, "ember_hound");
@@ -255,7 +258,7 @@ mod tests {
 
     #[test]
     fn to_player_deck_conversion() {
-        let mut state = DeckBuilderState { cards: vec![], selected_tab: CardTab::Creatures };
+        let mut state = DeckBuilderState { cards: vec![], selected_tab: CardTab::Creatures, starting_weapon: None };
         state.add_card(CardType::Creature, "fire_imp");
         state.add_card(CardType::Creature, "fire_imp");
         let deck = state.to_player_deck();
@@ -272,6 +275,7 @@ mod tests {
                 DeckBuilderCard::artifact("c", 1),
             ],
             selected_tab: CardTab::Creatures,
+            starting_weapon: None,
         };
         let (creatures, weapons, artifacts) = state.type_breakdown();
         assert!((creatures - 50.0).abs() < 0.1);

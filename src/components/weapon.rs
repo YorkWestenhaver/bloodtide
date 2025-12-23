@@ -43,6 +43,8 @@ pub struct WeaponStats {
     pub projectile_count: u32,
     pub projectile_pattern: String,
     pub projectile_speed: f64,
+    pub projectile_size: f32,
+    pub projectile_penetration: u32,
 }
 
 impl WeaponStats {
@@ -53,6 +55,8 @@ impl WeaponStats {
         projectile_count: u32,
         projectile_pattern: String,
         projectile_speed: f64,
+        projectile_size: f32,
+        projectile_penetration: u32,
     ) -> Self {
         Self {
             auto_damage,
@@ -61,6 +65,8 @@ impl WeaponStats {
             projectile_count,
             projectile_pattern,
             projectile_speed,
+            projectile_size,
+            projectile_penetration,
         }
     }
 }
@@ -108,13 +114,15 @@ mod tests {
 
     #[test]
     fn weapon_stats_new_preserves_values() {
-        let stats = WeaponStats::new(8.0, 1.5, 250.0, 1, "single".to_string(), 300.0);
+        let stats = WeaponStats::new(8.0, 1.5, 250.0, 1, "single".to_string(), 300.0, 10.0, 1);
         assert_eq!(stats.auto_damage, 8.0);
         assert_eq!(stats.auto_speed, 1.5);
         assert_eq!(stats.auto_range, 250.0);
         assert_eq!(stats.projectile_count, 1);
         assert_eq!(stats.projectile_pattern, "single");
         assert_eq!(stats.projectile_speed, 300.0);
+        assert_eq!(stats.projectile_size, 10.0);
+        assert_eq!(stats.projectile_penetration, 1);
     }
 
     #[test]

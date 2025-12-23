@@ -72,12 +72,19 @@ pub struct Weapon {
     pub projectile_count: u32,
     pub projectile_pattern: String,
     pub projectile_speed: f64,
+    #[serde(default = "default_weapon_projectile_size")]
+    pub projectile_size: f32,
+    #[serde(default = "default_weapon_projectile_penetration")]
+    pub projectile_penetration: u32,
     pub evolves_from: Vec<String>,
     pub evolves_into: String,
     pub evolution_recipe: Vec<String>,
     pub passive_effect: String,
     pub description: String,
 }
+
+fn default_weapon_projectile_size() -> f32 { 10.0 }
+fn default_weapon_projectile_penetration() -> u32 { 1 }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct WeaponsFile {

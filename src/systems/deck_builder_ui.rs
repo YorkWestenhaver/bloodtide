@@ -1,16 +1,17 @@
 use bevy::prelude::*;
 
 use crate::resources::{
-    CardTab, CardType, DeckBuilderState, GameData, GamePhase, PlayerDeck,
+    AffinityState, CardTab, CardType, DeckBuilderState, GameData, GamePhase, PlayerDeck,
 };
+use crate::systems::spawn_weapon;
 
 // =============================================================================
 // CONSTANTS
 // =============================================================================
 
-const PANEL_WIDTH: f32 = 800.0;
-const PANEL_HEIGHT: f32 = 600.0;
-const PANEL_PADDING: f32 = 20.0;
+const PANEL_WIDTH: f32 = 1200.0;
+const PANEL_HEIGHT: f32 = 800.0;
+const PANEL_PADDING: f32 = 24.0;
 
 // Colors from spec
 const DECK_BUILDER_BG: Color = Color::srgba(0.05, 0.05, 0.10, 0.95);
@@ -120,6 +121,20 @@ pub struct TabUnderline {
     pub tab: CardTab,
 }
 
+/// Starting weapon selection section
+#[derive(Component)]
+pub struct StartingWeaponSection;
+
+/// Individual starting weapon card (clickable to select)
+#[derive(Component)]
+pub struct StartingWeaponCard {
+    pub weapon_id: String,
+}
+
+/// Text showing selected starting weapon
+#[derive(Component)]
+pub struct SelectedWeaponText;
+
 // =============================================================================
 // HELPER FUNCTIONS
 // =============================================================================
@@ -187,6 +202,20 @@ pub fn spawn_deck_builder_system(mut commands: Commands, game_data: Res<GameData
                     // Header row
                     spawn_header_row(panel);
 
+                    // Starting weapon selection section
+                    spawn_starting_weapon_section(panel, &game_data);
+
+                    // Divider
+                    panel.spawn((
+                        Node {
+                            width: Val::Percent(100.0),
+                            height: Val::Px(1.0),
+                            margin: UiRect::vertical(Val::Px(12.0)),
+                            ..default()
+                        },
+                        BackgroundColor(DIVIDER),
+                    ));
+
                     // Card list section (scrollable)
                     spawn_card_list_section(panel);
 
@@ -195,7 +224,7 @@ pub fn spawn_deck_builder_system(mut commands: Commands, game_data: Res<GameData
                         Node {
                             width: Val::Percent(100.0),
                             height: Val::Px(1.0),
-                            margin: UiRect::vertical(Val::Px(16.0)),
+                            margin: UiRect::vertical(Val::Px(12.0)),
                             ..default()
                         },
                         BackgroundColor(DIVIDER),
@@ -254,12 +283,137 @@ fn spawn_header_row(parent: &mut ChildBuilder) {
         });
 }
 
+fn spawn_starting_weapon_section(parent: &mut ChildBuilder, game_data: &GameData) {
+    parent
+        .spawn((
+            StartingWeaponSection,
+            Node {
+                width: Val::Percent(100.0),
+                flex_direction: FlexDirection::Column,
+                ..default()
+            },
+        ))
+        .with_children(|section| {
+            // Section header
+            section
+                .spawn(Node {
+                    width: Val::Percent(100.0),
+                    align_items: AlignItems::Center,
+                    margin: UiRect::bottom(Val::Px(8.0)),
+                    column_gap: Val::Px(12.0),
+                    ..default()
+                })
+                .with_children(|header| {
+                    header.spawn((
+                        Text::new("STARTING WEAPON"),
+                        TextFont {
+                            font_size: 14.0,
+                            ..default()
+                        },
+                        TextColor(TEXT_MUTED),
+                    ));
+
+                    // Selected weapon display
+                    header.spawn((
+                        SelectedWeaponText,
+                        Text::new("Ember Staff"),
+                        TextFont {
+                            font_size: 14.0,
+                            ..default()
+                        },
+                        TextColor(ACCENT_GREEN),
+                    ));
+                });
+
+            // Weapon cards row (only tier 1 weapons)
+            section
+                .spawn(Node {
+                    width: Val::Percent(100.0),
+                    flex_direction: FlexDirection::Row,
+                    column_gap: Val::Px(12.0),
+                    overflow: Overflow::scroll_x(),
+                    ..default()
+                })
+                .with_children(|row| {
+                    // Get only tier 1 weapons as starting options
+                    for weapon in game_data.weapons.iter().filter(|w| w.tier == 1) {
+                        spawn_starting_weapon_card(
+                            row,
+                            &weapon.id,
+                            &weapon.name,
+                            get_color_for_affinity(&weapon.color),
+                            weapon.id == "ember_staff", // Default selected
+                        );
+                    }
+                });
+        });
+}
+
+fn spawn_starting_weapon_card(
+    parent: &mut ChildBuilder,
+    weapon_id: &str,
+    weapon_name: &str,
+    weapon_color: Color,
+    selected: bool,
+) {
+    let border_color = if selected { ACCENT_GREEN } else { PANEL_BORDER };
+    let bg_color = if selected {
+        Color::srgba(0.13, 0.77, 0.37, 0.15)
+    } else {
+        MINI_CARD_BG
+    };
+
+    parent
+        .spawn((
+            StartingWeaponCard {
+                weapon_id: weapon_id.to_string(),
+            },
+            Button,
+            Node {
+                width: Val::Px(120.0),
+                height: Val::Px(60.0),
+                flex_direction: FlexDirection::Column,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                padding: UiRect::all(Val::Px(8.0)),
+                border: UiRect::all(Val::Px(2.0)),
+                ..default()
+            },
+            BackgroundColor(bg_color),
+            BorderColor(border_color),
+            BorderRadius::all(Val::Px(8.0)),
+        ))
+        .with_children(|card| {
+            // Weapon name
+            card.spawn((
+                Text::new(weapon_name),
+                TextFont {
+                    font_size: 12.0,
+                    ..default()
+                },
+                TextColor(TEXT_PRIMARY),
+            ));
+
+            // Color indicator
+            card.spawn((
+                Node {
+                    width: Val::Px(12.0),
+                    height: Val::Px(12.0),
+                    margin: UiRect::top(Val::Px(4.0)),
+                    ..default()
+                },
+                BackgroundColor(weapon_color),
+                BorderRadius::all(Val::Px(6.0)),
+            ));
+        });
+}
+
 fn spawn_card_list_section(parent: &mut ChildBuilder) {
     parent.spawn((
         CardListSection,
         Node {
             width: Val::Percent(100.0),
-            height: Val::Px(200.0),
+            height: Val::Px(250.0),
             flex_direction: FlexDirection::Column,
             overflow: Overflow::scroll_y(),
             ..default()
@@ -883,6 +1037,72 @@ pub fn deck_builder_tab_system(
     }
 }
 
+/// Handles starting weapon selection
+pub fn deck_builder_weapon_select_system(
+    mut deck_state: ResMut<DeckBuilderState>,
+    game_data: Res<GameData>,
+    game_phase: Res<GamePhase>,
+    mut interaction_query: Query<
+        (&Interaction, &StartingWeaponCard, &mut BackgroundColor, &mut BorderColor),
+        Changed<Interaction>,
+    >,
+    mut all_weapon_cards: Query<
+        (&StartingWeaponCard, &mut BackgroundColor, &mut BorderColor),
+        Without<Interaction>,
+    >,
+    mut selected_text: Query<&mut Text, With<SelectedWeaponText>>,
+) {
+    if *game_phase != GamePhase::DeckBuilder {
+        return;
+    }
+
+    for (interaction, card, mut bg, mut border) in interaction_query.iter_mut() {
+        match *interaction {
+            Interaction::Pressed => {
+                // Update selected weapon
+                deck_state.starting_weapon = Some(card.weapon_id.clone());
+
+                // Update all weapon cards to reflect selection
+                // First reset all cards
+                for (other_card, mut other_bg, mut other_border) in all_weapon_cards.iter_mut() {
+                    if other_card.weapon_id == card.weapon_id {
+                        *other_bg = BackgroundColor(Color::srgba(0.13, 0.77, 0.37, 0.15));
+                        *other_border = BorderColor(ACCENT_GREEN);
+                    } else {
+                        *other_bg = BackgroundColor(MINI_CARD_BG);
+                        *other_border = BorderColor(PANEL_BORDER);
+                    }
+                }
+
+                // Update the pressed card
+                *bg = BackgroundColor(Color::srgba(0.13, 0.77, 0.37, 0.15));
+                *border = BorderColor(ACCENT_GREEN);
+
+                // Update selected text
+                if let Some(weapon) = game_data.weapons.iter().find(|w| w.id == card.weapon_id) {
+                    for mut text in selected_text.iter_mut() {
+                        **text = weapon.name.clone();
+                    }
+                }
+            }
+            Interaction::Hovered => {
+                if deck_state.starting_weapon.as_ref() != Some(&card.weapon_id) {
+                    *border = BorderColor(ACCENT_GREEN_HOVER);
+                }
+            }
+            Interaction::None => {
+                if deck_state.starting_weapon.as_ref() == Some(&card.weapon_id) {
+                    *bg = BackgroundColor(Color::srgba(0.13, 0.77, 0.37, 0.15));
+                    *border = BorderColor(ACCENT_GREEN);
+                } else {
+                    *bg = BackgroundColor(MINI_CARD_BG);
+                    *border = BorderColor(PANEL_BORDER);
+                }
+            }
+        }
+    }
+}
+
 /// Handles +/- button clicks
 pub fn deck_builder_button_system(
     mut deck_state: ResMut<DeckBuilderState>,
@@ -953,9 +1173,12 @@ pub fn deck_builder_add_card_system(
 
 /// Handles Start Run button
 pub fn deck_builder_start_run_system(
+    mut commands: Commands,
     deck_state: Res<DeckBuilderState>,
+    game_data: Res<GameData>,
     mut game_phase: ResMut<GamePhase>,
     mut player_deck: ResMut<PlayerDeck>,
+    mut affinity_state: ResMut<AffinityState>,
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor),
         (Changed<Interaction>, With<StartRunButton>),
@@ -967,6 +1190,13 @@ pub fn deck_builder_start_run_system(
                 if !deck_state.is_empty() {
                     // Convert deck builder state to player deck
                     *player_deck = deck_state.to_player_deck();
+
+                    // Spawn starting weapon if one is selected
+                    if let Some(ref weapon_id) = deck_state.starting_weapon {
+                        spawn_weapon(&mut commands, &game_data, &mut affinity_state, weapon_id);
+                        println!("Starting with weapon: {}", weapon_id);
+                    }
+
                     // Transition to playing
                     *game_phase = GamePhase::Playing;
                     println!(

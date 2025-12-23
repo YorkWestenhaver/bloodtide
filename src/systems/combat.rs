@@ -1060,6 +1060,7 @@ pub fn weapon_attack_system(
                         PROJECTILE_SPEED
                     };
 
+                    let proj_size = weapon_stats.projectile_size;
                     commands.spawn((
                         Projectile {
                             target: target_entity,
@@ -1067,9 +1068,9 @@ pub fn weapon_attack_system(
                             crit_tier: CritTier::None, // Weapons don't crit (for now)
                             lifetime: Timer::from_seconds(PROJECTILE_LIFETIME, TimerMode::Once),
                             source_creature: None, // Weapon projectiles don't give creature XP
-                            size: WEAPON_PROJECTILE_SIZE,
+                            size: proj_size,
                             speed: projectile_speed,
-                            penetration_remaining: 1, // Weapons have base 1 penetration
+                            penetration_remaining: weapon_stats.projectile_penetration,
                             enemies_hit: Vec::new(),
                             projectile_type: ProjectileType::Basic, // Weapons use basic projectiles
                         },
@@ -1079,7 +1080,7 @@ pub fn weapon_attack_system(
                         },
                         Sprite {
                             color: weapon_data.color.to_bevy_color().lighter(0.3),
-                            custom_size: Some(Vec2::new(WEAPON_PROJECTILE_SIZE, WEAPON_PROJECTILE_SIZE)),
+                            custom_size: Some(Vec2::new(proj_size, proj_size)),
                             ..default()
                         },
                         Transform::from_translation(Vec3::new(

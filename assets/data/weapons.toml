@@ -13,15 +13,17 @@ tier = 1
 affinity_amount = 10.0
 auto_damage = 8.0
 auto_speed = 1.5
-auto_range = 250.0
-projectile_count = 1
-projectile_pattern = "single"
-projectile_speed = 300.0
+auto_range = 350.0
+projectile_count = 3
+projectile_pattern = "spread"
+projectile_speed = 350.0
+projectile_size = 14.0
+projectile_penetration = 1
 evolves_from = []
 evolves_into = "blazing_staff"
 evolution_recipe = ["ember_staff", "ember_staff"]
 passive_effect = ""
-description = "A basic staff that shoots small fireballs."
+description = "A staff that shoots three fireballs in a spread pattern."
 
 [[weapons]]
 id = "flame_sword"
@@ -31,15 +33,17 @@ tier = 1
 affinity_amount = 15.0
 auto_damage = 12.0
 auto_speed = 1.2
-auto_range = 60.0
-projectile_count = 1
+auto_range = 120.0
+projectile_count = 3
 projectile_pattern = "melee_sweep"
 projectile_speed = 0.0
+projectile_size = 16.0
+projectile_penetration = 1
 evolves_from = []
 evolves_into = "inferno_blade"
 evolution_recipe = ["flame_sword", "ember_staff"]
 passive_effect = ""
-description = "A short-range sword with a sweeping melee attack."
+description = "A sword with a wider sweeping attack that hits multiple enemies."
 
 [[weapons]]
 id = "fire_dagger"
@@ -49,15 +53,17 @@ tier = 1
 affinity_amount = 8.0
 auto_damage = 6.0
 auto_speed = 2.5
-auto_range = 40.0
-projectile_count = 1
+auto_range = 100.0
+projectile_count = 3
 projectile_pattern = "melee_stab"
 projectile_speed = 0.0
+projectile_size = 12.0
+projectile_penetration = 1
 evolves_from = []
 evolves_into = "twin_daggers"
 evolution_recipe = ["fire_dagger", "fire_dagger"]
 passive_effect = ""
-description = "Fast attacks but short range and low damage."
+description = "Fast triple-stab attacks with decent range."
 
 # =============================================================================
 # TIER 2 WEAPONS (Evolved)
