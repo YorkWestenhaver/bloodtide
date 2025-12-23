@@ -240,15 +240,15 @@ fn load_death_sprites(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     // Load the sprite images
-    // imp_spritesheet.png: 384x80 (6 frames at 64x80 each, exported at 2x from 32x40 SVG)
-    let imp_spritesheet: Handle<Image> = asset_server.load("sprites/imp_spritesheet.png");
+    // goblin_spritesheet.png: 384x80 (6 frames at 64x80 each, exported at 2x from 32x40 SVG)
+    let goblin_spritesheet: Handle<Image> = asset_server.load("sprites/goblin_spritesheet.png");
     // blood_splatters.png: 128x32 (4 variants at 32x32 each, exported at 2x from 16x16 SVG)
     let blood_splatters: Handle<Image> = asset_server.load("sprites/blood_splatters.png");
 
     // Create texture atlas layouts
-    // imp_spritesheet: 6 frames (idle, walk1, walk2, death1, death2, death3) at 64x80 each
-    let imp_layout = TextureAtlasLayout::from_grid(UVec2::new(64, 80), 6, 1, None, None);
-    let imp_atlas = texture_atlas_layouts.add(imp_layout);
+    // goblin_spritesheet: 6 frames (idle, walk1, walk2, death1, death2, death3) at 64x80 each
+    let goblin_layout = TextureAtlasLayout::from_grid(UVec2::new(64, 80), 6, 1, None, None);
+    let goblin_atlas = texture_atlas_layouts.add(goblin_layout);
 
     // blood_splatters: 4 variants at 32x32 each
     let blood_layout = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 4, 1, None, None);
@@ -256,9 +256,9 @@ fn load_death_sprites(
 
     // Insert the resource
     commands.insert_resource(DeathSprites {
-        imp_spritesheet,
+        goblin_spritesheet,
         blood_splatters,
-        imp_atlas,
+        goblin_atlas,
         blood_atlas,
     });
 }

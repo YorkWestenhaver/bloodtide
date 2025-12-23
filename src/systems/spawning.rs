@@ -335,7 +335,7 @@ pub fn spawn_enemy_scaled(
     // Elites are slightly larger (scale factor for sprite)
     let scale = if is_elite { 0.5 } else { 0.4 };
 
-    // Use imp spritesheet if available, otherwise fall back to colored square
+    // Use goblin spritesheet if available, otherwise fall back to colored square
     let entity = if let Some(sprites) = death_sprites {
         commands
             .spawn((
@@ -345,9 +345,9 @@ pub fn spawn_enemy_scaled(
                 EnemyAttackTimer::new(enemy_data.attack_speed),
                 SpriteAnimation::new(), // Start in idle state (frame 0)
                 Sprite::from_atlas_image(
-                    sprites.imp_spritesheet.clone(),
+                    sprites.goblin_spritesheet.clone(),
                     bevy::sprite::TextureAtlas {
-                        layout: sprites.imp_atlas.clone(),
+                        layout: sprites.goblin_atlas.clone(),
                         index: 0, // Frame 0 = idle
                     },
                 ),

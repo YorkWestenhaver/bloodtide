@@ -29,9 +29,9 @@ pub fn enemy_death_system(
                 commands.spawn((
                     DeathAnimation::new(stats.id.clone(), death_pos),
                     Sprite::from_atlas_image(
-                        sprites.imp_spritesheet.clone(),
+                        sprites.goblin_spritesheet.clone(),
                         TextureAtlas {
-                            layout: sprites.imp_atlas.clone(),
+                            layout: sprites.goblin_atlas.clone(),
                             index: 3, // Frame 3 = death1 (hit recoil)
                         },
                     ),

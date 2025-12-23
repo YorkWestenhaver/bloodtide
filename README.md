@@ -92,7 +92,7 @@ bloodtide/
 │   │   ├── artifacts.toml      # Stat buff items
 │   │   ├── enemies.toml        # Enemy types
 │   │   └── affinity.toml       # Color thresholds
-│   └── sprites/                # Spritesheets (imp, blood effects, tiles)
+│   └── sprites/                # Spritesheets (goblin, blood effects, tiles)
 └── Cargo.toml
 ```
 

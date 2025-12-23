@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 /// Component for animated death sequences
-/// Death animation uses frames 3-4-5 of the unified imp spritesheet:
+/// Death animation uses frames 3-4-5 of the unified goblin spritesheet:
 /// - Frame 3: death1 - hit recoil, eyes flash white
 /// - Frame 4: death2 - body splitting, blood spray
 /// - Frame 5: death3 - corpse chunks in blood pool with guts

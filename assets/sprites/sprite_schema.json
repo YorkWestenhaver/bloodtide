@@ -7,6 +7,7 @@
       "frame_height": 40,
       "total_frames": 6,
       "transparent_background": true,
+      "color_palette": "red",
       "animations": {
         "idle": {
           "frames": [0],
@@ -34,6 +35,50 @@
         "5": "death3 - corpse chunks in blood pool with guts"
       }
     },
+    "goblin": {
+      "file": "goblin_spritesheet.svg",
+      "export_to": "goblin_spritesheet.png",
+      "frame_width": 32,
+      "frame_height": 40,
+      "total_frames": 6,
+      "transparent_background": true,
+      "color_palette": "green",
+      "animations": {
+        "idle": {
+          "frames": [0],
+          "frame_duration_ms": 0,
+          "loop": false
+        },
+        "walk": {
+          "frames": [1, 2],
+          "frame_duration_ms": 150,
+          "loop": true
+        },
+        "death": {
+          "frames": [3, 4, 5],
+          "frame_duration_ms": 120,
+          "loop": false,
+          "on_complete": "spawn_blood_pool"
+        }
+      },
+      "frame_descriptions": {
+        "0": "idle - standing with pointy ears, big nose, ragged clothes",
+        "1": "walk1 - left foot forward, arms swinging",
+        "2": "walk2 - right foot forward, arms swinging opposite", 
+        "3": "death1 - hit recoil, eyes flash white, mouth open",
+        "4": "death2 - body splitting, blood spray, green guts visible",
+        "5": "death3 - corpse chunks in blood pool with green/yellow guts"
+      },
+      "visual_traits": {
+        "skin": "green (#4CAF50 family)",
+        "eyes": "beady red (#C62828)",
+        "ears": "large pointy",
+        "nose": "big protruding",
+        "teeth": "two visible fangs",
+        "clothing": "brown ragged cloth",
+        "guts_color": "green/yellow (#558B2F, #9E9D24)"
+      }
+    },
     "blood_splatters": {
       "file": "blood_splatters.svg",
       "export_to": "blood_splatters.png",
@@ -54,13 +99,23 @@
     }
   },
   "export_instructions": {
-    "tool": "inkscape or resvg or imagemagick",
-    "command_inkscape": "inkscape --export-type=png --export-background-opacity=0 INPUT.svg",
+    "tool": "resvg (recommended) or inkscape",
     "command_resvg": "resvg INPUT.svg OUTPUT.png",
+    "command_inkscape": "inkscape --export-type=png --export-background-opacity=0 INPUT.svg",
     "notes": [
       "MUST preserve transparency - no white background",
       "Do not add any background rectangle",
-      "Export at 2x scale for crisp pixels if needed"
+      "Export at 2x scale for crisp pixels if needed: resvg -w 384 INPUT.svg OUTPUT.png"
     ]
+  },
+  "creature_template": {
+    "description": "All creatures follow same frame layout for consistency",
+    "frame_layout": "[idle] [walk1] [walk2] [death1] [death2] [death3_corpse]",
+    "frame_size": "32x40 pixels",
+    "death_frame_notes": {
+      "death1": "Hit reaction - eyes flash white, slight recoil",
+      "death2": "Body splitting in half vertically, blood spray, guts visible",
+      "death3": "Final corpse - chunks on ground, blood pool, scattered guts"
+    }
   }
 }
