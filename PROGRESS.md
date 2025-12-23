@@ -314,6 +314,53 @@
 - [x] director_update_system and enemy_cleanup_system registered in main.rs
 - [x] Test: 142 tests passing, build succeeds
 
+## Phase 20B: Debug Settings Menu ✅
+- [x] Created src/resources/debug_settings.rs:
+  - DebugSettings resource with all tunable values
+  - Speed multipliers: player, creature, enemy (range 0.1 to 5.0)
+  - Damage multipliers: creature, enemy (range 0.1 to 10.0)
+  - enemy_spawn_rate_multiplier (range 0.1 to 5.0)
+  - Crit bonuses: crit_t1_bonus, crit_t2_bonus, crit_t3_bonus (range 0 to 100)
+  - Wave/level overrides: current_wave_override, current_level_override (None = use normal)
+  - god_mode: bool (creatures can't die, healed to max HP instead)
+  - show_fps: bool, show_enemy_count: bool
+  - MenuState enum: Closed, DebugMenuOpen, PauseMenuOpen
+  - menu_toggle_mode: bool (toggle vs hold for Shift key)
+- [x] Created src/systems/debug_menu.rs:
+  - Debug menu slides in from left side of screen
+  - Press Shift: opens/closes debug menu (or hold based on toggle_mode setting)
+  - Menu shows sliders for ALL tunable values with label, current value, slider bar
+  - Checkboxes for bool values (god_mode, show_fps, etc.)
+  - Reset to Defaults button at bottom
+  - Game CONTINUES running while debug menu is open (no pause)
+  - Slider interaction: click on bar to set value
+- [x] Pause Menu (center screen overlay):
+  - Press Escape: pauses game and opens pause menu
+  - Dark overlay behind pause menu
+  - "Resume" button (or press Escape again)
+  - "Toggle Mode" checkbox: controls whether Shift is hold vs toggle
+  - "Restart Run" button (resets game to wave 1, level 1)
+  - "Quit" button (closes application)
+  - Game is PAUSED while pause menu is open
+- [x] Applied debug settings to gameplay:
+  - Player movement: speed * player_speed_multiplier
+  - Creature movement: speed * creature_speed_multiplier
+  - Creature damage: damage * creature_damage_multiplier + crit bonuses
+  - Enemy damage: damage * enemy_damage_multiplier
+  - Enemy movement: speed * enemy_speed_multiplier
+  - Spawn system: spawn_rate * enemy_spawn_rate_multiplier (both interval and count)
+  - Crit calculation: add crit_tX_bonus to creature's base crit chances
+  - Wave/level overrides force GameState values when set
+  - God mode heals creatures to max HP instead of dying
+- [x] HUD updates based on debug settings:
+  - If show_fps: display FPS in corner
+  - If show_enemy_count: display enemy count in HUD
+  - Shows "GOD" indicator when god_mode enabled
+  - Shows "PAUSED" indicator when paused
+- [x] All gameplay systems check is_paused() and skip processing when true
+- [x] All menu systems registered in main.rs with proper ordering
+- [x] Test: 155 tests passing, build succeeds
+
 ## Phase 21: Bosses ⬅️ CURRENT
 - [ ] Create src/components/boss.rs:
   - Boss marker component
@@ -424,4 +471,4 @@
 (None)
 
 ## Last Updated
-Phase 20 completed - Director AI with MASSIVE horde spawning (hundreds to thousands of enemies), adaptive spawn rates, elite enemies, HP scaling, and performance safeguards
+Phase 20B completed - Debug Settings Menu with slide-out debug panel (Shift key), pause menu (Escape key), and tunable parameters for speed/damage/crit/spawn rates with god mode and wave/level overrides

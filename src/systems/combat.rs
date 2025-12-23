@@ -5,7 +5,7 @@ use crate::components::{
     Player, Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
 };
 use crate::math::{calculate_damage_with_crits, CritTier};
-use crate::resources::{get_affinity_bonuses, AffinityState, ArtifactBuffs, GameData};
+use crate::resources::{get_affinity_bonuses, AffinityState, ArtifactBuffs, DebugSettings, GameData};
 use crate::systems::creature_xp::PendingKillCredit;
 
 /// Projectile speed in pixels per second
@@ -105,6 +105,7 @@ pub fn creature_attack_system(
     artifact_buffs: Res<ArtifactBuffs>,
     affinity_state: Res<AffinityState>,
     game_data: Res<GameData>,
+    debug_settings: Res<DebugSettings>,
     mut creature_query: Query<(
         Entity,
         &CreatureStats,
@@ -114,6 +115,11 @@ pub fn creature_attack_system(
     )>,
     enemy_query: Query<(Entity, &Transform), With<Enemy>>,
 ) {
+    // Don't process if game is paused
+    if debug_settings.is_paused() {
+        return;
+    }
+
     for (creature_entity, stats, mut attack_timer, attack_range, creature_transform) in creature_query.iter_mut() {
         // Tick the attack timer
         attack_timer.timer.tick(time.delta());
@@ -148,22 +154,27 @@ pub fn creature_attack_system(
                 // Get affinity bonuses for this creature's color
                 let affinity_bonus = get_affinity_bonuses(&game_data, stats.color, &affinity_state);
 
-                // Combine damage bonuses from artifacts and affinity
+                // Combine damage bonuses from artifacts and affinity, then apply debug multiplier
                 let total_damage_bonus = artifact_bonus.damage_bonus + affinity_bonus.damage_bonus;
-                let modified_damage = stats.base_damage * (1.0 + total_damage_bonus / 100.0);
+                let modified_damage = stats.base_damage
+                    * (1.0 + total_damage_bonus / 100.0)
+                    * debug_settings.creature_damage_multiplier as f64;
 
-                // Apply crit bonuses from artifacts and affinity
-                let modified_crit_t1 = stats.crit_t1 + artifact_bonus.crit_t1_bonus + affinity_bonus.crit_t1_bonus;
+                // Apply crit bonuses from artifacts, affinity, and debug settings
+                let modified_crit_t1 = stats.crit_t1
+                    + artifact_bonus.crit_t1_bonus
+                    + affinity_bonus.crit_t1_bonus
+                    + debug_settings.crit_t1_bonus as f64;
 
-                // Crit T2 and T3 require affinity unlocks
-                let modified_crit_t2 = if affinity_bonus.crit_t2_unlock {
-                    stats.crit_t2 + artifact_bonus.crit_t2_bonus
+                // Crit T2 and T3 require affinity unlocks (but debug bonus bypasses this)
+                let modified_crit_t2 = if affinity_bonus.crit_t2_unlock || debug_settings.crit_t2_bonus > 0.0 {
+                    stats.crit_t2 + artifact_bonus.crit_t2_bonus + debug_settings.crit_t2_bonus as f64
                 } else {
                     0.0 // Can't mega crit without affinity unlock
                 };
 
-                let modified_crit_t3 = if affinity_bonus.crit_t3_unlock {
-                    stats.crit_t3 + artifact_bonus.crit_t3_bonus
+                let modified_crit_t3 = if affinity_bonus.crit_t3_unlock || debug_settings.crit_t3_bonus > 0.0 {
+                    stats.crit_t3 + artifact_bonus.crit_t3_bonus + debug_settings.crit_t3_bonus as f64
                 } else {
                     0.0 // Can't super crit without affinity unlock
                 };
@@ -214,10 +225,16 @@ pub fn creature_attack_system(
 pub fn projectile_system(
     mut commands: Commands,
     time: Res<Time>,
+    debug_settings: Res<DebugSettings>,
     mut projectile_query: Query<(Entity, &mut Projectile, &Transform)>,
     mut enemy_query: Query<(&Transform, &mut EnemyStats), With<Enemy>>,
     mut screen_shake: ResMut<ScreenShake>,
 ) {
+    // Don't process if game is paused
+    if debug_settings.is_paused() {
+        return;
+    }
+
     for (projectile_entity, mut projectile, projectile_transform) in projectile_query.iter_mut() {
         // Tick lifetime
         projectile.lifetime.tick(time.delta());
@@ -368,9 +385,15 @@ pub const ENEMY_ATTACK_RANGE: f32 = 40.0;
 /// System that handles enemies attacking creatures
 pub fn enemy_attack_system(
     time: Res<Time>,
+    debug_settings: Res<DebugSettings>,
     mut enemy_query: Query<(&EnemyStats, &mut EnemyAttackTimer, &Transform), With<Enemy>>,
     mut creature_query: Query<(Entity, &Transform, &mut CreatureStats), With<Creature>>,
 ) {
+    // Don't process if game is paused
+    if debug_settings.is_paused() {
+        return;
+    }
+
     for (enemy_stats, mut attack_timer, enemy_transform) in enemy_query.iter_mut() {
         // Tick the attack timer
         attack_timer.timer.tick(time.delta());
@@ -396,7 +419,9 @@ pub fn enemy_attack_system(
             // Attack nearest creature if one is in range
             if let Some((target_entity, _distance)) = nearest_creature {
                 if let Ok((_, _, mut creature_stats)) = creature_query.get_mut(target_entity) {
-                    creature_stats.current_hp -= enemy_stats.base_damage;
+                    // Apply enemy damage multiplier from debug settings
+                    let damage = enemy_stats.base_damage * debug_settings.enemy_damage_multiplier as f64;
+                    creature_stats.current_hp -= damage;
                 }
             }
         }
@@ -410,10 +435,16 @@ const WEAPON_PROJECTILE_COLOR: Color = Color::srgb(0.9, 0.9, 0.95);
 pub fn weapon_attack_system(
     mut commands: Commands,
     time: Res<Time>,
+    debug_settings: Res<DebugSettings>,
     mut weapon_query: Query<(&WeaponData, &WeaponStats, &mut WeaponAttackTimer), With<Weapon>>,
     player_query: Query<&Transform, With<Player>>,
     enemy_query: Query<(Entity, &Transform), With<Enemy>>,
 ) {
+    // Don't process if game is paused
+    if debug_settings.is_paused() {
+        return;
+    }
+
     let Ok(player_transform) = player_query.get_single() else {
         return;
     };

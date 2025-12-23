@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::components::Creature;
-use crate::resources::{ArtifactBuffs, Director, GameState};
+use crate::resources::{ArtifactBuffs, DebugSettings, Director, GameState};
 
 /// Marker component for the main HUD text
 #[derive(Component)]
@@ -41,28 +41,46 @@ pub fn update_ui_system(
     game_state: Res<GameState>,
     artifact_buffs: Res<ArtifactBuffs>,
     director: Res<Director>,
+    debug_settings: Res<DebugSettings>,
     creature_query: Query<&Creature>,
     mut query: Query<&mut Text, With<HudText>>,
 ) {
     let creature_count = creature_query.iter().count();
-    let artifact_count = artifact_buffs.acquired_artifacts.len();
+    let _artifact_count = artifact_buffs.acquired_artifacts.len();
 
-    // Color FPS based on performance
-    let fps_text = if director.current_fps < 30.0 {
-        format!("FPS: {:.0}!", director.current_fps)  // Add ! for warning
-    } else {
-        format!("FPS: {:.0}", director.current_fps)
-    };
+    // Build HUD text based on debug settings
+    let mut parts = vec![
+        format!("Lv:{}", game_state.current_level),
+        format!("K:{}", game_state.total_kills),
+        format!("W:{}", game_state.current_wave),
+        format!("C:{}", creature_count),
+    ];
+
+    if debug_settings.show_enemy_count {
+        parts.push(format!("E:{}", director.enemies_alive));
+    }
+
+    if debug_settings.show_fps {
+        // Color FPS based on performance
+        let fps_text = if director.current_fps < 30.0 {
+            format!("FPS: {:.0}!", director.current_fps)  // Add ! for warning
+        } else {
+            format!("FPS: {:.0}", director.current_fps)
+        };
+        parts.push(fps_text);
+    }
+
+    // Add god mode indicator if enabled
+    if debug_settings.god_mode {
+        parts.push("GOD".to_string());
+    }
+
+    // Add paused indicator
+    if debug_settings.is_paused() {
+        parts.push("PAUSED".to_string());
+    }
 
     for mut text in query.iter_mut() {
-        **text = format!(
-            "Lv:{} | K:{} | W:{} | C:{} | E:{} | {}",
-            game_state.current_level,
-            game_state.total_kills,
-            game_state.current_wave,
-            creature_count,
-            director.enemies_alive,
-            fps_text
-        );
+        **text = parts.join(" | ");
     }
 }

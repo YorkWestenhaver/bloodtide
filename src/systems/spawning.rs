@@ -6,7 +6,7 @@ use crate::components::{
     EnemyAttackTimer, EnemyClass, EnemyStats, EnemyType, Player, Velocity, Weapon, WeaponAttackTimer,
     WeaponData, WeaponStats,
 };
-use crate::resources::{AffinityState, ArtifactBuffs, Director, GameData, GameState};
+use crate::resources::{AffinityState, ArtifactBuffs, DebugSettings, Director, GameData, GameState};
 use crate::systems::death::RespawnQueue;
 
 /// Size of creature sprites in pixels
@@ -435,28 +435,53 @@ pub fn enemy_spawn_system(
     mut spawn_timer: ResMut<EnemySpawnTimer>,
     mut game_state: ResMut<GameState>,
     mut director: ResMut<Director>,
+    debug_settings: Res<DebugSettings>,
     game_data: Res<GameData>,
     player_query: Query<&Transform, With<Player>>,
     enemy_query: Query<&Enemy>,
 ) {
+    // Don't spawn if game is paused
+    if debug_settings.is_paused() {
+        return;
+    }
+
     // Update enemy count in director
     director.enemies_alive = enemy_query.iter().count() as u32;
 
-    // Check for wave advancement based on kills
-    let kills_this_wave = game_state.total_kills - game_state.kills_at_wave_start;
-    if kills_this_wave >= KILLS_PER_WAVE {
-        game_state.current_wave += 1;
-        game_state.kills_at_wave_start = game_state.total_kills;
-        println!(
-            "========== WAVE {} STARTED! ==========",
-            game_state.current_wave
-        );
+    // Apply wave/level overrides from debug settings
+    if let Some(wave_override) = debug_settings.current_wave_override {
+        if game_state.current_wave != wave_override {
+            game_state.current_wave = wave_override;
+            game_state.kills_at_wave_start = game_state.total_kills;
+            println!("Debug: Wave forced to {}", wave_override);
+        }
+    }
+    if let Some(level_override) = debug_settings.current_level_override {
+        if game_state.current_level != level_override {
+            game_state.current_level = level_override;
+            println!("Debug: Level forced to {}", level_override);
+        }
     }
 
-    // Update spawn interval based on Director
-    let new_interval = director.get_spawn_interval(game_state.current_wave);
+    // Check for wave advancement based on kills (only if not overridden)
+    if debug_settings.current_wave_override.is_none() {
+        let kills_this_wave = game_state.total_kills - game_state.kills_at_wave_start;
+        if kills_this_wave >= KILLS_PER_WAVE {
+            game_state.current_wave += 1;
+            game_state.kills_at_wave_start = game_state.total_kills;
+            println!(
+                "========== WAVE {} STARTED! ==========",
+                game_state.current_wave
+            );
+        }
+    }
+
+    // Update spawn interval based on Director and debug spawn rate multiplier
+    let base_interval = director.get_spawn_interval(game_state.current_wave);
+    // Higher multiplier = faster spawns (divide by multiplier)
+    let new_interval = base_interval / debug_settings.enemy_spawn_rate_multiplier;
     if (new_interval - spawn_timer.last_interval).abs() > 0.01 {
-        spawn_timer.timer.set_duration(std::time::Duration::from_secs_f32(new_interval));
+        spawn_timer.timer.set_duration(std::time::Duration::from_secs_f32(new_interval.max(0.05)));
         spawn_timer.last_interval = new_interval;
     }
 
@@ -471,8 +496,10 @@ pub fn enemy_spawn_system(
             let (min_spawn, max_spawn) = Director::get_enemies_per_spawn(game_state.current_wave);
             let enemies_to_spawn = rng.gen_range(min_spawn..=max_spawn);
 
-            // Apply performance throttle
-            let throttled_spawn = ((enemies_to_spawn as f32) * director.performance_throttle) as u32;
+            // Apply performance throttle and spawn rate multiplier
+            let throttled_spawn = ((enemies_to_spawn as f32)
+                * director.performance_throttle
+                * debug_settings.enemy_spawn_rate_multiplier) as u32;
             let final_spawn_count = throttled_spawn.max(MIN_ENEMIES_PER_SECOND / 5); // Minimum floor
 
             // Spawn from 2-4 cluster points

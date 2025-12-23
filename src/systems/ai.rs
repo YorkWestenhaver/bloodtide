@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::components::{Creature, CreatureStats, Enemy, EnemyStats, Player, Velocity};
+use crate::resources::DebugSettings;
 
 /// Distance creatures try to maintain from player
 pub const CREATURE_FOLLOW_DISTANCE: f32 = 100.0;
@@ -20,8 +21,18 @@ pub const CREATURE_FORMATION_SPEED_MULTIPLIER: f32 = 1.8;
 /// System that makes creatures follow the player
 pub fn creature_follow_system(
     player_query: Query<&Transform, (With<Player>, Without<Creature>)>,
+    debug_settings: Res<DebugSettings>,
     mut creature_query: Query<(&Transform, &mut Velocity, &CreatureStats), With<Creature>>,
 ) {
+    // Don't process if game is paused
+    if debug_settings.is_paused() {
+        for (_, mut velocity, _) in creature_query.iter_mut() {
+            velocity.x = 0.0;
+            velocity.y = 0.0;
+        }
+        return;
+    }
+
     let Ok(player_transform) = player_query.get_single() else {
         return;
     };
@@ -55,8 +66,9 @@ pub fn creature_follow_system(
         // Only move if we're far enough from target position
         if distance > CREATURE_STOP_DISTANCE {
             let direction = to_target.normalize();
-            // Use movement speed from creature stats with formation multiplier
-            let base_speed = stats.movement_speed as f32 * CREATURE_FORMATION_SPEED_MULTIPLIER;
+            // Use movement speed from creature stats with formation multiplier and debug multiplier
+            let base_speed = stats.movement_speed as f32 * CREATURE_FORMATION_SPEED_MULTIPLIER
+                * debug_settings.creature_speed_multiplier;
 
             // Apply catch-up boost if far from target
             let speed = if distance > CREATURE_CATCHUP_DISTANCE {
@@ -80,8 +92,18 @@ pub fn creature_follow_system(
 /// System that makes enemies chase the player
 pub fn enemy_chase_system(
     player_query: Query<&Transform, (With<Player>, Without<Enemy>)>,
+    debug_settings: Res<DebugSettings>,
     mut enemy_query: Query<(&Transform, &mut Velocity, &EnemyStats), With<Enemy>>,
 ) {
+    // Don't process if game is paused
+    if debug_settings.is_paused() {
+        for (_, mut velocity, _) in enemy_query.iter_mut() {
+            velocity.x = 0.0;
+            velocity.y = 0.0;
+        }
+        return;
+    }
+
     let Ok(player_transform) = player_query.get_single() else {
         return;
     };
@@ -98,8 +120,8 @@ pub fn enemy_chase_system(
         // Move toward player if not already on top of them
         if distance > 5.0 {
             let direction = to_player.normalize();
-            // Use movement speed from enemy stats
-            let speed = stats.movement_speed as f32;
+            // Use movement speed from enemy stats with debug multiplier
+            let speed = stats.movement_speed as f32 * debug_settings.enemy_speed_multiplier;
             velocity.x = direction.x * speed;
             velocity.y = direction.y * speed;
         } else {

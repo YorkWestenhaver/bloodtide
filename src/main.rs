@@ -7,7 +7,7 @@ mod resources;
 mod systems;
 
 use components::{Player, Velocity};
-use resources::{load_game_data, AffinityState, ArtifactBuffs, DeckCard, Director, GameData, GameState, PlayerDeck};
+use resources::{load_game_data, AffinityState, ArtifactBuffs, DebugSettings, DeckCard, Director, GameData, GameState, PlayerDeck};
 use systems::{
     apply_velocity_system, camera_follow_system, creature_attack_system, creature_death_system,
     creature_evolution_system, creature_follow_system, creature_level_up_effect_system,
@@ -26,6 +26,12 @@ use systems::{
     show_card_roll_popup_system, card_roll_popup_update_system,
     show_wave_announcement_system, wave_announcement_update_system,
     CardRollState, WaveAnnouncementState, DamageNumberOffsets,
+    // Debug menu systems
+    spawn_debug_menu_system, spawn_pause_menu_system,
+    debug_menu_input_system, debug_menu_animation_system, pause_menu_visibility_system,
+    slider_interaction_system, slider_fill_update_system, slider_value_text_system,
+    checkbox_interaction_system, checkbox_indicator_system, toggle_mode_checkbox_system,
+    reset_button_system, resume_button_system, restart_button_system, quit_button_system,
 };
 
 fn main() {
@@ -83,12 +89,15 @@ fn main() {
         .init_resource::<DamageNumberOffsets>()
         .init_resource::<EvolutionReadyState>()
         .init_resource::<Director>()
+        .init_resource::<DebugSettings>()
         .add_systems(Startup, (
             setup,
             spawn_ui_system,
             spawn_creature_panel_system,
             spawn_artifact_panel_system,
             spawn_affinity_display_system,
+            spawn_debug_menu_system,
+            spawn_pause_menu_system,
         ))
         // Director update (runs early)
         .add_systems(Update, director_update_system)
@@ -150,6 +159,22 @@ fn main() {
             camera_follow_system,
             screen_shake_system,
         ).chain().after(update_creature_panel_system))
+        // Debug menu systems (run very early and always)
+        .add_systems(Update, debug_menu_input_system.before(director_update_system))
+        .add_systems(Update, (
+            debug_menu_animation_system,
+            pause_menu_visibility_system,
+            slider_interaction_system,
+            slider_fill_update_system,
+            slider_value_text_system,
+            checkbox_interaction_system,
+            checkbox_indicator_system,
+            toggle_mode_checkbox_system,
+            reset_button_system,
+            resume_button_system,
+            restart_button_system,
+            quit_button_system,
+        ).after(debug_menu_input_system))
         .run();
 }
 

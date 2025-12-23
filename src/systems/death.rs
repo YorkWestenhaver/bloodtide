@@ -1,14 +1,20 @@
 use bevy::prelude::*;
 
 use crate::components::{Creature, CreatureStats, Enemy, EnemyStats, Player};
-use crate::resources::GameState;
+use crate::resources::{DebugSettings, GameState};
 
 /// System that checks for and handles enemy deaths
 pub fn enemy_death_system(
     mut commands: Commands,
     mut game_state: ResMut<GameState>,
+    debug_settings: Res<DebugSettings>,
     enemy_query: Query<(Entity, &EnemyStats, &Transform), With<Enemy>>,
 ) {
+    // Don't process if game is paused
+    if debug_settings.is_paused() {
+        return;
+    }
+
     for (entity, stats, transform) in enemy_query.iter() {
         if stats.current_hp <= 0.0 {
             // Spawn death effect (small white flash)
@@ -99,16 +105,28 @@ pub fn get_respawn_time(tier: u8) -> f32 {
 pub fn creature_death_system(
     mut commands: Commands,
     mut respawn_queue: ResMut<RespawnQueue>,
-    creature_query: Query<(Entity, &CreatureStats, &Transform), With<Creature>>,
+    debug_settings: Res<DebugSettings>,
+    mut creature_query: Query<(Entity, &mut CreatureStats, &Transform), With<Creature>>,
     player_query: Query<&Transform, With<Player>>,
 ) {
+    // Don't process if game is paused
+    if debug_settings.is_paused() {
+        return;
+    }
+
     let player_pos = player_query
         .get_single()
         .map(|t| t.translation)
         .unwrap_or(Vec3::ZERO);
 
-    for (entity, stats, transform) in creature_query.iter() {
+    for (entity, mut stats, transform) in creature_query.iter_mut() {
         if stats.current_hp <= 0.0 {
+            // If god mode is enabled, heal the creature instead of killing it
+            if debug_settings.god_mode {
+                stats.current_hp = stats.max_hp;
+                continue;
+            }
+
             // Spawn death effect (colored flash based on creature)
             let death_pos = transform.translation;
             commands.spawn((
