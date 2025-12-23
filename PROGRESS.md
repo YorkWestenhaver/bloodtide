@@ -296,7 +296,14 @@
 - [x] Fix Bevy query conflicts in combat.rs
   - Added proper With<T>/Without<T> filters to all queries
   - Ensures disjoint entity sets for Transform access
-- [ ] Add toggle for damage numbers (debug menu)
+- [x] Add toggle for damage numbers (pause menu)
+  - `show_damage_numbers` setting in DebugSettings
+  - Checkbox in pause menu under "Display Options"
+  - Significantly improves performance when disabled
+- [x] Add configurable enemy cap slider (debug menu)
+  - `max_enemies` setting in DebugSettings (default: 1500)
+  - Slider in debug menu under "Spawning" section
+  - Range: 100-5000 in steps of 100
 - [ ] Better pacing curve
 - [ ] Smooth difficulty transitions
 - [ ] Test: Standing still doesn't cause enemy flood
@@ -429,4 +436,4 @@
 
 ## Last Updated
 
-Phase 24 GPU Optimization complete. Added enemy cap (MAX_ENEMIES = 2000), spatial grid for O(1) collision lookups, projectile pooling (5000), and damage number pooling (500). Fixed Bevy query conflicts with proper With/Without filters. Still investigating remaining performance issues - damage numbers may be a factor.
+Phase 24 GPU Optimization complete. Added enemy cap (configurable, default 1500), spatial grid for O(1) collision lookups, projectile pooling (5000), and damage number pooling (500). Fixed Bevy query conflicts with proper With/Without filters. Added damage number toggle to pause menu and enemy cap slider to debug menu for runtime performance tuning.
