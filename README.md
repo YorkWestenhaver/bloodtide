@@ -372,6 +372,115 @@
   - Test with 500+ enemies
   - Optimize if needed
 
+### Phase 29: Pre-Run Deck Builder ⬅️ NEXT
+
+**Goal:** Add a pre-run screen where player composes their deck before gameplay starts. The deck is a probability table - this UI makes that visual and editable.
+
+**Game State:**
+- New `GameState::DeckBuilder` state, game starts here instead of Playing
+- "Start Run" transitions to `GameState::Playing`
+- ESC during gameplay returns to `GameState::DeckBuilder` (restart run)
+- Deck state persists in `DeckBuilder` resource, copied to `PlayerDeck` on start
+
+**Screen Layout:**
+
+Full-screen overlay. Dark background (#0d0d1a at 95% opacity).
+
+Main container: Centered panel, 800px wide, ~500px tall, rounded corners (12px), background #1a1a2e, subtle border (#2a2a4e, 1px).
+
+**Color Palette:**
+- Background: #1a1a2e
+- Panel border: #2a2a4e
+- Divider lines: #3a3a5e
+- Accent (buttons): #22c55e (green), #e94560 (red for remove/clear)
+- Text primary: #ffffff
+- Text muted: #a0a0a0
+- Bar fill - Creature: #ef4444 (red)
+- Bar fill - Weapon: #3b82f6 (blue)
+- Bar fill - Artifact: #a855f7 (purple)
+- Bar empty: #2a2a4e
+
+**Sections (top to bottom):**
+
+1. **Header Row**
+   - Left: "DECK BUILDER" title, 24px, bold, white
+   - Right: "START RUN" button
+     - Background #22c55e, white text, rounded 8px
+     - Hover: brighten to #34d66a
+     - Disabled state if deck empty
+
+2. **Probability Bars Section** (main content, scrollable if >8 cards)
+   
+   Each card in deck gets a row:
+   ```
+   [Color Box] [Card Name      ] [████████░░░░░░░░] [35%] [−] [+]
+   ```
+   
+   - Color box: 16x16 square, matches card's affinity color (red/blue/green/white/black/gray)
+   - Card name: 14px, white, left-aligned, fixed width ~150px
+   - Probability bar: 200px wide, 12px tall, rounded ends (6px radius)
+     - Filled portion: colored by card type (creature=red, weapon=blue, artifact=purple)
+     - Empty portion: #2a2a4e
+     - Width = (card_weight / total_weight) * 200px
+   - Percentage: 14px, right-aligned, fixed width 45px, shows "XX%"
+   - Minus button: 24x24, circular, background #2a2a4e, "−" centered
+     - Hover: border turns #e94560 (red)
+     - Click: decrease copy count by 1
+   - Plus button: 24x24, circular, background #2a2a4e, "+" centered
+     - Hover: border turns #22c55e (green)
+     - Click: increase copy count by 1
+   
+   Row spacing: 8px vertical between rows
+   Rows sorted by: card type (Creatures → Weapons → Artifacts), then by name
+
+3. **Divider:** Horizontal line, 1px, #3a3a5e, 16px margin top/bottom
+
+4. **Add Card Section**
+   - Tab row: [Creatures] [Weapons] [Artifacts]
+     - Tab style: text buttons, selected tab has underline accent color
+     - Selected tab shows that category's available cards below
+   - Below tabs: Horizontal scrollable list of available cards (cards with 0 copies in deck)
+     - Each card: 80x50px mini-card
+       - Background: darker than panel (#12121f)
+       - Border: 1px #3a3a5e, rounded 6px
+       - Card name: 11px, centered, white
+       - Tier indicator: "T1", "T2", etc in corner, 9px, muted
+       - Hover: border brightens, slight scale (1.02x)
+       - Click: adds 1 copy to deck, card moves to probability list above
+
+5. **Footer Row**
+   - Left: "Total: X cards" - 12px, muted text
+   - Center: Type breakdown as mini horizontal bars
+     - "Creatures [███░░] 57% | Weapons [█░░░░] 14% | Artifacts [██░░░] 29%"
+     - Each mini-bar ~40px wide, 6px tall
+   - Right: [CLEAR DECK] button
+     - Background: transparent, border #e94560, text #e94560
+     - Smaller than Start Run (12px text)
+     - Hover: fill #e94560, text white
+     - Click: removes all cards from deck (with confirmation?)
+
+**Interactions & Animations:**
+- Plus/Minus adjust copy count (min 0, removes card from list; max 10 per card)
+- Probability percentages recalculate live as counts change
+- Bar widths animate smoothly (0.15s ease-out transition)
+- Hover on card row shows tooltip with full card stats:
+  - Creatures: damage, attack speed, HP, range, crit chances, abilities
+  - Weapons: damage, speed, range, affinity amount, projectile info
+  - Artifacts: all stat bonuses, target scope
+- Cards added/removed with subtle fade animation
+
+**Files to create/modify:**
+- `src/states/mod.rs` - Add GameState::DeckBuilder
+- `src/resources/deck_builder.rs` - DeckBuilder resource (working deck state)
+- `src/systems/deck_builder_ui.rs` - All UI spawn and update systems
+- `src/main.rs` - Start in DeckBuilder state, register systems
+
+**Test:**
+- Game starts in deck builder, not gameplay
+- Can add/remove cards, see probabilities update
+- Start Run begins gameplay with configured deck
+- ESC returns to deck builder
+
 ---
 
 ## Future Features (Post-MVP)
@@ -412,4 +521,4 @@
 
 ## Last Updated
 
-Phase 24 GPU Optimization complete. Added enemy cap (configurable, default 1500), spatial grid for O(1) collision lookups, projectile pooling (5000), and damage number pooling (500). Fixed Bevy query conflicts with proper With/Without filters. Added damage number toggle to pause menu and enemy cap slider to debug menu for runtime performance tuning.
+Added Phase 29: Pre-Run Deck Builder with detailed UI spec including probability-first layout, color palette, component specifications, hover states, and animations.
