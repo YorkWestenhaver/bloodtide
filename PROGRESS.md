@@ -4,23 +4,13 @@
 
 ---
 
-## Known Issues / Backlog
-
-### Critical (Blocking Progression)
-- [x] ~~**Creature combination disabled**~~ - Fixed in Phase 22
-
-### Visual/Polish (Not Blocking)
-- [ ] **Level 5 crown idea** - Corners get colored, crown appears in center at max level (future enhancement)
-- [ ] **Creature range too short** - Some creatures have very little range at start; consider baseline increase OR add a long-range creature early
+## Backog
 
 ### Scheduled (Now in Phases)
+
 - Phase 23: Creature visual differentiation
 - Phase 24: Director over-spawning fix
 - Phase 25: Debug spawn menu
-
-### Deferred
-- [ ] **21F - Wave mechanics tuning** - Adjust wave mechanics, currently deprioritized
-- [ ] **GPU Acceleration** - Implement GPU instancing, spatial partitioning, batch rendering if performance becomes an issue
 
 ---
 
@@ -344,21 +334,7 @@
 - [ ] First boss: Troll Chief (Wave 10)
 - [ ] Test: Reach wave 10, fight boss, phases change, boss drops loot
 
-### Phase 27: Formation by Type
-
-- [ ] Update creature AI based on CreatureType:
-  - Melee: Position in front of player (toward nearest enemy)
-  - Ranged: Position behind player (away from enemies)
-  - Support: Orbit close to player
-  - Assassin: Ignore formation, hunt highest value target
-- [ ] Formation visualization (debug mode):
-  - Show front/back line indicators
-- [ ] Melee creatures:
-  - Body-block enemies (enemies must attack them first)
-  - Shorter attack range but higher damage
-- [ ] Test: Mixed army positions correctly, melee in front
-
-### Phase 28: Player Health + Game Over
+### Phase 27: Player Health + Game Over
 
 - [ ] Add player HP:
   - Player has health (starts at 100)
@@ -374,7 +350,7 @@
   - Option to restart
 - [ ] Test: Enemies can kill player if all creatures dead
 
-### Phase 29: Polish + Balance
+### Phase 28: Polish + Balance
 
 - [ ] Remove spacebar test spawning (creatures only from deck)
 - [ ] Balance pass:
