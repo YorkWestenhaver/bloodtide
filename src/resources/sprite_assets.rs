@@ -12,3 +12,14 @@ pub struct DeathSprites {
     /// Texture atlas layout for blood splatters (4 variants, 32x32 each at 2x export)
     pub blood_atlas: Handle<TextureAtlasLayout>,
 }
+
+/// Resource holding handles to creature sprite assets
+#[derive(Resource)]
+pub struct CreatureSprites {
+    /// Handle to the Fire Imp sprite sheet (8 frames: idle, walk1-4, death1-3)
+    pub fire_imp_spritesheet: Handle<Image>,
+    /// Texture atlas layout for Fire Imp (8 frames, 128x160 each at 2x export, logical 64x80)
+    pub fire_imp_atlas: Handle<TextureAtlasLayout>,
+    /// Handle to the flame projectile sprite
+    pub flame_projectile: Handle<Image>,
+}

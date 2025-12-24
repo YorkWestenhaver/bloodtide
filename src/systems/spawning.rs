@@ -2,12 +2,12 @@ use bevy::prelude::*;
 use rand::Rng;
 
 use crate::components::{
-    AttackRange, AttackTimer, Creature, CreatureColor, CreatureStats, CreatureType, Enemy,
+    AttackRange, AttackTimer, Creature, CreatureAnimation, CreatureColor, CreatureStats, CreatureType, Enemy,
     EnemyAttackTimer, EnemyClass, EnemyStats, EnemyType, Player, ProjectileConfig, ProjectileType,
     SpriteAnimation, Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
     get_creature_color_by_id,
 };
-use crate::resources::{AffinityState, ArtifactBuffs, DeathSprites, DebugSettings, Director, GameData, GameState};
+use crate::resources::{AffinityState, ArtifactBuffs, CreatureSprites, DeathSprites, DebugSettings, Director, GameData, GameState};
 use crate::systems::death::RespawnQueue;
 
 /// Size of creature sprites in pixels
@@ -61,6 +61,7 @@ pub fn spawn_creature(
     artifact_buffs: &ArtifactBuffs,
     creature_id: &str,
     position: Vec3,
+    creature_sprites: Option<&CreatureSprites>,
 ) -> Option<Entity> {
     // Find creature data by ID
     let creature_data = game_data.creatures.iter().find(|c| c.id == creature_id)?;
@@ -122,13 +123,57 @@ pub fn spawn_creature(
         ProjectileType::from_str(&creature_data.projectile_type),
     );
 
-    // Get unique color for this specific creature type
-    let creature_color = get_creature_color_by_id(&creature_data.id);
+    // Check if this creature has a sprite (currently only fire_imp)
+    let entity = if creature_id == "fire_imp" {
+        if let Some(sprites) = creature_sprites {
+            // Use Fire Imp spritesheet
+            // Scale: sprite is 128x160 at 2x, so 0.5 scale = 64x80 logical size
+            commands
+                .spawn((
+                    Creature,
+                    stats.clone(),
+                    Velocity::default(),
+                    AttackTimer::new(modified_attack_speed),
+                    AttackRange(attack_range),
+                    projectile_config,
+                    CreatureAnimation::new(), // Start in idle state (frame 0)
+                    Sprite::from_atlas_image(
+                        sprites.fire_imp_spritesheet.clone(),
+                        bevy::sprite::TextureAtlas {
+                            layout: sprites.fire_imp_atlas.clone(),
+                            index: 0, // Frame 0 = idle
+                        },
+                    ),
+                    Transform::from_translation(position).with_scale(Vec3::splat(0.5)),
+                ))
+                .id()
+        } else {
+            // Fallback to colored square if sprites not loaded
+            spawn_creature_as_square(commands, stats, modified_attack_speed, attack_range, projectile_config, creature_id, position)
+        }
+    } else {
+        // Other creatures use colored squares
+        spawn_creature_as_square(commands, stats, modified_attack_speed, attack_range, projectile_config, creature_id, position)
+    };
 
-    let entity = commands
+    Some(entity)
+}
+
+/// Helper function to spawn a creature as a colored square (fallback or non-sprite creatures)
+fn spawn_creature_as_square(
+    commands: &mut Commands,
+    stats: CreatureStats,
+    modified_attack_speed: f64,
+    attack_range: f32,
+    projectile_config: ProjectileConfig,
+    creature_id: &str,
+    position: Vec3,
+) -> Entity {
+    let creature_color = get_creature_color_by_id(creature_id);
+    commands
         .spawn((
             Creature,
-            stats.clone(),
+            stats,
             Velocity::default(),
             AttackTimer::new(modified_attack_speed),
             AttackRange(attack_range),
@@ -140,9 +185,7 @@ pub fn spawn_creature(
             },
             Transform::from_translation(position),
         ))
-        .id();
-
-    Some(entity)
+        .id()
 }
 
 /// Spawn a weapon by ID from the game data
@@ -393,6 +436,7 @@ pub fn spawn_test_creature_system(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     game_data: Res<GameData>,
     artifact_buffs: Res<ArtifactBuffs>,
+    creature_sprites: Option<Res<CreatureSprites>>,
     game_phase: Res<crate::resources::GamePhase>,
     player_query: Query<&Transform, With<Player>>,
     creature_query: Query<&Creature>,
@@ -418,7 +462,7 @@ pub fn spawn_test_creature_system(
                 0.5, // Above background, below player
             );
 
-            spawn_creature(&mut commands, &game_data, &artifact_buffs, "fire_imp", spawn_pos);
+            spawn_creature(&mut commands, &game_data, &artifact_buffs, "fire_imp", spawn_pos, creature_sprites.as_deref());
         }
     }
 }
@@ -663,6 +707,7 @@ pub fn respawn_system(
     mut respawn_queue: ResMut<RespawnQueue>,
     game_data: Res<GameData>,
     artifact_buffs: Res<ArtifactBuffs>,
+    creature_sprites: Option<Res<CreatureSprites>>,
     player_query: Query<&Transform, With<Player>>,
     creature_query: Query<&Creature>,
 ) {
@@ -697,7 +742,7 @@ pub fn respawn_system(
             );
 
             // Spawn the creature
-            spawn_creature(&mut commands, &game_data, &artifact_buffs, &entry.creature_id, spawn_pos);
+            spawn_creature(&mut commands, &game_data, &artifact_buffs, &entry.creature_id, spawn_pos, creature_sprites.as_deref());
 
             completed_indices.push(index);
         }

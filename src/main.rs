@@ -8,12 +8,12 @@ mod resources;
 mod systems;
 
 use components::{Player, Velocity};
-use resources::{load_game_data, AffinityState, ArtifactBuffs, DeathSprites, DebugSettings, Director, GameData, GameState, GamePhase, PlayerDeck, DeckBuilderState, SpatialGrid, ProjectilePool, DamageNumberPool, ChunkManager};
+use resources::{load_game_data, AffinityState, ArtifactBuffs, CreatureSprites, DeathSprites, DebugSettings, Director, GameData, GameState, GamePhase, PlayerDeck, DeckBuilderState, SpatialGrid, ProjectilePool, DamageNumberPool, ChunkManager};
 use systems::{
-    apply_velocity_system, camera_follow_system, creature_attack_system, creature_death_system,
+    apply_velocity_system, camera_follow_system, creature_attack_system, creature_death_animation_system, creature_death_system,
     creature_evolution_system, creature_follow_system, creature_level_up_effect_system,
     creature_xp_system, damage_number_system, death_animation_system, death_effect_system,
-    blood_cleanup_system, enemy_animation_system, enemy_attack_system,
+    blood_cleanup_system, creature_animation_system, enemy_animation_system, enemy_attack_system,
     enemy_chase_system, enemy_death_system, enemy_spawn_system, evolution_effect_system,
     level_check_system, level_up_effect_system, player_movement_system, projectile_system,
     respawn_system, screen_shake_system, spawn_hp_bars_system, spawn_test_creature_system,
@@ -111,6 +111,7 @@ fn main() {
             spawn_deck_builder_system,
             init_pools_system,
             load_death_sprites,
+            load_creature_sprites,
             load_tilemap_assets,
         ))
         // Director update (runs early)
@@ -130,7 +131,8 @@ fn main() {
             creature_follow_system,
             enemy_chase_system,
             apply_velocity_system,
-            enemy_animation_system, // Update enemy sprite animations based on velocity
+            enemy_animation_system,    // Update enemy sprite animations based on velocity
+            creature_animation_system, // Update creature sprite animations based on velocity
         ).chain().after(player_movement_system))
         // Pool re-initialization (needed after game restart)
         .add_systems(Update, init_pools_if_empty_system.after(apply_velocity_system))
@@ -151,6 +153,7 @@ fn main() {
         .add_systems(Update, (
             enemy_death_system,
             creature_death_system,
+            creature_death_animation_system,
             death_effect_system,
             death_animation_system,
             blood_cleanup_system,
@@ -243,9 +246,9 @@ fn load_death_sprites(
 ) {
     // Load the sprite images
     // goblin_spritesheet.png: 384x80 (6 frames at 64x80 each, exported at 2x from 32x40 SVG)
-    let goblin_spritesheet: Handle<Image> = asset_server.load("sprites/goblin_spritesheet.png");
+    let goblin_spritesheet: Handle<Image> = asset_server.load("sprites/enemies/goblin_spritesheet.png");
     // blood_splatters.png: 128x32 (4 variants at 32x32 each, exported at 2x from 16x16 SVG)
-    let blood_splatters: Handle<Image> = asset_server.load("sprites/blood_splatters.png");
+    let blood_splatters: Handle<Image> = asset_server.load("sprites/effects/blood_splatters.png");
 
     // Create texture atlas layouts
     // goblin_spritesheet: 6 frames (idle, walk1, walk2, death1, death2, death3) at 64x80 each
@@ -262,6 +265,30 @@ fn load_death_sprites(
         blood_splatters,
         goblin_atlas,
         blood_atlas,
+    });
+}
+
+/// Load creature sprite animation assets and create texture atlases
+fn load_creature_sprites(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+) {
+    // Load Fire Imp spritesheet (1024x160 at 2x export = 8 frames at 128x160 each, logical 64x80)
+    let fire_imp_spritesheet: Handle<Image> = asset_server.load("sprites/creatures/fire_imp_spritesheet.png");
+
+    // Load flame projectile sprite
+    let flame_projectile: Handle<Image> = asset_server.load("sprites/projectiles/flame_small.png");
+
+    // Create Fire Imp texture atlas layout: 8 frames at 128x160 each (2x export scale)
+    // Logical size is 64x80 per frame
+    let fire_imp_layout = TextureAtlasLayout::from_grid(UVec2::new(128, 160), 8, 1, None, None);
+    let fire_imp_atlas = texture_atlas_layouts.add(fire_imp_layout);
+
+    commands.insert_resource(CreatureSprites {
+        fire_imp_spritesheet,
+        fire_imp_atlas,
+        flame_projectile,
     });
 }
 

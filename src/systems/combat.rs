@@ -5,7 +5,7 @@ use crate::components::{
     Player, ProjectileConfig, ProjectileType, Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
 };
 use crate::math::{calculate_damage_with_crits, CritTier};
-use crate::resources::{get_affinity_bonuses, AffinityState, ArtifactBuffs, DebugSettings, GameData, SpatialGrid, ProjectilePool, DamageNumberPool};
+use crate::resources::{get_affinity_bonuses, AffinityState, ArtifactBuffs, CreatureSprites, DebugSettings, GameData, SpatialGrid, ProjectilePool, DamageNumberPool};
 use crate::systems::creature_xp::PendingKillCredit;
 
 /// Projectile speed in pixels per second
@@ -180,6 +180,7 @@ pub fn creature_attack_system(
     game_data: Res<GameData>,
     debug_settings: Res<DebugSettings>,
     spatial_grid: Res<SpatialGrid>,
+    creature_sprites: Option<Res<CreatureSprites>>,
     mut projectile_pool: ResMut<ProjectilePool>,
     mut creature_query: Query<(
         Entity,
@@ -316,8 +317,44 @@ pub fn creature_attack_system(
                         projectile_color,
                     );
 
-                    // Try to get a projectile from the pool
-                    if let Some(pooled_entity) = projectile_pool.get() {
+                    // Check if this is a fire creature with flame sprite available
+                    let is_fire_creature = stats.id.starts_with("fire") || stats.id.contains("flame") || stats.id.contains("ember");
+                    let use_flame_sprite = is_fire_creature && creature_sprites.is_some();
+
+                    if use_flame_sprite {
+                        // Fire creature: spawn flame projectile with image sprite
+                        let sprites = creature_sprites.as_ref().unwrap();
+
+                        // Calculate rotation based on direction (flame points up by default)
+                        let angle = direction.y.atan2(direction.x) - std::f32::consts::FRAC_PI_2;
+
+                        commands.spawn((
+                            Projectile {
+                                target: target_entity,
+                                damage: crit_result.final_damage,
+                                crit_tier: crit_result.tier,
+                                lifetime: Timer::from_seconds(lifetime_duration, TimerMode::Once),
+                                source_creature: Some(creature_entity),
+                                size: projectile_size,
+                                speed: projectile_speed,
+                                penetration_remaining: projectile_penetration,
+                                enemies_hit: Vec::new(),
+                                projectile_type: projectile_config.projectile_type,
+                            },
+                            Velocity {
+                                x: direction.x * projectile_speed,
+                                y: direction.y * projectile_speed,
+                            },
+                            Sprite::from_image(sprites.flame_projectile.clone()),
+                            Transform::from_translation(Vec3::new(
+                                creature_pos.x,
+                                creature_pos.y,
+                                0.6, // Above creatures
+                            )).with_rotation(Quat::from_rotation_z(angle))
+                              .with_scale(Vec3::splat(0.4)), // Scale down the flame
+                        ));
+                    } else if let Some(pooled_entity) = projectile_pool.get() {
+                        // Try to get a projectile from the pool (non-fire creatures)
                         // Reuse pooled projectile
                         if let Ok((mut proj, mut vel, mut sprite, mut transform, mut vis)) = projectile_query.get_mut(pooled_entity) {
                             proj.target = target_entity;

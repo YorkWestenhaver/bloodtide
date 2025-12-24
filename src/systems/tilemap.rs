@@ -29,7 +29,7 @@ pub fn load_tilemap_assets(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     // Load ground tileset (128x128, 4x4 tiles of 32x32 each)
-    let ground_tileset = asset_server.load("sprites/ground_tileset.png");
+    let ground_tileset = asset_server.load("sprites/tiles/ground_tileset.png");
     let ground_layout = TextureAtlasLayout::from_grid(
         UVec2::new(32, 32),
         4, 4,
@@ -38,7 +38,7 @@ pub fn load_tilemap_assets(
     let ground_atlas = texture_atlas_layouts.add(ground_layout);
 
     // Load detail tileset (128x32, 8x2 sprites of 16x16 each)
-    let detail_tileset = asset_server.load("sprites/ground_details.png");
+    let detail_tileset = asset_server.load("sprites/tiles/ground_details.png");
     let detail_layout = TextureAtlasLayout::from_grid(
         UVec2::new(16, 16),
         8, 2,

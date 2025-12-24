@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::sprite::TextureAtlas;
 
-use crate::components::{Creature, CreatureStats, DeathAnimation, Enemy, EnemyStats, Player};
+use crate::components::{Creature, CreatureAnimation, CreatureAnimationState, CreatureStats, DeathAnimation, Enemy, EnemyStats, Player};
 use crate::resources::{DeathSprites, DebugSettings, GameState};
 
 /// System that checks for and handles enemy deaths
@@ -119,11 +119,12 @@ pub fn get_respawn_time(tier: u8) -> f32 {
 }
 
 /// System that checks for and handles creature deaths
+/// For creatures with animation (Fire Imp), triggers death animation instead of immediate despawn
 pub fn creature_death_system(
     mut commands: Commands,
     mut respawn_queue: ResMut<RespawnQueue>,
     debug_settings: Res<DebugSettings>,
-    mut creature_query: Query<(Entity, &mut CreatureStats, &Transform), With<Creature>>,
+    mut creature_query: Query<(Entity, &mut CreatureStats, &Transform, Option<&mut CreatureAnimation>), With<Creature>>,
     player_query: Query<&Transform, With<Player>>,
 ) {
     // Don't process if game is paused
@@ -136,7 +137,7 @@ pub fn creature_death_system(
         .map(|t| t.translation)
         .unwrap_or(Vec3::ZERO);
 
-    for (entity, mut stats, transform) in creature_query.iter_mut() {
+    for (entity, mut stats, transform, anim_opt) in creature_query.iter_mut() {
         if stats.current_hp <= 0.0 {
             // If god mode is enabled, heal the creature instead of killing it
             if debug_settings.god_mode {
@@ -144,33 +145,111 @@ pub fn creature_death_system(
                 continue;
             }
 
-            // Spawn death effect (colored flash based on creature)
-            let death_pos = transform.translation;
-            commands.spawn((
-                DeathEffect {
-                    timer: Timer::from_seconds(0.3, TimerMode::Once),
-                },
-                Sprite {
-                    color: stats.color.to_bevy_color().with_alpha(0.8),
-                    custom_size: Some(Vec2::new(30.0, 30.0)),
-                    ..default()
-                },
-                Transform::from_translation(Vec3::new(death_pos.x, death_pos.y, 0.7)),
-            ));
+            // Check if this creature has animation (is already dying or dead)
+            if let Some(mut anim) = anim_opt {
+                // Skip if already dying or dead
+                if anim.state == CreatureAnimationState::Dying || anim.state == CreatureAnimationState::Dead {
+                    continue;
+                }
 
-            // Get respawn time based on tier
-            let respawn_time = get_respawn_time(stats.tier);
+                // Start death animation (frames 5-6-7)
+                anim.start_dying();
 
-            // Add to respawn queue
-            respawn_queue.entries.push(RespawnEntry {
-                creature_id: stats.id.clone(),
-                tier: stats.tier,
-                timer: Timer::from_seconds(respawn_time, TimerMode::Once),
-                position: player_pos,
-            });
+                // Add to respawn queue now (creature will despawn after animation)
+                let respawn_time = get_respawn_time(stats.tier);
+                respawn_queue.entries.push(RespawnEntry {
+                    creature_id: stats.id.clone(),
+                    tier: stats.tier,
+                    timer: Timer::from_seconds(respawn_time, TimerMode::Once),
+                    position: player_pos,
+                });
 
-            // Despawn the creature
-            commands.entity(entity).despawn_recursive();
+                // Don't despawn yet - let the animation system handle it
+                // Set HP to a small negative value to prevent re-triggering
+                stats.current_hp = -1.0;
+            } else {
+                // Non-animated creature (squares) - original behavior
+                // Spawn death effect (colored flash based on creature)
+                let death_pos = transform.translation;
+                commands.spawn((
+                    DeathEffect {
+                        timer: Timer::from_seconds(0.3, TimerMode::Once),
+                    },
+                    Sprite {
+                        color: stats.color.to_bevy_color().with_alpha(0.8),
+                        custom_size: Some(Vec2::new(30.0, 30.0)),
+                        ..default()
+                    },
+                    Transform::from_translation(Vec3::new(death_pos.x, death_pos.y, 0.7)),
+                ));
+
+                // Get respawn time based on tier
+                let respawn_time = get_respawn_time(stats.tier);
+
+                // Add to respawn queue
+                respawn_queue.entries.push(RespawnEntry {
+                    creature_id: stats.id.clone(),
+                    tier: stats.tier,
+                    timer: Timer::from_seconds(respawn_time, TimerMode::Once),
+                    position: player_pos,
+                });
+
+                // Despawn the creature
+                commands.entity(entity).despawn_recursive();
+            }
+        }
+    }
+}
+
+/// System that advances creature death animations and despawns when complete
+/// Fire Imp death: frames 5→6→7 at 180ms, then ash pile for 2 seconds
+pub fn creature_death_animation_system(
+    mut commands: Commands,
+    time: Res<Time>,
+    debug_settings: Res<DebugSettings>,
+    mut query: Query<(Entity, &mut CreatureAnimation, &mut Sprite), With<Creature>>,
+) {
+    // Don't animate if paused
+    if debug_settings.is_paused() {
+        return;
+    }
+
+    for (entity, mut anim, mut sprite) in query.iter_mut() {
+        match anim.state {
+            CreatureAnimationState::Dying => {
+                // Advance death animation frames 5→6→7
+                anim.frame_timer.tick(time.delta());
+                if anim.frame_timer.just_finished() {
+                    if anim.current_frame < 7 {
+                        anim.current_frame += 1;
+                    } else {
+                        // Animation complete - transition to ash pile state
+                        anim.become_dead(2.0); // Ash pile stays for 2 seconds
+                    }
+                }
+
+                // Update sprite frame
+                if let Some(ref mut atlas) = sprite.texture_atlas {
+                    atlas.index = anim.current_frame;
+                }
+            }
+            CreatureAnimationState::Dead => {
+                // Tick ash timer and despawn when done
+                if let Some(ref mut ash_timer) = anim.ash_timer {
+                    ash_timer.tick(time.delta());
+
+                    // Fade out during last 0.5 seconds
+                    if ash_timer.fraction() > 0.75 {
+                        let fade = 1.0 - (ash_timer.fraction() - 0.75) * 4.0;
+                        sprite.color = sprite.color.with_alpha(fade.max(0.0));
+                    }
+
+                    if ash_timer.finished() {
+                        commands.entity(entity).despawn_recursive();
+                    }
+                }
+            }
+            _ => {}
         }
     }
 }

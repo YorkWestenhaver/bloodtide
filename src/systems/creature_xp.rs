@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use std::collections::{HashMap, HashSet};
 
 use crate::components::{AttackRange, Creature, CreatureStats};
-use crate::resources::{ArtifactBuffs, DebugSettings, GameData};
+use crate::resources::{ArtifactBuffs, CreatureSprites, DebugSettings, GameData};
 use crate::systems::spawning::{spawn_creature, CREATURE_SIZE};
 
 /// Marker for pending kill attribution
@@ -166,6 +166,7 @@ pub fn creature_evolution_system(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     game_data: Res<GameData>,
     artifact_buffs: Res<ArtifactBuffs>,
+    creature_sprites: Option<Res<CreatureSprites>>,
     debug_settings: Res<DebugSettings>,
     mut evolution_state: ResMut<EvolutionReadyState>,
     creature_query: Query<(Entity, &CreatureStats, &Transform), With<Creature>>,
@@ -229,6 +230,7 @@ pub fn creature_evolution_system(
                 &mut commands,
                 &game_data,
                 &artifact_buffs,
+                creature_sprites.as_deref(),
                 &mut creatures,
                 evolution_count,
             );
@@ -249,6 +251,7 @@ fn perform_evolution(
     commands: &mut Commands,
     game_data: &GameData,
     artifact_buffs: &ArtifactBuffs,
+    creature_sprites: Option<&CreatureSprites>,
     creatures: &mut Vec<(Entity, CreatureStats, Vec3)>,
     count: usize,
 ) {
@@ -279,7 +282,7 @@ fn perform_evolution(
     spawn_evolution_effect(commands, avg_pos);
 
     // Spawn the evolved creature
-    spawn_creature(commands, game_data, artifact_buffs, evolved_id, avg_pos);
+    spawn_creature(commands, game_data, artifact_buffs, evolved_id, avg_pos, creature_sprites);
 }
 
 /// Spawn a gold expanding ring effect at the given position

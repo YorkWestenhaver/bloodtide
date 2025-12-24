@@ -3,7 +3,7 @@ use rand::Rng;
 
 use crate::components::{Creature, Player, WeaponData};
 use crate::resources::{
-    calculate_next_level_threshold, AffinityState, ArtifactBuffs, CardType, DebugSettings,
+    calculate_next_level_threshold, AffinityState, ArtifactBuffs, CardType, CreatureSprites, DebugSettings,
     GameData, GameState, PlayerDeck,
 };
 use crate::systems::{spawn_creature, spawn_weapon, try_weapon_evolution, CardRollState};
@@ -93,6 +93,7 @@ pub fn level_check_system(
     debug_settings: Res<DebugSettings>,
     player_deck: Res<PlayerDeck>,
     game_data: Res<GameData>,
+    creature_sprites: Option<Res<CreatureSprites>>,
     player_query: Query<&Transform, With<Player>>,
     creature_query: Query<&Creature>,
     weapon_query: Query<(Entity, &WeaponData)>,
@@ -175,7 +176,7 @@ pub fn level_check_system(
                             0.5,
                         );
 
-                        spawn_creature(&mut commands, &game_data, &artifact_buffs, &card.id, spawn_pos);
+                        spawn_creature(&mut commands, &game_data, &artifact_buffs, &card.id, spawn_pos, creature_sprites.as_deref());
                     }
                 }
                 CardType::Weapon => {

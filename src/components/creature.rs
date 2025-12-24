@@ -258,6 +258,80 @@ impl ProjectileConfig {
     }
 }
 
+/// Animation state for sprite-based creatures
+#[derive(Component, Clone, Copy, PartialEq, Eq, Debug, Default)]
+pub enum CreatureAnimationState {
+    #[default]
+    Idle,
+    Walking,
+    Dying,
+    Dead,
+}
+
+/// Sprite animation controller for creatures with spritesheets
+#[derive(Component)]
+pub struct CreatureAnimation {
+    /// Current animation state
+    pub state: CreatureAnimationState,
+    /// Timer for advancing animation frames
+    pub frame_timer: Timer,
+    /// Current frame index in the spritesheet
+    pub current_frame: usize,
+    /// Timer for ash pile persistence after death (only used in Dead state)
+    pub ash_timer: Option<Timer>,
+}
+
+impl CreatureAnimation {
+    /// Create a new animation in idle state (frame 0)
+    pub fn new() -> Self {
+        Self {
+            state: CreatureAnimationState::Idle,
+            frame_timer: Timer::from_seconds(0.1, TimerMode::Repeating), // 100ms for walk
+            current_frame: 0,
+            ash_timer: None,
+        }
+    }
+
+    /// Transition to walking animation (frames 1-4)
+    pub fn start_walking(&mut self) {
+        if self.state != CreatureAnimationState::Dying && self.state != CreatureAnimationState::Dead {
+            self.state = CreatureAnimationState::Walking;
+            if self.current_frame < 1 || self.current_frame > 4 {
+                self.current_frame = 1;
+            }
+            self.frame_timer = Timer::from_seconds(0.1, TimerMode::Repeating); // 100ms per frame
+        }
+    }
+
+    /// Transition to idle animation (frame 0)
+    pub fn go_idle(&mut self) {
+        if self.state != CreatureAnimationState::Dying && self.state != CreatureAnimationState::Dead {
+            self.state = CreatureAnimationState::Idle;
+            self.current_frame = 0;
+        }
+    }
+
+    /// Transition to dying animation (frames 5-6-7)
+    pub fn start_dying(&mut self) {
+        self.state = CreatureAnimationState::Dying;
+        self.current_frame = 5;
+        self.frame_timer = Timer::from_seconds(0.18, TimerMode::Repeating); // 180ms per frame
+    }
+
+    /// Transition to dead state (ash pile, frame 7)
+    pub fn become_dead(&mut self, ash_duration: f32) {
+        self.state = CreatureAnimationState::Dead;
+        self.current_frame = 7;
+        self.ash_timer = Some(Timer::from_seconds(ash_duration, TimerMode::Once));
+    }
+}
+
+impl Default for CreatureAnimation {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
