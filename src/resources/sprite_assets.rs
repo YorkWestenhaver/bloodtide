@@ -14,12 +14,34 @@ pub struct DeathSprites {
 }
 
 /// Resource holding handles to creature sprite assets
+///
+/// Fire creature evolution line:
+/// - Fire Imp (T1): 64x80 per frame
+/// - Flame Fiend (T2): 64x96 per frame
+/// - Inferno Demon (T3): 64x112 per frame
+///
+/// All use 8 frames: idle, turn, walk1, walk2, death1-4
 #[derive(Resource)]
 pub struct CreatureSprites {
-    /// Handle to the Fire Imp sprite sheet (8 frames: idle, walk1-4, death1-3)
+    // Fire Imp (Tier 1)
+    /// Handle to the Fire Imp sprite sheet (8 frames, 64x80 each)
     pub fire_imp_spritesheet: Handle<Image>,
-    /// Texture atlas layout for Fire Imp (8 frames, 128x160 each at 2x export, logical 64x80)
+    /// Texture atlas layout for Fire Imp
     pub fire_imp_atlas: Handle<TextureAtlasLayout>,
+
+    // Flame Fiend (Tier 2)
+    /// Handle to the Flame Fiend sprite sheet (8 frames, 64x96 each)
+    pub flame_fiend_spritesheet: Handle<Image>,
+    /// Texture atlas layout for Flame Fiend
+    pub flame_fiend_atlas: Handle<TextureAtlasLayout>,
+
+    // Inferno Demon (Tier 3)
+    /// Handle to the Inferno Demon sprite sheet (8 frames, 64x112 each)
+    pub inferno_demon_spritesheet: Handle<Image>,
+    /// Texture atlas layout for Inferno Demon
+    pub inferno_demon_atlas: Handle<TextureAtlasLayout>,
+
+    // Projectile
     /// Handle to the flame projectile sprite
     pub flame_projectile: Handle<Image>,
 }

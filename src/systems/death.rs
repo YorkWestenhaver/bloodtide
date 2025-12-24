@@ -152,7 +152,7 @@ pub fn creature_death_system(
                     continue;
                 }
 
-                // Start death animation (frames 5-6-7)
+                // Start death animation (frames 4-5-6-7)
                 anim.start_dying();
 
                 // Add to respawn queue now (creature will despawn after animation)
@@ -202,7 +202,10 @@ pub fn creature_death_system(
 }
 
 /// System that advances creature death animations and despawns when complete
-/// Fire Imp death: frames 5→6→7 at 180ms, then ash pile for 2 seconds
+///
+/// Death animation (per fire_creatures_schema.json):
+/// - Frames 4-7: death sequence at 200ms per frame
+/// - Frame 7: ash pile (stays for 2 seconds, then fades and despawns)
 pub fn creature_death_animation_system(
     mut commands: Commands,
     time: Res<Time>,
@@ -217,12 +220,11 @@ pub fn creature_death_animation_system(
     for (entity, mut anim, mut sprite) in query.iter_mut() {
         match anim.state {
             CreatureAnimationState::Dying => {
-                // Advance death animation frames 5→6→7
+                // Advance death animation through frames 4→5→6→7
                 anim.frame_timer.tick(time.delta());
                 if anim.frame_timer.just_finished() {
-                    if anim.current_frame < 7 {
-                        anim.current_frame += 1;
-                    } else {
+                    let complete = anim.advance_death_frame();
+                    if complete {
                         // Animation complete - transition to ash pile state
                         anim.become_dead(2.0); // Ash pile stays for 2 seconds
                     }

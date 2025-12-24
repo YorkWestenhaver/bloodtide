@@ -263,12 +263,28 @@ impl ProjectileConfig {
 pub enum CreatureAnimationState {
     #[default]
     Idle,
+    /// Transition frame when starting to move (frame 1)
+    Turning,
     Walking,
     Dying,
     Dead,
 }
 
+/// Direction the creature is facing (for sprite flipping)
+#[derive(Component, Clone, Copy, PartialEq, Eq, Debug, Default)]
+pub enum CreatureFacing {
+    #[default]
+    Right,
+    Left,
+}
+
 /// Sprite animation controller for creatures with spritesheets
+///
+/// Frame layout (per fire_creatures_schema.json):
+/// - Frame 0: Idle (front-facing)
+/// - Frame 1: Turn (transition to side view)
+/// - Frame 2-3: Walk cycle (side view)
+/// - Frame 4-7: Death animation (collapse to ash)
 #[derive(Component)]
 pub struct CreatureAnimation {
     /// Current animation state
@@ -281,25 +297,59 @@ pub struct CreatureAnimation {
     pub ash_timer: Option<Timer>,
 }
 
+// Frame constants for creature animations
+impl CreatureAnimation {
+    pub const FRAME_IDLE: usize = 0;
+    pub const FRAME_TURN: usize = 1;
+    pub const FRAME_WALK_START: usize = 2;
+    pub const FRAME_WALK_END: usize = 3;
+    pub const FRAME_DEATH_START: usize = 4;
+    pub const FRAME_DEATH_END: usize = 7;
+
+    /// Duration for turn transition (100ms)
+    pub const TURN_DURATION_MS: u32 = 100;
+    /// Duration per walk frame (150ms per schema)
+    pub const WALK_FRAME_DURATION_MS: u32 = 150;
+    /// Duration per death frame (200ms per schema)
+    pub const DEATH_FRAME_DURATION_MS: u32 = 200;
+}
+
 impl CreatureAnimation {
     /// Create a new animation in idle state (frame 0)
     pub fn new() -> Self {
         Self {
             state: CreatureAnimationState::Idle,
-            frame_timer: Timer::from_seconds(0.1, TimerMode::Repeating), // 100ms for walk
-            current_frame: 0,
+            frame_timer: Timer::from_seconds(0.15, TimerMode::Repeating), // 150ms for walk
+            current_frame: Self::FRAME_IDLE,
             ash_timer: None,
         }
     }
 
-    /// Transition to walking animation (frames 1-4)
+    /// Start the turn transition before walking (frame 1)
+    /// Called when creature starts moving from idle
+    pub fn start_turning(&mut self) {
+        if self.state != CreatureAnimationState::Dying && self.state != CreatureAnimationState::Dead {
+            self.state = CreatureAnimationState::Turning;
+            self.current_frame = Self::FRAME_TURN;
+            self.frame_timer = Timer::from_seconds(
+                Self::TURN_DURATION_MS as f32 / 1000.0,
+                TimerMode::Once
+            );
+        }
+    }
+
+    /// Transition to walking animation (frames 2-3)
+    /// Called after turn completes or when already walking
     pub fn start_walking(&mut self) {
         if self.state != CreatureAnimationState::Dying && self.state != CreatureAnimationState::Dead {
             self.state = CreatureAnimationState::Walking;
-            if self.current_frame < 1 || self.current_frame > 4 {
-                self.current_frame = 1;
+            if self.current_frame < Self::FRAME_WALK_START || self.current_frame > Self::FRAME_WALK_END {
+                self.current_frame = Self::FRAME_WALK_START;
             }
-            self.frame_timer = Timer::from_seconds(0.1, TimerMode::Repeating); // 100ms per frame
+            self.frame_timer = Timer::from_seconds(
+                Self::WALK_FRAME_DURATION_MS as f32 / 1000.0,
+                TimerMode::Repeating
+            );
         }
     }
 
@@ -307,22 +357,45 @@ impl CreatureAnimation {
     pub fn go_idle(&mut self) {
         if self.state != CreatureAnimationState::Dying && self.state != CreatureAnimationState::Dead {
             self.state = CreatureAnimationState::Idle;
-            self.current_frame = 0;
+            self.current_frame = Self::FRAME_IDLE;
         }
     }
 
-    /// Transition to dying animation (frames 5-6-7)
+    /// Transition to dying animation (frames 4-7)
     pub fn start_dying(&mut self) {
         self.state = CreatureAnimationState::Dying;
-        self.current_frame = 5;
-        self.frame_timer = Timer::from_seconds(0.18, TimerMode::Repeating); // 180ms per frame
+        self.current_frame = Self::FRAME_DEATH_START;
+        self.frame_timer = Timer::from_seconds(
+            Self::DEATH_FRAME_DURATION_MS as f32 / 1000.0,
+            TimerMode::Repeating
+        );
     }
 
     /// Transition to dead state (ash pile, frame 7)
     pub fn become_dead(&mut self, ash_duration: f32) {
         self.state = CreatureAnimationState::Dead;
-        self.current_frame = 7;
+        self.current_frame = Self::FRAME_DEATH_END;
         self.ash_timer = Some(Timer::from_seconds(ash_duration, TimerMode::Once));
+    }
+
+    /// Advance walk animation frame (cycles between frames 2-3)
+    pub fn advance_walk_frame(&mut self) {
+        if self.current_frame >= Self::FRAME_WALK_END {
+            self.current_frame = Self::FRAME_WALK_START;
+        } else {
+            self.current_frame += 1;
+        }
+    }
+
+    /// Advance death animation frame (frames 4-7)
+    /// Returns true if animation is complete (reached frame 7)
+    pub fn advance_death_frame(&mut self) -> bool {
+        if self.current_frame >= Self::FRAME_DEATH_END {
+            true
+        } else {
+            self.current_frame += 1;
+            self.current_frame >= Self::FRAME_DEATH_END
+        }
     }
 }
 

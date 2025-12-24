@@ -274,20 +274,34 @@ fn load_creature_sprites(
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    // Load Fire Imp spritesheet (1024x160 at 2x export = 8 frames at 128x160 each, logical 64x80)
+    // Fire creature evolution line - all have 8 frames (idle, turn, walk1-2, death1-4)
+    // Sprites are exported at 2x resolution
+
+    // Fire Imp (Tier 1): 64x80 per frame (128x160 at 2x)
     let fire_imp_spritesheet: Handle<Image> = asset_server.load("sprites/creatures/fire_imp_spritesheet.png");
-
-    // Load flame projectile sprite
-    let flame_projectile: Handle<Image> = asset_server.load("sprites/projectiles/flame_small.png");
-
-    // Create Fire Imp texture atlas layout: 8 frames at 128x160 each (2x export scale)
-    // Logical size is 64x80 per frame
     let fire_imp_layout = TextureAtlasLayout::from_grid(UVec2::new(128, 160), 8, 1, None, None);
     let fire_imp_atlas = texture_atlas_layouts.add(fire_imp_layout);
+
+    // Flame Fiend (Tier 2): 64x96 per frame (128x192 at 2x)
+    let flame_fiend_spritesheet: Handle<Image> = asset_server.load("sprites/creatures/flame_fiend_spritesheet.png");
+    let flame_fiend_layout = TextureAtlasLayout::from_grid(UVec2::new(128, 192), 8, 1, None, None);
+    let flame_fiend_atlas = texture_atlas_layouts.add(flame_fiend_layout);
+
+    // Inferno Demon (Tier 3): 64x112 per frame (128x224 at 2x)
+    let inferno_demon_spritesheet: Handle<Image> = asset_server.load("sprites/creatures/inferno_demon_spritesheet.png");
+    let inferno_demon_layout = TextureAtlasLayout::from_grid(UVec2::new(128, 224), 8, 1, None, None);
+    let inferno_demon_atlas = texture_atlas_layouts.add(inferno_demon_layout);
+
+    // Flame projectile sprite
+    let flame_projectile: Handle<Image> = asset_server.load("sprites/projectiles/flame_small.png");
 
     commands.insert_resource(CreatureSprites {
         fire_imp_spritesheet,
         fire_imp_atlas,
+        flame_fiend_spritesheet,
+        flame_fiend_atlas,
+        inferno_demon_spritesheet,
+        inferno_demon_atlas,
         flame_projectile,
     });
 }

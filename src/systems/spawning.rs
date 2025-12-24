@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use rand::Rng;
 
 use crate::components::{
-    AttackRange, AttackTimer, Creature, CreatureAnimation, CreatureColor, CreatureStats, CreatureType, Enemy,
+    AttackRange, AttackTimer, Creature, CreatureAnimation, CreatureColor, CreatureFacing, CreatureStats, CreatureType, Enemy,
     EnemyAttackTimer, EnemyClass, EnemyStats, EnemyType, Player, ProjectileConfig, ProjectileType,
     SpriteAnimation, Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
     get_creature_color_by_id,
@@ -123,36 +123,85 @@ pub fn spawn_creature(
         ProjectileType::from_str(&creature_data.projectile_type),
     );
 
-    // Check if this creature has a sprite (currently only fire_imp)
-    let entity = if creature_id == "fire_imp" {
-        if let Some(sprites) = creature_sprites {
-            // Use Fire Imp spritesheet
-            // Scale: sprite is 128x160 at 2x, so 0.5 scale = 64x80 logical size
-            commands
-                .spawn((
-                    Creature,
-                    stats.clone(),
-                    Velocity::default(),
-                    AttackTimer::new(modified_attack_speed),
-                    AttackRange(attack_range),
-                    projectile_config,
-                    CreatureAnimation::new(), // Start in idle state (frame 0)
-                    Sprite::from_atlas_image(
-                        sprites.fire_imp_spritesheet.clone(),
-                        bevy::sprite::TextureAtlas {
-                            layout: sprites.fire_imp_atlas.clone(),
-                            index: 0, // Frame 0 = idle
-                        },
-                    ),
-                    Transform::from_translation(position).with_scale(Vec3::splat(0.5)),
-                ))
-                .id()
-        } else {
-            // Fallback to colored square if sprites not loaded
-            spawn_creature_as_square(commands, stats, modified_attack_speed, attack_range, projectile_config, creature_id, position)
+    // Check if this creature has a sprite (fire evolution line: fire_imp, flame_fiend, inferno_demon)
+    let entity = if let Some(sprites) = creature_sprites {
+        match creature_id {
+            "fire_imp" => {
+                // Fire Imp (Tier 1): 64x80 per frame, scale 0.5 from 128x160
+                commands
+                    .spawn((
+                        Creature,
+                        stats.clone(),
+                        Velocity::default(),
+                        AttackTimer::new(modified_attack_speed),
+                        AttackRange(attack_range),
+                        projectile_config,
+                        CreatureAnimation::new(),
+                        CreatureFacing::default(),
+                        Sprite::from_atlas_image(
+                            sprites.fire_imp_spritesheet.clone(),
+                            bevy::sprite::TextureAtlas {
+                                layout: sprites.fire_imp_atlas.clone(),
+                                index: 0, // Frame 0 = idle
+                            },
+                        ),
+                        Transform::from_translation(position).with_scale(Vec3::splat(0.5)),
+                    ))
+                    .id()
+            }
+            "flame_fiend" => {
+                // Flame Fiend (Tier 2): 64x96 per frame, scale 0.5 from 128x192
+                commands
+                    .spawn((
+                        Creature,
+                        stats.clone(),
+                        Velocity::default(),
+                        AttackTimer::new(modified_attack_speed),
+                        AttackRange(attack_range),
+                        projectile_config,
+                        CreatureAnimation::new(),
+                        CreatureFacing::default(),
+                        Sprite::from_atlas_image(
+                            sprites.flame_fiend_spritesheet.clone(),
+                            bevy::sprite::TextureAtlas {
+                                layout: sprites.flame_fiend_atlas.clone(),
+                                index: 0,
+                            },
+                        ),
+                        Transform::from_translation(position).with_scale(Vec3::splat(0.5)),
+                    ))
+                    .id()
+            }
+            "inferno_demon" => {
+                // Inferno Demon (Tier 3): 64x112 per frame, scale 0.5 from 128x224
+                commands
+                    .spawn((
+                        Creature,
+                        stats.clone(),
+                        Velocity::default(),
+                        AttackTimer::new(modified_attack_speed),
+                        AttackRange(attack_range),
+                        projectile_config,
+                        CreatureAnimation::new(),
+                        CreatureFacing::default(),
+                        Sprite::from_atlas_image(
+                            sprites.inferno_demon_spritesheet.clone(),
+                            bevy::sprite::TextureAtlas {
+                                layout: sprites.inferno_demon_atlas.clone(),
+                                index: 0,
+                            },
+                        ),
+                        Transform::from_translation(position).with_scale(Vec3::splat(0.5)),
+                    ))
+                    .id()
+            }
+            _ => {
+                // Other creatures use colored squares
+                spawn_creature_as_square(commands, stats, modified_attack_speed, attack_range, projectile_config, creature_id, position)
+            }
         }
     } else {
-        // Other creatures use colored squares
+        // Fallback to colored square if sprites not loaded
         spawn_creature_as_square(commands, stats, modified_attack_speed, attack_range, projectile_config, creature_id, position)
     };
 

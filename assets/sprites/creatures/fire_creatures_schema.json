@@ -1,0 +1,161 @@
+{
+  "fire_imp": {
+    "creature": "fire_imp",
+    "tier": 1,
+    "file": "fire_imp_spritesheet.svg",
+    "export_to": "fire_imp_spritesheet.png",
+    "frame_width": 64,
+    "frame_height": 80,
+    "total_frames": 8,
+    "columns": 8,
+    "rows": 1,
+    "transparent_background": true,
+    "animations": {
+      "idle": {
+        "frames": [0],
+        "frame_duration_ms": 0,
+        "loop": false
+      },
+      "turn": {
+        "frames": [1],
+        "frame_duration_ms": 100,
+        "loop": false,
+        "notes": "Transition from front-facing to side view"
+      },
+      "walk": {
+        "frames": [2, 3],
+        "frame_duration_ms": 150,
+        "loop": true,
+        "notes": "Side view walk cycle, alternate legs"
+      },
+      "death": {
+        "frames": [4, 5, 6, 7],
+        "frame_duration_ms": 200,
+        "loop": false,
+        "on_complete": "stay_on_frame_7"
+      }
+    },
+    "frame_descriptions": {
+      "0": "idle - front-facing stance, flame hair, arms at sides, charred body with glowing cracks",
+      "1": "turn - 3/4 angle transitioning to side view",
+      "2": "move1 - side view, one leg forward, arm extended, flames trailing back",
+      "3": "move2 - side view, opposite leg forward, walk cycle alternate",
+      "4": "death1 - starting to collapse, flames flickering out",
+      "5": "death2 - mostly collapsed, body breaking apart, pieces scattering",
+      "6": "death3 - nearly gone, floating embers",
+      "7": "ash - gray ash pile with glowing red/orange embers, smoke wisps"
+    },
+    "bevy_texture_atlas": {
+      "tile_size_x": 64,
+      "tile_size_y": 80,
+      "columns": 8,
+      "rows": 1
+    }
+  },
+  "flame_fiend": {
+    "creature": "flame_fiend",
+    "tier": 2,
+    "evolves_from": "fire_imp",
+    "file": "flame_fiend_spritesheet.svg",
+    "export_to": "flame_fiend_spritesheet.png",
+    "frame_width": 64,
+    "frame_height": 96,
+    "total_frames": 8,
+    "columns": 8,
+    "rows": 1,
+    "transparent_background": true,
+    "animations": {
+      "idle": {
+        "frames": [0],
+        "frame_duration_ms": 0,
+        "loop": false
+      },
+      "turn": {
+        "frames": [1],
+        "frame_duration_ms": 100,
+        "loop": false
+      },
+      "walk": {
+        "frames": [2, 3],
+        "frame_duration_ms": 140,
+        "loop": true,
+        "notes": "Slightly faster than Fire Imp"
+      },
+      "death": {
+        "frames": [4, 5, 6, 7],
+        "frame_duration_ms": 220,
+        "loop": false,
+        "on_complete": "stay_on_frame_7"
+      }
+    },
+    "frame_descriptions": {
+      "0": "idle - front-facing, larger flame crown, bigger curved horns, broader shoulders",
+      "1": "turn - 3/4 angle transition, thicker body visible",
+      "2": "move1 - side view with 2-square-wide limbs, maintains bulk",
+      "3": "move2 - side view alternate, thick legs and arms",
+      "4": "death1 - collapsing, larger flames dying",
+      "5": "death2 - breaking apart, more pieces than Fire Imp",
+      "6": "death3 - embers floating, core fading",
+      "7": "ash - larger ash pile with more embers"
+    },
+    "bevy_texture_atlas": {
+      "tile_size_x": 64,
+      "tile_size_y": 96,
+      "columns": 8,
+      "rows": 1
+    }
+  },
+  "inferno_demon": {
+    "creature": "inferno_demon",
+    "tier": 3,
+    "evolves_from": "flame_fiend",
+    "file": "inferno_demon_spritesheet.svg",
+    "export_to": "inferno_demon_spritesheet.png",
+    "frame_width": 64,
+    "frame_height": 112,
+    "total_frames": 8,
+    "columns": 8,
+    "rows": 1,
+    "transparent_background": true,
+    "animations": {
+      "idle": {
+        "frames": [0],
+        "frame_duration_ms": 0,
+        "loop": false
+      },
+      "turn": {
+        "frames": [1],
+        "frame_duration_ms": 100,
+        "loop": false
+      },
+      "walk": {
+        "frames": [2, 3],
+        "frame_duration_ms": 130,
+        "loop": true,
+        "notes": "Fastest of the three tiers"
+      },
+      "death": {
+        "frames": [4, 5, 6, 7],
+        "frame_duration_ms": 250,
+        "loop": false,
+        "on_complete": "stay_on_frame_7"
+      }
+    },
+    "frame_descriptions": {
+      "0": "idle - front-facing, massive flame crown (crimson/dark red), huge curved horns extending far, heavy brow ridge, evil slanted eyes with slit pupils, broad powerful shoulders",
+      "1": "turn - 3/4 angle, imposing bulk maintained",
+      "2": "move1 - side view, 2-square-wide limbs throughout, full bulk preserved",
+      "3": "move2 - side view alternate, thick muscular legs and arms",
+      "4": "death1 - massive form starting to collapse, crimson flames dying",
+      "5": "death2 - breaking apart dramatically, many pieces",
+      "6": "death3 - large embers floating, dark core fading",
+      "7": "ash - largest ash pile with most embers and smoke wisps"
+    },
+    "bevy_texture_atlas": {
+      "tile_size_x": 64,
+      "tile_size_y": 112,
+      "columns": 8,
+      "rows": 1
+    }
+  }
+}
