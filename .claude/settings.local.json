@@ -16,7 +16,8 @@
       "Bash(wc:*)",
       "Bash(pip3 list:*)",
       "Bash(typst:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(rsvg-convert:*)"
     ]
   }
 }

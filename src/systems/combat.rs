@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::components::{
     AttackRange, AttackTimer, Creature, CreatureStats, Enemy, EnemyAttackTimer, EnemyStats,
-    Player, ProjectileConfig, ProjectileType, Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
+    InvincibilityTimer, Player, PlayerStats, ProjectileConfig, ProjectileType, Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
 };
 use crate::math::{calculate_damage_with_crits, CritTier};
 use crate::resources::{get_affinity_bonuses, AffinityState, ArtifactBuffs, CreatureSprites, DebugSettings, GameData, SpatialGrid, ProjectilePool, DamageNumberPool};
@@ -985,6 +985,15 @@ pub fn screen_shake_system(
 /// Enemy attack range for melee enemies
 pub const ENEMY_ATTACK_RANGE: f32 = 40.0;
 
+/// Contact damage range (player + enemy collision overlap)
+pub const ENEMY_CONTACT_RANGE: f32 = 35.0;
+
+/// Contact damage multiplier (contact = enemy base_damage * this)
+pub const CONTACT_DAMAGE_MULTIPLIER: f64 = 0.5;
+
+/// Invincibility duration after taking damage (seconds)
+pub const INVINCIBILITY_DURATION: f32 = 0.5;
+
 /// System that handles enemies attacking creatures
 pub fn enemy_attack_system(
     time: Res<Time>,
@@ -1027,6 +1036,101 @@ pub fn enemy_attack_system(
                     creature_stats.current_hp -= damage;
                 }
             }
+        }
+    }
+}
+
+/// System that handles enemies attacking the player
+pub fn enemy_attack_player_system(
+    mut commands: Commands,
+    time: Res<Time>,
+    debug_settings: Res<DebugSettings>,
+    enemy_query: Query<(&EnemyStats, &EnemyAttackTimer, &Transform), With<Enemy>>,
+    mut player_query: Query<(Entity, &Transform, &mut PlayerStats, Option<&InvincibilityTimer>), With<Player>>,
+) {
+    // Don't process if game is paused or god mode is enabled
+    if debug_settings.is_paused() || debug_settings.god_mode {
+        return;
+    }
+
+    let Ok((player_entity, player_transform, mut player_stats, invincibility_opt)) = player_query.get_single_mut() else {
+        return;
+    };
+
+    // Check if player is invincible
+    if let Some(invincibility) = invincibility_opt {
+        if invincibility.is_active() {
+            return;
+        }
+    }
+
+    let player_pos = player_transform.translation.truncate();
+
+    for (enemy_stats, attack_timer, enemy_transform) in enemy_query.iter() {
+        // Only attack when timer just finished (enemies already ticked timer in enemy_attack_system)
+        // We check the same condition to sync with creature attacks
+        if !attack_timer.timer.just_finished() {
+            continue;
+        }
+
+        let enemy_pos = enemy_transform.translation.truncate();
+        let distance = enemy_pos.distance(player_pos);
+
+        if distance <= ENEMY_ATTACK_RANGE {
+            // Apply damage to player
+            let damage = enemy_stats.base_damage * debug_settings.enemy_damage_multiplier as f64;
+            player_stats.current_hp -= damage;
+
+            // Add invincibility frames
+            commands.entity(player_entity).insert(InvincibilityTimer::new(INVINCIBILITY_DURATION));
+
+            // Only take damage from one enemy per frame
+            break;
+        }
+    }
+}
+
+/// System that handles contact damage to the player from enemies
+pub fn enemy_contact_damage_system(
+    mut commands: Commands,
+    time: Res<Time>,
+    debug_settings: Res<DebugSettings>,
+    enemy_query: Query<(&EnemyStats, &Transform), With<Enemy>>,
+    mut player_query: Query<(Entity, &Transform, &mut PlayerStats, Option<&mut InvincibilityTimer>), With<Player>>,
+) {
+    // Don't process if game is paused or god mode is enabled
+    if debug_settings.is_paused() || debug_settings.god_mode {
+        return;
+    }
+
+    let Ok((player_entity, player_transform, mut player_stats, invincibility_opt)) = player_query.get_single_mut() else {
+        return;
+    };
+
+    // Check and tick invincibility timer
+    if let Some(mut invincibility) = invincibility_opt {
+        invincibility.timer.tick(time.delta());
+        if invincibility.is_active() {
+            return;
+        }
+    }
+
+    let player_pos = player_transform.translation.truncate();
+
+    for (enemy_stats, enemy_transform) in enemy_query.iter() {
+        let enemy_pos = enemy_transform.translation.truncate();
+        let distance = player_pos.distance(enemy_pos);
+
+        if distance < ENEMY_CONTACT_RANGE {
+            // Apply contact damage
+            let damage = enemy_stats.base_damage * CONTACT_DAMAGE_MULTIPLIER * debug_settings.enemy_damage_multiplier as f64;
+            player_stats.current_hp -= damage;
+
+            // Add invincibility frames
+            commands.entity(player_entity).insert(InvincibilityTimer::new(INVINCIBILITY_DURATION));
+
+            // Only take contact damage from one enemy per frame
+            break;
         }
     }
 }

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::components::{AnimationState, Creature, CreatureAnimation, CreatureAnimationState, CreatureFacing, Enemy, SpriteAnimation, Velocity};
+use crate::components::{AnimationState, Creature, CreatureAnimation, CreatureAnimationState, CreatureFacing, Enemy, Player, PlayerAnimation, PlayerAnimationState, SpriteAnimation, Velocity};
 use crate::resources::DebugSettings;
 
 /// Velocity threshold below which enemy is considered idle
@@ -140,6 +140,66 @@ pub fn creature_animation_system(
         // Update sprite atlas index
         if let Some(ref mut atlas) = sprite.texture_atlas {
             atlas.index = anim.current_frame;
+        }
+    }
+}
+
+/// System that updates player sprite animations based on movement
+///
+/// Animation frame layout (per wizard_player_schema.json):
+/// - Frame 0: Idle (standing neutral)
+/// - Frame 1-2: Walk cycle (150ms each)
+/// - Frame 3-5: Death animation (180ms each, handled by death system)
+///
+/// State machine:
+/// Idle → Walking (when movement starts)
+/// Walking → Idle (when movement stops)
+/// Any → Dying → Dead (when HP <= 0)
+pub fn player_animation_system(
+    time: Res<Time>,
+    debug_settings: Res<DebugSettings>,
+    mut query: Query<(&Velocity, &mut PlayerAnimation, &mut Sprite), With<Player>>,
+) {
+    // Don't animate if paused
+    if debug_settings.is_paused() {
+        return;
+    }
+
+    for (velocity, mut anim, mut sprite) in query.iter_mut() {
+        // Skip dying/dead players - they're handled by player_death_animation_system
+        if anim.state == PlayerAnimationState::Dying || anim.state == PlayerAnimationState::Dead {
+            continue;
+        }
+
+        let speed = (velocity.x * velocity.x + velocity.y * velocity.y).sqrt();
+        let is_moving = speed > WALK_THRESHOLD;
+
+        // State transitions and animation updates
+        match anim.state {
+            PlayerAnimationState::Idle if is_moving => {
+                anim.start_walking();
+            }
+            PlayerAnimationState::Walking if !is_moving => {
+                anim.go_idle();
+            }
+            PlayerAnimationState::Walking => {
+                // Advance walk animation through frames 1-2
+                anim.frame_timer.tick(time.delta());
+                if anim.frame_timer.just_finished() {
+                    anim.advance_walk_frame();
+                }
+            }
+            _ => {}
+        }
+
+        // Update sprite atlas index
+        if let Some(ref mut atlas) = sprite.texture_atlas {
+            atlas.index = anim.current_frame;
+        }
+
+        // Flip sprite based on horizontal velocity
+        if velocity.x.abs() > 1.0 {
+            sprite.flip_x = velocity.x < 0.0;
         }
     }
 }

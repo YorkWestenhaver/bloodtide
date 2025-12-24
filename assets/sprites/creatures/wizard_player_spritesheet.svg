@@ -1,0 +1,577 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 128" width="480" height="128">
+  <!-- Muscular Wizard Player Spritesheet: 6 frames, 80x128 each -->
+  <!-- Death sequence: decapitation + guts explosion -->
+  <!-- Frame layout: [0:idle] [1:walk1] [2:walk2] [3:death1] [4:death2] [5:death3_corpse] -->
+  
+  <!-- ==================== FRAME 0: IDLE ==================== -->
+  <g transform="translate(0,0)">
+    <!-- Shadow on ground -->
+    <ellipse cx="40" cy="124" rx="20" ry="4" fill="#333333" opacity="0.5"/>
+    
+    <!-- Staff (behind body) -->
+    <rect x="58" y="24" width="5" height="90" fill="#3a2515"/>
+    <rect x="60" y="24" width="2" height="90" fill="#5a3525"/>
+    <!-- Staff crystal orb -->
+    <rect x="54" y="10" width="14" height="14" fill="#0055aa"/>
+    <rect x="56" y="12" width="10" height="10" fill="#0077dd"/>
+    <rect x="58" y="14" width="6" height="6" fill="#00aaff"/>
+    <rect x="60" y="16" width="3" height="3" fill="#66ddff"/>
+    <!-- Crystal glow particles -->
+    <rect x="52" y="8" width="2" height="2" fill="#00ddff"/>
+    <rect x="68" y="12" width="2" height="2" fill="#00ddff"/>
+    <rect x="56" y="22" width="2" height="2" fill="#00aaff"/>
+    
+    <!-- THE HAT - Fantasia style -->
+    <rect x="20" y="26" width="40" height="5" fill="#0a1a3e"/>
+    <rect x="22" y="27" width="36" height="3" fill="#1a3a6e"/>
+    <rect x="26" y="2" width="28" height="26" fill="#0a1a3e"/>
+    <rect x="28" y="4" width="24" height="22" fill="#1a3a6e"/>
+    <rect x="30" y="6" width="20" height="18" fill="#2a5aae"/>
+    <rect x="32" y="8" width="16" height="14" fill="#3a6abe"/>
+    <rect x="52" y="0" width="12" height="8" fill="#1a3a6e"/>
+    <rect x="60" y="0" width="8" height="5" fill="#2a5aae"/>
+    <rect x="66" y="0" width="5" height="3" fill="#4a8aee"/>
+    <rect x="34" y="10" width="8" height="8" fill="#ffd700"/>
+    <rect x="36" y="12" width="6" height="6" fill="#ffea00"/>
+    <rect x="38" y="14" width="3" height="3" fill="#1a3a6e"/>
+    <rect x="44" y="6" width="3" height="3" fill="#ffd700"/>
+    <rect x="32" y="18" width="3" height="3" fill="#ffd700"/>
+    
+    <!-- Head -->
+    <rect x="26" y="30" width="28" height="22" fill="#b8956e"/>
+    <rect x="28" y="32" width="24" height="18" fill="#d4a878"/>
+    <rect x="30" y="34" width="20" height="14" fill="#e8c8a8"/>
+    <rect x="30" y="34" width="20" height="3" fill="#b8956e"/>
+    <rect x="32" y="38" width="6" height="5" fill="#ffffff"/>
+    <rect x="42" y="38" width="6" height="5" fill="#ffffff"/>
+    <rect x="33" y="39" width="4" height="3" fill="#2244aa"/>
+    <rect x="43" y="39" width="4" height="3" fill="#2244aa"/>
+    <rect x="34" y="40" width="2" height="2" fill="#000000"/>
+    <rect x="44" y="40" width="2" height="2" fill="#000000"/>
+    <rect x="36" y="40" width="1" height="1" fill="#66aaff"/>
+    <rect x="46" y="40" width="1" height="1" fill="#66aaff"/>
+    <rect x="38" y="40" width="4" height="6" fill="#c9a078"/>
+    <rect x="26" y="46" width="28" height="14" fill="#777777"/>
+    <rect x="28" y="48" width="24" height="12" fill="#999999"/>
+    <rect x="30" y="50" width="20" height="10" fill="#bbbbbb"/>
+    <rect x="34" y="56" width="12" height="8" fill="#999999"/>
+    <rect x="36" y="60" width="8" height="6" fill="#888888"/>
+    
+    <!-- JACKED upper body -->
+    <rect x="14" y="52" width="52" height="20" fill="#101030"/>
+    <rect x="16" y="54" width="48" height="16" fill="#1a1a4a"/>
+    <rect x="18" y="56" width="44" height="12" fill="#2a2a6a"/>
+    <rect x="10" y="52" width="14" height="10" fill="#3a3a5a"/>
+    <rect x="12" y="54" width="10" height="6" fill="#4a4a7a"/>
+    <rect x="56" y="52" width="14" height="10" fill="#3a3a5a"/>
+    <rect x="58" y="54" width="10" height="6" fill="#4a4a7a"/>
+    <rect x="28" y="58" width="10" height="8" fill="#1a1a4a"/>
+    <rect x="42" y="58" width="10" height="8" fill="#1a1a4a"/>
+    <rect x="36" y="60" width="8" height="8" fill="#ffd700"/>
+    <rect x="38" y="62" width="4" height="4" fill="#101030"/>
+    
+    <!-- Muscular arms -->
+    <rect x="6" y="58" width="12" height="22" fill="#101030"/>
+    <rect x="8" y="60" width="10" height="18" fill="#1a1a4a"/>
+    <rect x="10" y="62" width="8" height="14" fill="#2a2a6a"/>
+    <rect x="4" y="76" width="14" height="18" fill="#b8956e"/>
+    <rect x="6" y="78" width="10" height="14" fill="#d4a878"/>
+    <rect x="2" y="90" width="14" height="12" fill="#b8956e"/>
+    <rect x="4" y="92" width="10" height="8" fill="#d4a878"/>
+    
+    <rect x="62" y="58" width="12" height="22" fill="#101030"/>
+    <rect x="64" y="60" width="10" height="18" fill="#1a1a4a"/>
+    <rect x="56" y="76" width="14" height="18" fill="#b8956e"/>
+    <rect x="58" y="78" width="10" height="14" fill="#d4a878"/>
+    <rect x="54" y="90" width="14" height="12" fill="#b8956e"/>
+    <rect x="56" y="92" width="10" height="8" fill="#d4a878"/>
+    
+    <!-- Torso/robe -->
+    <rect x="20" y="70" width="40" height="28" fill="#101030"/>
+    <rect x="22" y="72" width="36" height="24" fill="#1a1a4a"/>
+    <rect x="24" y="74" width="32" height="20" fill="#2a2a6a"/>
+    <rect x="22" y="94" width="36" height="5" fill="#3a2515"/>
+    <rect x="34" y="92" width="12" height="8" fill="#ffd700"/>
+    <rect x="36" y="94" width="8" height="4" fill="#aa8800"/>
+    
+    <!-- Legs -->
+    <rect x="22" y="98" width="14" height="22" fill="#101030"/>
+    <rect x="24" y="100" width="10" height="18" fill="#1a1a4a"/>
+    <rect x="44" y="98" width="14" height="22" fill="#101030"/>
+    <rect x="46" y="100" width="10" height="18" fill="#1a1a4a"/>
+    
+    <!-- Boots -->
+    <rect x="20" y="116" width="16" height="10" fill="#1a0a05"/>
+    <rect x="22" y="118" width="12" height="6" fill="#2a1a10"/>
+    <rect x="44" y="116" width="16" height="10" fill="#1a0a05"/>
+    <rect x="46" y="118" width="12" height="6" fill="#2a1a10"/>
+    
+    <!-- Magic particles -->
+    <rect x="0" y="88" width="2" height="2" fill="#00aaff"/>
+    <rect x="6" y="82" width="2" height="2" fill="#66ddff"/>
+    <rect x="2" y="96" width="2" height="2" fill="#00ddff"/>
+  </g>
+  
+  <!-- ==================== FRAME 1: WALK1 (left foot forward) ==================== -->
+  <g transform="translate(80,0)">
+    <!-- Shadow -->
+    <ellipse cx="40" cy="124" rx="20" ry="4" fill="#333333" opacity="0.5"/>
+    
+    <!-- Staff angled forward -->
+    <rect x="60" y="20" width="5" height="88" fill="#3a2515" transform="rotate(8, 62, 64)"/>
+    <rect x="62" y="20" width="2" height="88" fill="#5a3525" transform="rotate(8, 62, 64)"/>
+    <rect x="58" y="6" width="14" height="14" fill="#0055aa"/>
+    <rect x="60" y="8" width="10" height="10" fill="#0077dd"/>
+    <rect x="62" y="10" width="6" height="6" fill="#00aaff"/>
+    <rect x="64" y="12" width="3" height="3" fill="#66ddff"/>
+    <rect x="56" y="4" width="2" height="2" fill="#00ddff"/>
+    <rect x="72" y="8" width="2" height="2" fill="#00ddff"/>
+    
+    <!-- Hat -->
+    <rect x="20" y="28" width="40" height="5" fill="#0a1a3e"/>
+    <rect x="26" y="4" width="28" height="26" fill="#0a1a3e"/>
+    <rect x="28" y="6" width="24" height="22" fill="#1a3a6e"/>
+    <rect x="30" y="8" width="20" height="18" fill="#2a5aae"/>
+    <rect x="32" y="10" width="16" height="14" fill="#3a6abe"/>
+    <rect x="52" y="2" width="12" height="8" fill="#1a3a6e"/>
+    <rect x="60" y="2" width="8" height="5" fill="#2a5aae"/>
+    <rect x="66" y="2" width="5" height="3" fill="#4a8aee"/>
+    <rect x="34" y="12" width="8" height="8" fill="#ffd700"/>
+    <rect x="38" y="16" width="3" height="3" fill="#1a3a6e"/>
+    <rect x="44" y="8" width="3" height="3" fill="#ffd700"/>
+    
+    <!-- Head -->
+    <rect x="26" y="32" width="28" height="22" fill="#b8956e"/>
+    <rect x="28" y="34" width="24" height="18" fill="#d4a878"/>
+    <rect x="30" y="36" width="20" height="14" fill="#e8c8a8"/>
+    <rect x="30" y="36" width="20" height="3" fill="#b8956e"/>
+    <rect x="32" y="40" width="6" height="5" fill="#ffffff"/>
+    <rect x="42" y="40" width="6" height="5" fill="#ffffff"/>
+    <rect x="33" y="41" width="4" height="3" fill="#2244aa"/>
+    <rect x="43" y="41" width="4" height="3" fill="#2244aa"/>
+    <rect x="34" y="42" width="2" height="2" fill="#000000"/>
+    <rect x="44" y="42" width="2" height="2" fill="#000000"/>
+    <rect x="38" y="42" width="4" height="6" fill="#c9a078"/>
+    <rect x="26" y="48" width="28" height="12" fill="#777777"/>
+    <rect x="28" y="50" width="24" height="10" fill="#999999"/>
+    <rect x="34" y="56" width="12" height="6" fill="#888888"/>
+    
+    <!-- Shoulders/torso -->
+    <rect x="14" y="54" width="52" height="18" fill="#101030"/>
+    <rect x="16" y="56" width="48" height="14" fill="#1a1a4a"/>
+    <rect x="18" y="58" width="44" height="10" fill="#2a2a6a"/>
+    <rect x="10" y="54" width="14" height="10" fill="#3a3a5a"/>
+    <rect x="56" y="54" width="14" height="10" fill="#3a3a5a"/>
+    <rect x="36" y="62" width="8" height="8" fill="#ffd700"/>
+    <rect x="38" y="64" width="4" height="4" fill="#101030"/>
+    
+    <!-- Arms -->
+    <rect x="4" y="62" width="12" height="20" fill="#101030"/>
+    <rect x="6" y="64" width="10" height="16" fill="#1a1a4a"/>
+    <rect x="0" y="78" width="14" height="16" fill="#b8956e"/>
+    <rect x="2" y="80" width="10" height="12" fill="#d4a878"/>
+    <rect x="-2" y="90" width="12" height="10" fill="#b8956e"/>
+    
+    <rect x="64" y="54" width="12" height="22" fill="#101030"/>
+    <rect x="66" y="56" width="10" height="18" fill="#1a1a4a"/>
+    <rect x="60" y="72" width="14" height="18" fill="#b8956e"/>
+    <rect x="62" y="74" width="10" height="14" fill="#d4a878"/>
+    <rect x="58" y="86" width="14" height="12" fill="#b8956e"/>
+    
+    <!-- Torso -->
+    <rect x="20" y="70" width="40" height="26" fill="#101030"/>
+    <rect x="22" y="72" width="36" height="22" fill="#1a1a4a"/>
+    <rect x="22" y="92" width="36" height="5" fill="#3a2515"/>
+    <rect x="34" y="90" width="12" height="8" fill="#ffd700"/>
+    
+    <!-- Left leg forward -->
+    <rect x="18" y="96" width="14" height="24" fill="#101030"/>
+    <rect x="20" y="98" width="10" height="20" fill="#1a1a4a"/>
+    <rect x="14" y="116" width="16" height="10" fill="#1a0a05"/>
+    <rect x="16" y="118" width="12" height="6" fill="#2a1a10"/>
+    
+    <!-- Right leg back -->
+    <rect x="48" y="94" width="14" height="22" fill="#101030"/>
+    <rect x="50" y="96" width="10" height="18" fill="#1a1a4a"/>
+    <rect x="52" y="114" width="14" height="10" fill="#1a0a05"/>
+    <rect x="54" y="116" width="10" height="6" fill="#2a1a10"/>
+    
+    <rect x="-4" y="86" width="2" height="2" fill="#00aaff"/>
+    <rect x="72" y="82" width="2" height="2" fill="#66ddff"/>
+  </g>
+  
+  <!-- ==================== FRAME 2: WALK2 (right foot forward) ==================== -->
+  <g transform="translate(160,0)">
+    <!-- Shadow -->
+    <ellipse cx="40" cy="124" rx="20" ry="4" fill="#333333" opacity="0.5"/>
+    
+    <!-- Staff angled back -->
+    <rect x="54" y="24" width="5" height="88" fill="#3a2515" transform="rotate(-6, 56, 68)"/>
+    <rect x="56" y="24" width="2" height="88" fill="#5a3525" transform="rotate(-6, 56, 68)"/>
+    <rect x="48" y="12" width="14" height="14" fill="#0055aa"/>
+    <rect x="50" y="14" width="10" height="10" fill="#0077dd"/>
+    <rect x="52" y="16" width="6" height="6" fill="#00aaff"/>
+    <rect x="54" y="18" width="3" height="3" fill="#66ddff"/>
+    <rect x="46" y="10" width="2" height="2" fill="#00ddff"/>
+    <rect x="62" y="14" width="2" height="2" fill="#00ddff"/>
+    
+    <!-- Hat -->
+    <rect x="20" y="26" width="40" height="5" fill="#0a1a3e"/>
+    <rect x="26" y="2" width="28" height="26" fill="#0a1a3e"/>
+    <rect x="28" y="4" width="24" height="22" fill="#1a3a6e"/>
+    <rect x="30" y="6" width="20" height="18" fill="#2a5aae"/>
+    <rect x="32" y="8" width="16" height="14" fill="#3a6abe"/>
+    <rect x="52" y="0" width="12" height="8" fill="#1a3a6e"/>
+    <rect x="60" y="0" width="8" height="5" fill="#2a5aae"/>
+    <rect x="66" y="0" width="5" height="3" fill="#4a8aee"/>
+    <rect x="34" y="10" width="8" height="8" fill="#ffd700"/>
+    <rect x="38" y="14" width="3" height="3" fill="#1a3a6e"/>
+    <rect x="44" y="6" width="3" height="3" fill="#ffd700"/>
+    
+    <!-- Head -->
+    <rect x="26" y="30" width="28" height="22" fill="#b8956e"/>
+    <rect x="28" y="32" width="24" height="18" fill="#d4a878"/>
+    <rect x="30" y="34" width="20" height="14" fill="#e8c8a8"/>
+    <rect x="30" y="34" width="20" height="3" fill="#b8956e"/>
+    <rect x="32" y="38" width="6" height="5" fill="#ffffff"/>
+    <rect x="42" y="38" width="6" height="5" fill="#ffffff"/>
+    <rect x="33" y="39" width="4" height="3" fill="#2244aa"/>
+    <rect x="43" y="39" width="4" height="3" fill="#2244aa"/>
+    <rect x="34" y="40" width="2" height="2" fill="#000000"/>
+    <rect x="44" y="40" width="2" height="2" fill="#000000"/>
+    <rect x="38" y="40" width="4" height="6" fill="#c9a078"/>
+    <rect x="26" y="46" width="28" height="14" fill="#777777"/>
+    <rect x="28" y="48" width="24" height="12" fill="#999999"/>
+    <rect x="34" y="56" width="12" height="8" fill="#888888"/>
+    
+    <!-- Shoulders/torso -->
+    <rect x="14" y="52" width="52" height="20" fill="#101030"/>
+    <rect x="16" y="54" width="48" height="16" fill="#1a1a4a"/>
+    <rect x="18" y="56" width="44" height="12" fill="#2a2a6a"/>
+    <rect x="10" y="52" width="14" height="10" fill="#3a3a5a"/>
+    <rect x="56" y="52" width="14" height="10" fill="#3a3a5a"/>
+    <rect x="36" y="60" width="8" height="8" fill="#ffd700"/>
+    <rect x="38" y="62" width="4" height="4" fill="#101030"/>
+    
+    <!-- Arms -->
+    <rect x="8" y="54" width="12" height="22" fill="#101030"/>
+    <rect x="10" y="56" width="10" height="18" fill="#1a1a4a"/>
+    <rect x="4" y="72" width="14" height="18" fill="#b8956e"/>
+    <rect x="6" y="74" width="10" height="14" fill="#d4a878"/>
+    <rect x="2" y="86" width="14" height="12" fill="#b8956e"/>
+    
+    <rect x="60" y="62" width="12" height="20" fill="#101030"/>
+    <rect x="62" y="64" width="10" height="16" fill="#1a1a4a"/>
+    <rect x="54" y="78" width="14" height="16" fill="#b8956e"/>
+    <rect x="56" y="80" width="10" height="12" fill="#d4a878"/>
+    <rect x="52" y="90" width="12" height="10" fill="#b8956e"/>
+    
+    <!-- Torso -->
+    <rect x="20" y="70" width="40" height="28" fill="#101030"/>
+    <rect x="22" y="72" width="36" height="24" fill="#1a1a4a"/>
+    <rect x="22" y="94" width="36" height="5" fill="#3a2515"/>
+    <rect x="34" y="92" width="12" height="8" fill="#ffd700"/>
+    
+    <!-- Right leg forward -->
+    <rect x="42" y="96" width="14" height="24" fill="#101030"/>
+    <rect x="44" y="98" width="10" height="20" fill="#1a1a4a"/>
+    <rect x="46" y="116" width="16" height="10" fill="#1a0a05"/>
+    <rect x="48" y="118" width="12" height="6" fill="#2a1a10"/>
+    
+    <!-- Left leg back -->
+    <rect x="18" y="94" width="14" height="22" fill="#101030"/>
+    <rect x="20" y="96" width="10" height="18" fill="#1a1a4a"/>
+    <rect x="14" y="114" width="14" height="10" fill="#1a0a05"/>
+    <rect x="16" y="116" width="10" height="6" fill="#2a1a10"/>
+    
+    <rect x="0" y="84" width="2" height="2" fill="#00aaff"/>
+    <rect x="64" y="88" width="2" height="2" fill="#66ddff"/>
+  </g>
+  
+  <!-- ==================== FRAME 3: DEATH1 (head starting to separate, guts starting) ==================== -->
+  <g transform="translate(240,0)">
+    <!-- Shadow -->
+    <ellipse cx="40" cy="124" rx="20" ry="4" fill="#333333" opacity="0.5"/>
+    
+    <!-- Staff flying away -->
+    <rect x="66" y="4" width="5" height="40" fill="#3a2515" transform="rotate(45, 68, 24)"/>
+    <rect x="74" y="0" width="10" height="10" fill="#0055aa"/>
+    <rect x="76" y="2" width="6" height="6" fill="#00aaff"/>
+    
+    <!-- Hat flying off separately -->
+    <rect x="2" y="6" width="28" height="5" fill="#0a1a3e"/>
+    <rect x="6" y="0" width="20" height="8" fill="#1a3a6e"/>
+    <rect x="8" y="0" width="16" height="6" fill="#2a5aae"/>
+    <rect x="12" y="2" width="6" height="4" fill="#ffd700"/>
+    
+    <!-- HEAD SEPARATING - flying up and to the side -->
+    <rect x="4" y="20" width="24" height="20" fill="#b8956e"/>
+    <rect x="6" y="22" width="20" height="16" fill="#d4a878"/>
+    <rect x="8" y="24" width="16" height="12" fill="#e8c8a8"/>
+    <!-- Shocked eyes -->
+    <rect x="10" y="28" width="6" height="5" fill="#ffffff"/>
+    <rect x="18" y="28" width="6" height="5" fill="#ffffff"/>
+    <rect x="11" y="29" width="4" height="3" fill="#2244aa"/>
+    <rect x="19" y="29" width="4" height="3" fill="#2244aa"/>
+    <rect x="12" y="30" width="2" height="2" fill="#000000"/>
+    <rect x="20" y="30" width="2" height="2" fill="#000000"/>
+    <!-- Mouth screaming -->
+    <rect x="14" y="34" width="6" height="4" fill="#2a0808"/>
+    <!-- Beard attached to head -->
+    <rect x="4" y="36" width="24" height="10" fill="#777777"/>
+    <rect x="6" y="38" width="20" height="8" fill="#999999"/>
+    <!-- NECK STUMP on head - bloody -->
+    <rect x="10" y="40" width="14" height="6" fill="#880000"/>
+    <rect x="12" y="42" width="10" height="4" fill="#aa0000"/>
+    <!-- Spine visible -->
+    <rect x="14" y="44" width="6" height="3" fill="#ddccbb"/>
+    
+    <!-- BODY - neck stump spraying blood -->
+    <!-- Neck stump on body -->
+    <rect x="30" y="46" width="20" height="8" fill="#880000"/>
+    <rect x="32" y="48" width="16" height="6" fill="#aa0000"/>
+    <rect x="36" y="50" width="8" height="4" fill="#cc0000"/>
+    <!-- Spine sticking out -->
+    <rect x="38" y="46" width="4" height="6" fill="#ddccbb"/>
+    <rect x="39" y="44" width="2" height="4" fill="#ccbbaa"/>
+    
+    <!-- Blood spray from neck -->
+    <rect x="28" y="42" width="4" height="4" fill="#cc0000"/>
+    <rect x="48" y="40" width="5" height="5" fill="#aa0000"/>
+    <rect x="36" y="38" width="3" height="3" fill="#dd0000"/>
+    <rect x="52" y="44" width="4" height="4" fill="#990000"/>
+    <rect x="24" y="38" width="3" height="3" fill="#bb0000"/>
+    <rect x="44" y="36" width="4" height="4" fill="#cc0000"/>
+    
+    <!-- Shoulders/torso recoiling -->
+    <rect x="16" y="52" width="48" height="20" fill="#101030"/>
+    <rect x="18" y="54" width="44" height="16" fill="#1a1a4a"/>
+    <rect x="20" y="56" width="40" height="12" fill="#2a2a6a"/>
+    <rect x="12" y="52" width="14" height="10" fill="#3a3a5a"/>
+    <rect x="54" y="52" width="14" height="10" fill="#3a3a5a"/>
+    
+    <!-- Arms thrown up -->
+    <rect x="4" y="40" width="12" height="20" fill="#101030"/>
+    <rect x="6" y="42" width="10" height="16" fill="#1a1a4a"/>
+    <rect x="0" y="32" width="12" height="12" fill="#b8956e"/>
+    <rect x="2" y="34" width="8" height="8" fill="#d4a878"/>
+    
+    <rect x="64" y="40" width="12" height="20" fill="#101030"/>
+    <rect x="66" y="42" width="10" height="16" fill="#1a1a4a"/>
+    <rect x="68" y="32" width="12" height="12" fill="#b8956e"/>
+    <rect x="70" y="34" width="8" height="8" fill="#d4a878"/>
+    
+    <!-- Torso - wound opening, guts starting to show -->
+    <rect x="22" y="70" width="36" height="26" fill="#101030"/>
+    <rect x="24" y="72" width="32" height="22" fill="#1a1a4a"/>
+    <!-- Guts starting to emerge -->
+    <rect x="32" y="74" width="16" height="12" fill="#772222"/>
+    <rect x="34" y="76" width="12" height="8" fill="#994444"/>
+    <rect x="36" y="78" width="8" height="6" fill="#aa5555"/>
+    <!-- Intestines peeking out -->
+    <rect x="38" y="82" width="6" height="6" fill="#cc8888"/>
+    <rect x="36" y="86" width="4" height="4" fill="#bb7777"/>
+    
+    <!-- Legs stumbling -->
+    <rect x="24" y="94" width="14" height="22" fill="#101030"/>
+    <rect x="26" y="96" width="10" height="18" fill="#1a1a4a"/>
+    <rect x="42" y="94" width="14" height="22" fill="#101030"/>
+    <rect x="44" y="96" width="10" height="18" fill="#1a1a4a"/>
+    <rect x="22" y="114" width="16" height="10" fill="#1a0a05"/>
+    <rect x="44" y="114" width="16" height="10" fill="#1a0a05"/>
+  </g>
+  
+  <!-- ==================== FRAME 4: DEATH2 (full explosion, guts flying) ==================== -->
+  <g transform="translate(320,0)">
+    <!-- Blood pool forming -->
+    <rect x="6" y="104" width="68" height="22" fill="#440000"/>
+    <rect x="10" y="106" width="60" height="18" fill="#660000"/>
+    <rect x="14" y="108" width="52" height="14" fill="#770000"/>
+    
+    <!-- HEAD flying further away with hat -->
+    <rect x="0" y="4" width="20" height="16" fill="#b8956e"/>
+    <rect x="2" y="6" width="16" height="12" fill="#d4a878"/>
+    <!-- X eyes -->
+    <rect x="4" y="8" width="5" height="4" fill="#ffffff"/>
+    <rect x="12" y="8" width="5" height="4" fill="#ffffff"/>
+    <rect x="5" y="9" width="3" height="2" fill="#333333"/>
+    <rect x="13" y="9" width="3" height="2" fill="#333333"/>
+    <!-- Beard -->
+    <rect x="0" y="16" width="18" height="8" fill="#888888"/>
+    <!-- Neck stump bloody -->
+    <rect x="6" y="20" width="10" height="6" fill="#aa0000"/>
+    <rect x="8" y="22" width="6" height="4" fill="#cc0000"/>
+    <!-- Hat nearby -->
+    <rect x="0" y="0" width="16" height="6" fill="#1a3a6e"/>
+    <rect x="2" y="1" width="12" height="4" fill="#2a5aae"/>
+    <rect x="4" y="2" width="4" height="3" fill="#ffd700"/>
+    
+    <!-- Staff broken on ground -->
+    <rect x="62" y="100" width="16" height="4" fill="#3a2515"/>
+    <rect x="70" y="94" width="8" height="8" fill="#003344"/>
+    <rect x="72" y="96" width="4" height="4" fill="#004455"/>
+    
+    <!-- BODY EXPLODING -->
+    <!-- Torso chunk left -->
+    <rect x="10" y="56" width="22" height="28" fill="#101030"/>
+    <rect x="12" y="58" width="18" height="24" fill="#1a1a4a"/>
+    <rect x="14" y="60" width="14" height="20" fill="#2a2a6a"/>
+    <!-- Left arm attached -->
+    <rect x="2" y="58" width="12" height="18" fill="#101030"/>
+    <rect x="0" y="72" width="10" height="12" fill="#b8956e"/>
+    <rect x="2" y="74" width="6" height="8" fill="#d4a878"/>
+    
+    <!-- Torso chunk right -->
+    <rect x="48" y="60" width="22" height="26" fill="#101030"/>
+    <rect x="50" y="62" width="18" height="22" fill="#1a1a4a"/>
+    <rect x="52" y="64" width="14" height="18" fill="#2a2a6a"/>
+    <!-- Right arm attached -->
+    <rect x="66" y="62" width="12" height="18" fill="#101030"/>
+    <rect x="70" y="76" width="10" height="12" fill="#b8956e"/>
+    <rect x="72" y="78" width="6" height="8" fill="#d4a878"/>
+    
+    <!-- GUTS EXPLODING EVERYWHERE -->
+    <!-- Large intestine chunks -->
+    <rect x="32" y="50" width="16" height="10" fill="#aa5555"/>
+    <rect x="34" y="52" width="12" height="6" fill="#cc7777"/>
+    <rect x="28" y="58" width="8" height="8" fill="#995555"/>
+    <rect x="44" y="56" width="8" height="8" fill="#aa6666"/>
+    
+    <!-- Intestines flying -->
+    <rect x="20" y="44" width="10" height="6" fill="#cc8888"/>
+    <rect x="22" y="46" width="6" height="4" fill="#ddaaaa"/>
+    <rect x="50" y="42" width="12" height="6" fill="#bb7777"/>
+    <rect x="52" y="44" width="8" height="4" fill="#cc9999"/>
+    
+    <!-- Stomach/organs -->
+    <rect x="36" y="64" width="10" height="10" fill="#884444"/>
+    <rect x="38" y="66" width="6" height="6" fill="#aa5555"/>
+    
+    <!-- Small gut pieces flying -->
+    <rect x="16" y="38" width="5" height="5" fill="#aa6666"/>
+    <rect x="60" y="36" width="6" height="6" fill="#996666"/>
+    <rect x="38" y="34" width="4" height="4" fill="#bb7777"/>
+    <rect x="26" y="48" width="4" height="4" fill="#cc8888"/>
+    <rect x="54" y="50" width="5" height="5" fill="#aa7777"/>
+    
+    <!-- Blood spray everywhere -->
+    <rect x="30" y="40" width="5" height="5" fill="#cc0000"/>
+    <rect x="46" y="38" width="4" height="4" fill="#aa0000"/>
+    <rect x="22" y="52" width="4" height="4" fill="#990000"/>
+    <rect x="56" y="48" width="5" height="5" fill="#bb0000"/>
+    <rect x="40" y="32" width="3" height="3" fill="#dd0000"/>
+    <rect x="18" y="60" width="4" height="4" fill="#880000"/>
+    <rect x="62" y="54" width="4" height="4" fill="#aa0000"/>
+    <rect x="34" y="44" width="3" height="3" fill="#cc0000"/>
+    
+    <!-- Spine chunk -->
+    <rect x="36" y="70" width="8" height="12" fill="#ccbbaa"/>
+    <rect x="38" y="72" width="4" height="8" fill="#ddccbb"/>
+    
+    <!-- Legs separating -->
+    <rect x="18" y="86" width="14" height="20" fill="#101030"/>
+    <rect x="20" y="88" width="10" height="16" fill="#1a1a4a"/>
+    <rect x="16" y="102" width="14" height="10" fill="#1a0a05"/>
+    
+    <rect x="48" y="84" width="14" height="20" fill="#101030"/>
+    <rect x="50" y="86" width="10" height="16" fill="#1a1a4a"/>
+    <rect x="50" y="100" width="14" height="10" fill="#1a0a05"/>
+  </g>
+  
+  <!-- ==================== FRAME 5: DEATH3 (scattered remains in gore pool) ==================== -->
+  <g transform="translate(400,0)">
+    <!-- Massive blood/gore pool -->
+    <rect x="2" y="90" width="76" height="36" fill="#330000"/>
+    <rect x="6" y="92" width="68" height="32" fill="#440000"/>
+    <rect x="10" y="94" width="60" height="28" fill="#550000"/>
+    <rect x="14" y="96" width="52" height="24" fill="#660000"/>
+    
+    <!-- HEAD in pool -->
+    <rect x="4" y="96" width="18" height="14" fill="#a08060"/>
+    <rect x="6" y="98" width="14" height="10" fill="#b8956e"/>
+    <!-- Dead X eyes -->
+    <rect x="8" y="100" width="4" height="3" fill="#ffffff"/>
+    <rect x="14" y="100" width="4" height="3" fill="#ffffff"/>
+    <rect x="9" y="101" width="2" height="1" fill="#222222"/>
+    <rect x="15" y="101" width="2" height="1" fill="#222222"/>
+    <!-- Beard in blood -->
+    <rect x="4" y="106" width="16" height="6" fill="#666666"/>
+    <rect x="6" y="108" width="12" height="4" fill="#777777"/>
+    
+    <!-- Hat crumpled in blood -->
+    <rect x="2" y="84" width="14" height="10" fill="#0a2040"/>
+    <rect x="4" y="86" width="10" height="6" fill="#1a3060"/>
+    <rect x="6" y="88" width="4" height="4" fill="#aa8800"/>
+    
+    <!-- Broken staff pieces -->
+    <rect x="64" y="92" width="12" height="4" fill="#2a1505"/>
+    <rect x="70" y="86" width="8" height="8" fill="#002233"/>
+    <rect x="72" y="88" width="4" height="4" fill="#003344"/>
+    
+    <!-- Body chunks scattered -->
+    <!-- Torso remains (center) -->
+    <rect x="28" y="94" width="28" height="18" fill="#080818"/>
+    <rect x="30" y="96" width="24" height="14" fill="#101030"/>
+    <rect x="32" y="98" width="20" height="10" fill="#1a1a3a"/>
+    
+    <!-- Ribcage visible -->
+    <rect x="34" y="98" width="16" height="8" fill="#ccbbaa"/>
+    <rect x="36" y="100" width="12" height="4" fill="#ddccbb"/>
+    <rect x="35" y="99" width="2" height="6" fill="#bbaa99"/>
+    <rect x="39" y="99" width="2" height="6" fill="#bbaa99"/>
+    <rect x="43" y="99" width="2" height="6" fill="#bbaa99"/>
+    <rect x="47" y="99" width="2" height="6" fill="#bbaa99"/>
+    
+    <!-- Arm chunks -->
+    <rect x="8" y="88" width="14" height="6" fill="#101030"/>
+    <rect x="6" y="92" width="8" height="6" fill="#a08060"/>
+    <rect x="8" y="94" width="4" height="4" fill="#b8956e"/>
+    
+    <rect x="58" y="86" width="14" height="6" fill="#101030"/>
+    <rect x="66" y="90" width="8" height="6" fill="#a08060"/>
+    <rect x="68" y="92" width="4" height="4" fill="#b8956e"/>
+    
+    <!-- GUTS SPREAD EVERYWHERE -->
+    <!-- Large intestine pile -->
+    <rect x="36" y="108" width="14" height="8" fill="#884444"/>
+    <rect x="38" y="110" width="10" height="6" fill="#aa5555"/>
+    <rect x="40" y="112" width="6" height="4" fill="#cc7777"/>
+    
+    <!-- Intestines strewn about -->
+    <rect x="20" y="102" width="10" height="6" fill="#996666"/>
+    <rect x="22" y="104" width="6" height="4" fill="#aa7777"/>
+    <rect x="52" y="104" width="12" height="6" fill="#aa6666"/>
+    <rect x="54" y="106" width="8" height="4" fill="#bb7777"/>
+    
+    <!-- Stomach/organ chunk -->
+    <rect x="44" y="100" width="8" height="8" fill="#773333"/>
+    <rect x="46" y="102" width="4" height="4" fill="#884444"/>
+    
+    <!-- Small guts scattered -->
+    <rect x="16" y="96" width="5" height="4" fill="#aa7777"/>
+    <rect x="58" y="98" width="6" height="5" fill="#997766"/>
+    <rect x="26" y="110" width="4" height="4" fill="#bb8888"/>
+    <rect x="62" y="108" width="5" height="5" fill="#aa7777"/>
+    
+    <!-- Spine chunk -->
+    <rect x="38" y="94" width="8" height="6" fill="#bbaa99"/>
+    <rect x="40" y="95" width="4" height="4" fill="#ccbbaa"/>
+    
+    <!-- Leg chunks -->
+    <rect x="18" y="110" width="10" height="10" fill="#080818"/>
+    <rect x="20" y="112" width="6" height="6" fill="#101030"/>
+    <rect x="16" y="116" width="10" height="6" fill="#100804"/>
+    
+    <rect x="54" y="112" width="10" height="10" fill="#080818"/>
+    <rect x="56" y="114" width="6" height="6" fill="#101030"/>
+    <rect x="56" y="118" width="10" height="6" fill="#100804"/>
+    
+    <!-- Blood splatter details -->
+    <rect x="24" y="92" width="4" height="4" fill="#550000"/>
+    <rect x="48" y="90" width="5" height="5" fill="#440000"/>
+    <rect x="32" y="86" width="4" height="4" fill="#660000"/>
+    <rect x="60" y="94" width="4" height="4" fill="#550000"/>
+    <rect x="14" y="100" width="3" height="3" fill="#440000"/>
+    <rect x="68" y="100" width="4" height="4" fill="#550000"/>
+  </g>
+</svg>

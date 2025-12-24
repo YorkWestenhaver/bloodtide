@@ -45,3 +45,17 @@ pub struct CreatureSprites {
     /// Handle to the flame projectile sprite
     pub flame_projectile: Handle<Image>,
 }
+
+/// Resource holding handles to player sprite assets
+///
+/// Wizard player: 80x128 per frame, 6 frames total
+/// - Frame 0: idle
+/// - Frames 1-2: walk cycle
+/// - Frames 3-5: death animation
+#[derive(Resource)]
+pub struct PlayerSprites {
+    /// Handle to the wizard player sprite sheet (6 frames, 80x128 each)
+    pub wizard_spritesheet: Handle<Image>,
+    /// Texture atlas layout for wizard player
+    pub wizard_atlas: Handle<TextureAtlasLayout>,
+}

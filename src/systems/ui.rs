@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::components::Creature;
+use crate::components::{Creature, Player, PlayerStats};
 use crate::resources::{ArtifactBuffs, DebugSettings, Director, GameState};
 
 // =============================================================================
@@ -35,6 +35,22 @@ pub struct HudLine3;
 #[derive(Component)]
 pub struct HudText;
 
+/// Marker component for player HP HUD container
+#[derive(Component)]
+pub struct PlayerHpHud;
+
+/// Marker component for player HP text display
+#[derive(Component)]
+pub struct PlayerHpText;
+
+/// Marker component for player HP bar background in HUD
+#[derive(Component)]
+pub struct PlayerHpHudBarBg;
+
+/// Marker component for player HP bar fill in HUD
+#[derive(Component)]
+pub struct PlayerHpHudBarFill;
+
 // =============================================================================
 // CONSTANTS
 // =============================================================================
@@ -43,6 +59,10 @@ const PROGRESS_BAR_WIDTH: f32 = 100.0;
 const PROGRESS_BAR_HEIGHT: f32 = 8.0;
 const PROGRESS_BAR_BG: Color = Color::srgb(0.2, 0.2, 0.25);
 const PROGRESS_BAR_FILL: Color = Color::srgb(0.4, 0.8, 0.3);
+
+// Player HP HUD constants
+const PLAYER_HP_BAR_HUD_WIDTH: f32 = 120.0;
+const PLAYER_HP_BAR_HUD_HEIGHT: f32 = 12.0;
 
 // =============================================================================
 // SYSTEMS
@@ -141,6 +161,65 @@ pub fn spawn_ui_system(mut commands: Commands) {
                 },
                 TextColor(Color::srgb(0.7, 0.7, 0.7)),
             ));
+        });
+
+    // Spawn Player HP HUD container - top left
+    commands
+        .spawn((
+            PlayerHpHud,
+            Node {
+                position_type: PositionType::Absolute,
+                left: Val::Px(20.0),
+                top: Val::Px(20.0),
+                padding: UiRect::all(Val::Px(8.0)),
+                flex_direction: FlexDirection::Column,
+                row_gap: Val::Px(4.0),
+                ..default()
+            },
+            BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.7)),
+        ))
+        .with_children(|parent| {
+            // HP Text: "HP: 200/200"
+            parent.spawn((
+                PlayerHpText,
+                Text::new("HP: 200/200"),
+                TextFont {
+                    font_size: 18.0,
+                    ..default()
+                },
+                TextColor(Color::srgb(0.9, 0.3, 0.3)),
+            ));
+
+            // HP Bar container
+            parent.spawn(Node {
+                width: Val::Px(PLAYER_HP_BAR_HUD_WIDTH),
+                height: Val::Px(PLAYER_HP_BAR_HUD_HEIGHT),
+                ..default()
+            }).with_children(|bar| {
+                // Background
+                bar.spawn((
+                    PlayerHpHudBarBg,
+                    Node {
+                        width: Val::Percent(100.0),
+                        height: Val::Percent(100.0),
+                        position_type: PositionType::Absolute,
+                        ..default()
+                    },
+                    BackgroundColor(Color::srgb(0.2, 0.2, 0.25)),
+                ));
+
+                // Fill
+                bar.spawn((
+                    PlayerHpHudBarFill,
+                    Node {
+                        width: Val::Percent(100.0),
+                        height: Val::Percent(100.0),
+                        position_type: PositionType::Absolute,
+                        ..default()
+                    },
+                    BackgroundColor(Color::srgb(0.9, 0.2, 0.2)),
+                ));
+            });
         });
 }
 
@@ -244,6 +323,40 @@ pub fn update_ui_system(
         }
 
         **text = parts.join(" | ");
+    }
+}
+
+/// System that updates the player HP HUD with current player stats
+pub fn update_player_hp_hud_system(
+    player_query: Query<&PlayerStats, With<Player>>,
+    mut text_query: Query<&mut Text, With<PlayerHpText>>,
+    mut bar_fill_query: Query<(&mut Node, &mut BackgroundColor), With<PlayerHpHudBarFill>>,
+) {
+    let Ok(player_stats) = player_query.get_single() else {
+        return;
+    };
+
+    let current_hp = player_stats.current_hp.max(0.0) as i32;
+    let max_hp = player_stats.max_hp as i32;
+    let hp_percent = (player_stats.current_hp / player_stats.max_hp).clamp(0.0, 1.0) * 100.0;
+
+    // Update HP text
+    for mut text in text_query.iter_mut() {
+        **text = format!("HP: {}/{}", current_hp, max_hp);
+    }
+
+    // Update HP bar fill
+    for (mut node, mut bg_color) in bar_fill_query.iter_mut() {
+        node.width = Val::Percent(hp_percent as f32);
+
+        // Change color based on HP percentage
+        *bg_color = if hp_percent > 60.0 {
+            BackgroundColor(Color::srgb(0.2, 0.9, 0.3)) // Green
+        } else if hp_percent > 30.0 {
+            BackgroundColor(Color::srgb(0.9, 0.9, 0.2)) // Yellow
+        } else {
+            BackgroundColor(Color::srgb(0.9, 0.2, 0.2)) // Red
+        };
     }
 }
 

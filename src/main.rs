@@ -7,8 +7,8 @@ mod math;
 mod resources;
 mod systems;
 
-use components::{Player, Velocity};
-use resources::{load_game_data, AffinityState, ArtifactBuffs, CreatureSprites, DeathSprites, DebugSettings, Director, GameData, GameState, GamePhase, PlayerDeck, DeckBuilderState, SpatialGrid, ProjectilePool, DamageNumberPool, ChunkManager};
+use components::{Player, PlayerStats, PlayerAnimation, Velocity};
+use resources::{load_game_data, AffinityState, ArtifactBuffs, CreatureSprites, DeathSprites, PlayerSprites, DebugSettings, Director, GameData, GameState, GameOverState, GamePhase, PlayerDeck, DeckBuilderState, SpatialGrid, ProjectilePool, DamageNumberPool, ChunkManager};
 use systems::{
     apply_velocity_system, camera_follow_system, creature_attack_system, creature_death_animation_system, creature_death_system,
     creature_evolution_system, creature_follow_system, creature_level_up_effect_system,
@@ -56,6 +56,15 @@ use systems::{
     deck_builder_footer_system, deck_builder_weapon_select_system,
     // Tilemap systems
     load_tilemap_assets, chunk_loading_system,
+    // Player systems
+    player_animation_system,
+    enemy_contact_damage_system, enemy_attack_player_system,
+    spawn_player_hp_bar_system, update_player_hp_bar_system,
+    update_player_hp_hud_system,
+    player_death_system, player_death_animation_system,
+    // Game over systems
+    spawn_game_over_ui_system, game_over_visibility_system,
+    game_over_restart_button_system, game_over_deck_builder_button_system,
 };
 
 fn main() {
@@ -100,6 +109,7 @@ fn main() {
         .init_resource::<ProjectilePool>()
         .init_resource::<DamageNumberPool>()
         .init_resource::<ChunkManager>()
+        .init_resource::<GameOverState>()
         .add_systems(Startup, (
             setup,
             spawn_ui_system,
@@ -109,11 +119,15 @@ fn main() {
             spawn_debug_menu_system,
             spawn_pause_menu_system,
             spawn_deck_builder_system,
+            spawn_game_over_ui_system,
             init_pools_system,
             load_death_sprites,
             load_creature_sprites,
+            load_player_sprites,
             load_tilemap_assets,
         ))
+        // Player sprite initialization (runs once when sprites are loaded)
+        .add_systems(Update, init_player_sprite_system)
         // Director update (runs early)
         .add_systems(Update, director_update_system)
         // Tilemap chunk loading (runs early, based on player position)
@@ -133,6 +147,7 @@ fn main() {
             apply_velocity_system,
             enemy_animation_system,    // Update enemy sprite animations based on velocity
             creature_animation_system, // Update creature sprite animations based on velocity
+            player_animation_system,   // Update player sprite animations based on velocity
         ).chain().after(player_movement_system))
         // Pool re-initialization (needed after game restart)
         .add_systems(Update, init_pools_if_empty_system.after(apply_velocity_system))
@@ -141,6 +156,8 @@ fn main() {
             update_spatial_grid_system,
             creature_attack_system,
             enemy_attack_system,
+            enemy_attack_player_system,  // Enemies attack player
+            enemy_contact_damage_system, // Contact damage to player
             weapon_attack_system,
             homing_projectile_system,  // Run homing before projectile movement/collision
             projectile_system,
@@ -154,6 +171,8 @@ fn main() {
             enemy_death_system,
             creature_death_system,
             creature_death_animation_system,
+            player_death_system,           // Check for player death
+            player_death_animation_system, // Animate player death
             death_effect_system,
             death_animation_system,
             blood_cleanup_system,
@@ -169,6 +188,8 @@ fn main() {
         .add_systems(Update, (
             spawn_hp_bars_system,
             update_hp_bars_system,
+            spawn_player_hp_bar_system,    // Player HP bar above head
+            update_player_hp_bar_system,   // Update player HP bar
             update_level_labels_system,
             update_tier_borders_system,
             level_check_system,
@@ -184,6 +205,7 @@ fn main() {
             update_artifact_panel_system,
             update_weapon_stats_display_system,
             update_affinity_display_system,
+            update_player_hp_hud_system,  // Player HP in HUD
             show_card_roll_popup_system,
             card_roll_popup_update_system,
             show_wave_announcement_system,
@@ -235,6 +257,12 @@ fn main() {
             tooltip_position_system,
             tooltip_settings_change_system,
         ).chain().after(update_creature_panel_system))
+        // Game over UI systems
+        .add_systems(Update, (
+            game_over_visibility_system,
+            game_over_restart_button_system,
+            game_over_deck_builder_button_system,
+        ).after(player_death_animation_system))
         .run();
 }
 
@@ -306,6 +334,24 @@ fn load_creature_sprites(
     });
 }
 
+/// Load player sprite animation assets and create texture atlases
+fn load_player_sprites(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+) {
+    // Wizard player: 80x128 per frame, 6 frames (idle, walk1, walk2, death1, death2, death3)
+    // Total spritesheet: 480x128
+    let wizard_spritesheet: Handle<Image> = asset_server.load("sprites/creatures/wizard_player_spritesheet.png");
+    let wizard_layout = TextureAtlasLayout::from_grid(UVec2::new(80, 128), 6, 1, None, None);
+    let wizard_atlas = texture_atlas_layouts.add(wizard_layout);
+
+    commands.insert_resource(PlayerSprites {
+        wizard_spritesheet,
+        wizard_atlas,
+    });
+}
+
 fn setup(mut commands: Commands) {
     // Spawn camera
     commands.spawn(Camera2d);
@@ -332,9 +378,11 @@ fn setup(mut commands: Commands) {
         Transform::from_xyz(0.0, 0.0, -0.5),
     ));
 
-    // Spawn player (white square, 48x48 pixels, centered)
+    // Spawn player with stats and animation (sprite added by init_player_sprite_system)
     commands.spawn((
         Player,
+        PlayerStats::default(),
+        PlayerAnimation::new(),
         Velocity::default(),
         Sprite {
             color: Color::WHITE,
@@ -343,5 +391,35 @@ fn setup(mut commands: Commands) {
         },
         Transform::from_xyz(0.0, 0.0, 1.0), // Above background
     ));
+}
 
+/// Marker component indicating player sprite has been initialized
+#[derive(Component)]
+struct PlayerSpriteInitialized;
+
+/// Initialize player sprite when PlayerSprites resource is available
+/// This runs once to replace the placeholder sprite with the actual wizard sprite
+fn init_player_sprite_system(
+    player_sprites: Option<Res<PlayerSprites>>,
+    mut player_query: Query<(Entity, &mut Sprite), (With<Player>, Without<PlayerSpriteInitialized>)>,
+    mut commands: Commands,
+) {
+    // Only run if sprites are loaded and player doesn't have the marker yet
+    let Some(sprites) = player_sprites else { return };
+
+    for (entity, mut sprite) in player_query.iter_mut() {
+        // Add the sprite atlas to the player
+        sprite.image = sprites.wizard_spritesheet.clone();
+        sprite.custom_size = None; // Use actual sprite size
+        sprite.texture_atlas = Some(bevy::sprite::TextureAtlas {
+            layout: sprites.wizard_atlas.clone(),
+            index: 0, // Idle frame
+        });
+        sprite.color = Color::WHITE; // Reset to white (no tint)
+
+        // Scale player sprite (80x128 is quite large, scale to 0.5) and mark as initialized
+        commands.entity(entity)
+            .insert(Transform::from_xyz(0.0, 0.0, 1.0).with_scale(Vec3::splat(0.5)))
+            .insert(PlayerSpriteInitialized);
+    }
 }

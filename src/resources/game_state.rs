@@ -1,5 +1,12 @@
 use bevy::prelude::*;
 
+/// Tracks game over state
+#[derive(Resource, Default)]
+pub struct GameOverState {
+    pub is_game_over: bool,
+    pub show_menu: bool,
+}
+
 /// Global game state resource tracking progress through a run
 #[derive(Resource)]
 pub struct GameState {

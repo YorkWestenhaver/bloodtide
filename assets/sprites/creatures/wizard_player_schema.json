@@ -1,0 +1,76 @@
+{
+  "sprite_sheets": {
+    "wizard_player": {
+      "file": "wizard_player_spritesheet.svg",
+      "export_to": "wizard_player_spritesheet.png",
+      "frame_width": 80,
+      "frame_height": 128,
+      "total_frames": 6,
+      "transparent_background": true,
+      "character_type": "player",
+      "color_palette": {
+        "hat_dark": "#1a3a6e",
+        "hat_blue": "#2a5aae",
+        "hat_light": "#4a8aee",
+        "hat_gold": "#ffd700",
+        "robe_dark": "#2a2a5a",
+        "robe_mid": "#4a4a8a",
+        "robe_light": "#6a6aaa",
+        "skin_base": "#e8c8a0",
+        "skin_shadow": "#d4a878",
+        "skin_highlight": "#fad8b0",
+        "beard": "#e0e0e0",
+        "staff_brown": "#8b4513",
+        "staff_dark": "#654321",
+        "crystal_glow": "#00ffff",
+        "boots": "#3a2a1a"
+      },
+      "visual_description": {
+        "hat": "Tall blue sorcerer hat (Fantasia/Mickey style) with gold crescent moon and stars",
+        "face": "Rugged wizard with strong jaw, intense glowing eyes, full gray beard",
+        "body": "Muscular build, dark purple robes with shoulder armor plates, gold chest emblem and belt buckle",
+        "staff": "Wooden staff with glowing cyan crystal orb, magic particles",
+        "style": "Battle mage aesthetic - imposing and powerful, matches inferno demon detail level"
+      },
+      "animations": {
+        "idle": {
+          "frames": [0],
+          "frame_duration_ms": 0,
+          "loop": false,
+          "description": "Standing neutral pose, staff held upright"
+        },
+        "walk": {
+          "frames": [1, 2],
+          "frame_duration_ms": 150,
+          "loop": true,
+          "description": "Walking cycle - alternating feet, arms swing, slight head bob"
+        },
+        "death": {
+          "frames": [3, 4, 5],
+          "frame_duration_ms": 180,
+          "loop": false,
+          "on_complete": "spawn_gore_pool",
+          "description": "Hit recoil → collapse with blood spray → corpse in blood pool"
+        }
+      },
+      "frame_descriptions": {
+        "0": "idle - standing neutral, staff upright, hat tall and proud",
+        "1": "walk1 - left foot forward, arms swing opposite, slight head dip",
+        "2": "walk2 - right foot forward, arms swing opposite, head returns",
+        "3": "death1 - head separating from body, neck stump spraying blood, guts starting to emerge from torso wound",
+        "4": "death2 - full explosion, head flying away, body splitting apart, guts and intestines flying everywhere, massive blood spray",
+        "5": "death3 - scattered remains in gore pool, decapitated head in blood, guts strewn everywhere, ribcage exposed, body chunks scattered"
+      },
+      "death_details": {
+        "death1": "Decapitation begins - head separates with visible neck stump and spine, blood sprays from severed neck, torso wound opens with guts emerging",
+        "death2": "Full explosion - body splits in two, intestines and organs flying outward, head tumbles away, massive gore spray",
+        "death3": "Final gore state - head lying in blood pool, intestines spread across ground, ribcage visible, limbs scattered, hat and staff broken nearby"
+      }
+    }
+  },
+  "export_instructions": {
+    "command": "resvg wizard_player_spritesheet.svg wizard_player_spritesheet.png",
+    "destination": "assets/sprites/player/",
+    "notes": "80x128 per frame, 6 frames total = 480x128 PNG"
+  }
+}

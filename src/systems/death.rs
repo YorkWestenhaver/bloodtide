@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use bevy::sprite::TextureAtlas;
 
-use crate::components::{Creature, CreatureAnimation, CreatureAnimationState, CreatureStats, DeathAnimation, Enemy, EnemyStats, Player};
-use crate::resources::{DeathSprites, DebugSettings, GameState};
+use crate::components::{Creature, CreatureAnimation, CreatureAnimationState, CreatureStats, DeathAnimation, Enemy, EnemyStats, Player, PlayerAnimation, PlayerAnimationState, PlayerStats};
+use crate::resources::{DeathSprites, DebugSettings, GameOverState, GameState};
 
 /// System that checks for and handles enemy deaths
 pub fn enemy_death_system(
@@ -252,6 +252,72 @@ pub fn creature_death_animation_system(
                 }
             }
             _ => {}
+        }
+    }
+}
+
+// =========================================================================
+// PLAYER DEATH SYSTEM
+// =========================================================================
+
+/// System that checks for player death and triggers death animation
+pub fn player_death_system(
+    debug_settings: Res<DebugSettings>,
+    mut player_query: Query<(&mut PlayerStats, &mut PlayerAnimation), With<Player>>,
+) {
+    // Don't process if game is paused
+    if debug_settings.is_paused() {
+        return;
+    }
+
+    for (mut stats, mut animation) in player_query.iter_mut() {
+        if stats.current_hp <= 0.0 {
+            // Skip if already dying or dead
+            if animation.state == PlayerAnimationState::Dying || animation.state == PlayerAnimationState::Dead {
+                continue;
+            }
+
+            // If god mode is enabled, heal the player instead of killing
+            if debug_settings.god_mode {
+                stats.current_hp = stats.max_hp;
+                continue;
+            }
+
+            // Trigger death animation
+            animation.start_dying();
+        }
+    }
+}
+
+/// System that advances player death animation and triggers game over
+pub fn player_death_animation_system(
+    time: Res<Time>,
+    debug_settings: Res<DebugSettings>,
+    mut game_over_state: ResMut<GameOverState>,
+    mut player_query: Query<(&mut PlayerAnimation, &mut Sprite), With<Player>>,
+) {
+    // Don't animate if paused (but still run if game is over to show final frame)
+    if debug_settings.is_paused() && !game_over_state.is_game_over {
+        return;
+    }
+
+    for (mut anim, mut sprite) in player_query.iter_mut() {
+        if anim.state == PlayerAnimationState::Dying {
+            anim.frame_timer.tick(time.delta());
+            if anim.frame_timer.just_finished() {
+                let complete = anim.advance_death_frame();
+                if complete {
+                    // Animation complete - trigger game over
+                    anim.become_dead();
+                    game_over_state.is_game_over = true;
+                    game_over_state.show_menu = true;
+                }
+            }
+
+            // Update sprite frame
+            if let Some(ref mut atlas) = sprite.texture_atlas {
+                atlas.index = anim.current_frame;
+            }
         }
     }
 }

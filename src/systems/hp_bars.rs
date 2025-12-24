@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::components::{Creature, CreatureAnimation, CreatureStats};
+use crate::components::{Creature, CreatureAnimation, CreatureStats, Player, PlayerStats};
 
 /// Width of HP bars in pixels
 pub const HP_BAR_WIDTH: f32 = 28.0;
@@ -243,5 +243,116 @@ pub fn update_tier_borders_system(
             // Owner no longer exists, despawn the border
             commands.entity(border_entity).despawn();
         }
+    }
+}
+
+// =========================================================================
+// PLAYER HP BAR
+// =========================================================================
+
+/// Player HP bar width (larger than creature HP bars)
+pub const PLAYER_HP_BAR_WIDTH: f32 = 40.0;
+
+/// Player HP bar height
+pub const PLAYER_HP_BAR_HEIGHT: f32 = 5.0;
+
+/// Offset above player sprite (player is scaled 0.5x from 80x128 = ~64 height)
+pub const PLAYER_HP_BAR_OFFSET_Y: f32 = 40.0;
+
+/// Marker for player HP bar background
+#[derive(Component)]
+pub struct PlayerHpBarBackground;
+
+/// Marker for player HP bar foreground
+#[derive(Component)]
+pub struct PlayerHpBarForeground;
+
+/// System to spawn HP bar for the player
+pub fn spawn_player_hp_bar_system(
+    mut commands: Commands,
+    player_query: Query<Entity, (With<Player>, With<PlayerStats>)>,
+    existing_bar_query: Query<&PlayerHpBarBackground>,
+) {
+    // Only spawn if player exists and bar doesn't
+    if existing_bar_query.iter().count() > 0 {
+        return;
+    }
+
+    let Ok(_player_entity) = player_query.get_single() else {
+        return;
+    };
+
+    // Spawn background (dark bar)
+    commands.spawn((
+        PlayerHpBarBackground,
+        Sprite {
+            color: Color::srgba(0.2, 0.2, 0.2, 0.8),
+            custom_size: Some(Vec2::new(PLAYER_HP_BAR_WIDTH, PLAYER_HP_BAR_HEIGHT)),
+            ..default()
+        },
+        Transform::from_translation(Vec3::new(0.0, PLAYER_HP_BAR_OFFSET_Y, 0.9)),
+    ));
+
+    // Spawn foreground (red bar for player to distinguish from creatures)
+    commands.spawn((
+        PlayerHpBarForeground,
+        Sprite {
+            color: Color::srgb(0.9, 0.2, 0.3),
+            custom_size: Some(Vec2::new(PLAYER_HP_BAR_WIDTH, PLAYER_HP_BAR_HEIGHT)),
+            ..default()
+        },
+        Transform::from_translation(Vec3::new(0.0, PLAYER_HP_BAR_OFFSET_Y, 0.91)),
+    ));
+}
+
+/// System to update player HP bar position and width
+pub fn update_player_hp_bar_system(
+    mut commands: Commands,
+    player_query: Query<(&Transform, &PlayerStats), With<Player>>,
+    mut bg_query: Query<(Entity, &mut Transform), (With<PlayerHpBarBackground>, Without<Player>, Without<PlayerHpBarForeground>)>,
+    mut fg_query: Query<(Entity, &mut Transform, &mut Sprite), (With<PlayerHpBarForeground>, Without<Player>, Without<PlayerHpBarBackground>)>,
+) {
+    let Ok((player_transform, player_stats)) = player_query.get_single() else {
+        // Player doesn't exist, despawn bars
+        for (entity, _) in bg_query.iter() {
+            commands.entity(entity).despawn();
+        }
+        for (entity, _, _) in fg_query.iter() {
+            commands.entity(entity).despawn();
+        }
+        return;
+    };
+
+    let player_x = player_transform.translation.x;
+    let player_y = player_transform.translation.y;
+
+    // Update background bar position
+    for (_entity, mut bar_transform) in bg_query.iter_mut() {
+        bar_transform.translation.x = player_x;
+        bar_transform.translation.y = player_y + PLAYER_HP_BAR_OFFSET_Y;
+    }
+
+    // Update foreground bar (HP indicator)
+    for (_entity, mut bar_transform, mut sprite) in fg_query.iter_mut() {
+        // Calculate HP percentage
+        let hp_percent = (player_stats.current_hp / player_stats.max_hp).clamp(0.0, 1.0);
+
+        // Update bar width based on HP
+        let bar_width = PLAYER_HP_BAR_WIDTH * hp_percent as f32;
+        sprite.custom_size = Some(Vec2::new(bar_width, PLAYER_HP_BAR_HEIGHT));
+
+        // Update position (left-aligned)
+        let offset_x = (PLAYER_HP_BAR_WIDTH - bar_width) / 2.0;
+        bar_transform.translation.x = player_x - offset_x;
+        bar_transform.translation.y = player_y + PLAYER_HP_BAR_OFFSET_Y;
+
+        // Change color based on HP percentage
+        sprite.color = if hp_percent > 0.6 {
+            Color::srgb(0.2, 0.9, 0.3) // Green
+        } else if hp_percent > 0.3 {
+            Color::srgb(0.9, 0.9, 0.2) // Yellow
+        } else {
+            Color::srgb(0.9, 0.2, 0.2) // Red
+        };
     }
 }
