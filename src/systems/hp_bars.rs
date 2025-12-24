@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::components::{Creature, CreatureStats};
+use crate::components::{Creature, CreatureAnimation, CreatureStats};
 
 /// Width of HP bars in pixels
 pub const HP_BAR_WIDTH: f32 = 28.0;
@@ -56,12 +56,12 @@ pub fn get_tier_border_color(tier: u8) -> Color {
 /// System to spawn HP bars, level labels, and tier borders for creatures
 pub fn spawn_hp_bars_system(
     mut commands: Commands,
-    creature_query: Query<(Entity, &CreatureStats), (With<Creature>, Without<HpBarBackground>)>,
+    creature_query: Query<(Entity, &CreatureStats, Option<&CreatureAnimation>), (With<Creature>, Without<HpBarBackground>)>,
     hp_bar_query: Query<&HpBarBackground>,
     level_label_query: Query<&CreatureLevelLabel>,
     tier_border_query: Query<&CreatureTierBorder>,
 ) {
-    for (creature_entity, stats) in creature_query.iter() {
+    for (creature_entity, stats, creature_anim) in creature_query.iter() {
         // Check if this creature already has an HP bar
         let has_hp_bar = hp_bar_query
             .iter()
@@ -122,8 +122,11 @@ pub fn spawn_hp_bars_system(
             .iter()
             .any(|border| border.owner == creature_entity);
 
-        if !has_tier_border && stats.tier >= 2 {
-            // Only show tier border for tier 2+ (tier 1 is common, no border)
+        // Skip tier borders for sprite-based creatures (they have visual tier indicators in the sprite)
+        let is_sprite_creature = creature_anim.is_some();
+
+        if !has_tier_border && stats.tier >= 2 && !is_sprite_creature {
+            // Only show tier border for tier 2+ non-sprite creatures (tier 1 is common, no border)
             let tier_color = get_tier_border_color(stats.tier);
             commands.spawn((
                 CreatureTierBorder {

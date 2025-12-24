@@ -318,7 +318,11 @@ pub fn creature_attack_system(
                     );
 
                     // Check if this is a fire creature with flame sprite available
-                    let is_fire_creature = stats.id.starts_with("fire") || stats.id.contains("flame") || stats.id.contains("ember");
+                    // Matches: fire_imp, flame_fiend, inferno_demon, ember_*, etc.
+                    let is_fire_creature = stats.id.starts_with("fire")
+                        || stats.id.contains("flame")
+                        || stats.id.contains("ember")
+                        || stats.id.contains("inferno");
                     let use_flame_sprite = is_fire_creature && creature_sprites.is_some();
 
                     if use_flame_sprite {
