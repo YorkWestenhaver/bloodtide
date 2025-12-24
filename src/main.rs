@@ -47,8 +47,8 @@ use systems::{
     kill_rate_system, CardRollQueue,
     // Spatial grid system
     update_spatial_grid_system,
-    // Pooling system
-    init_pools_system,
+    // Pooling systems
+    init_pools_system, init_pools_if_empty_system,
     // Deck builder systems
     spawn_deck_builder_system, deck_builder_visibility_system, deck_builder_update_cards_system,
     deck_builder_available_cards_system, deck_builder_tab_system, deck_builder_button_system,
@@ -132,6 +132,8 @@ fn main() {
             apply_velocity_system,
             enemy_animation_system, // Update enemy sprite animations based on velocity
         ).chain().after(player_movement_system))
+        // Pool re-initialization (needed after game restart)
+        .add_systems(Update, init_pools_if_empty_system.after(apply_velocity_system))
         // Combat systems (spatial grid updates first for efficient enemy lookups)
         .add_systems(Update, (
             update_spatial_grid_system,

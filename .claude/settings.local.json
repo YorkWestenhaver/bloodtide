@@ -13,7 +13,10 @@
       "Bash(grep:*)",
       "Bash(magick:*)",
       "Bash(resvg:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(pip3 list:*)",
+      "Bash(typst:*)",
+      "Bash(python3:*)"
     ]
   }
 }

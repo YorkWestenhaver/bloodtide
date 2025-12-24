@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="64" height="96">
+  <!-- Pixel art flame - each rect is a 4x4 "pixel" -->
+  
+  <!-- Core white/yellow hottest center -->
+  <rect x="12" y="28" width="4" height="4" fill="#FFFEF0"/>
+  <rect x="16" y="28" width="4" height="4" fill="#FFFEF0"/>
+  <rect x="12" y="32" width="4" height="4" fill="#FFFEF0"/>
+  <rect x="16" y="32" width="4" height="4" fill="#FFFEF0"/>
+  <rect x="12" y="36" width="4" height="4" fill="#FFF9C4"/>
+  <rect x="16" y="36" width="4" height="4" fill="#FFF9C4"/>
+  
+  <!-- Bright yellow layer -->
+  <rect x="12" y="24" width="4" height="4" fill="#FFEB3B"/>
+  <rect x="16" y="24" width="4" height="4" fill="#FFEB3B"/>
+  <rect x="8" y="28" width="4" height="4" fill="#FFEB3B"/>
+  <rect x="20" y="28" width="4" height="4" fill="#FFEB3B"/>
+  <rect x="8" y="32" width="4" height="4" fill="#FFEB3B"/>
+  <rect x="20" y="32" width="4" height="4" fill="#FFEB3B"/>
+  <rect x="8" y="36" width="4" height="4" fill="#FFC107"/>
+  <rect x="20" y="36" width="4" height="4" fill="#FFC107"/>
+  <rect x="12" y="40" width="4" height="4" fill="#FFC107"/>
+  <rect x="16" y="40" width="4" height="4" fill="#FFC107"/>
+  
+  <!-- Orange mid layer -->
+  <rect x="12" y="20" width="4" height="4" fill="#FF9800"/>
+  <rect x="16" y="20" width="4" height="4" fill="#FF9800"/>
+  <rect x="8" y="24" width="4" height="4" fill="#FF9800"/>
+  <rect x="20" y="24" width="4" height="4" fill="#FF9800"/>
+  <rect x="4" y="28" width="4" height="4" fill="#FF9800"/>
+  <rect x="24" y="28" width="4" height="4" fill="#FF9800"/>
+  <rect x="4" y="32" width="4" height="4" fill="#FF5722"/>
+  <rect x="24" y="32" width="4" height="4" fill="#FF5722"/>
+  <rect x="4" y="36" width="4" height="4" fill="#FF5722"/>
+  <rect x="24" y="36" width="4" height="4" fill="#FF5722"/>
+  <rect x="8" y="40" width="4" height="4" fill="#FF5722"/>
+  <rect x="20" y="40" width="4" height="4" fill="#FF5722"/>
+  
+  <!-- Red outer layer -->
+  <rect x="12" y="16" width="4" height="4" fill="#F44336"/>
+  <rect x="16" y="16" width="4" height="4" fill="#E53935"/>
+  <rect x="8" y="20" width="4" height="4" fill="#F44336"/>
+  <rect x="20" y="20" width="4" height="4" fill="#E53935"/>
+  <rect x="4" y="24" width="4" height="4" fill="#E53935"/>
+  <rect x="24" y="24" width="4" height="4" fill="#F44336"/>
+  <rect x="0" y="32" width="4" height="4" fill="#D32F2F"/>
+  <rect x="28" y="32" width="4" height="4" fill="#C62828"/>
+  <rect x="0" y="36" width="4" height="4" fill="#C62828"/>
+  <rect x="28" y="36" width="4" height="4" fill="#D32F2F"/>
+  <rect x="4" y="40" width="4" height="4" fill="#D32F2F"/>
+  <rect x="24" y="40" width="4" height="4" fill="#C62828"/>
+  <rect x="8" y="44" width="4" height="4" fill="#B71C1C"/>
+  <rect x="12" y="44" width="4" height="4" fill="#C62828"/>
+  <rect x="16" y="44" width="4" height="4" fill="#C62828"/>
+  <rect x="20" y="44" width="4" height="4" fill="#B71C1C"/>
+  
+  <!-- Flame tips (top) -->
+  <rect x="12" y="12" width="4" height="4" fill="#D32F2F"/>
+  <rect x="16" y="12" width="4" height="4" fill="#C62828"/>
+  <rect x="12" y="8" width="4" height="4" fill="#B71C1C"/>
+  <rect x="16" y="8" width="4" height="4" fill="#C62828"/>
+  <rect x="14" y="4" width="4" height="4" fill="#8B0000"/>
+  
+  <!-- Side wisps -->
+  <rect x="4" y="20" width="4" height="4" fill="#D32F2F"/>
+  <rect x="0" y="24" width="4" height="4" fill="#B71C1C"/>
+  <rect x="24" y="20" width="4" height="4" fill="#C62828"/>
+  <rect x="28" y="24" width="4" height="4" fill="#8B0000"/>
+</svg>

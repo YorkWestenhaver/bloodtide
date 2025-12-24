@@ -1165,3 +1165,64 @@ pub fn init_pools_system(
         damage_number_pool.available.push(entity);
     }
 }
+
+/// System to re-initialize pools if they become empty (e.g., after game restart)
+/// This runs every frame but only does work when pools are empty
+pub fn init_pools_if_empty_system(
+    mut commands: Commands,
+    mut projectile_pool: ResMut<ProjectilePool>,
+    mut damage_number_pool: ResMut<DamageNumberPool>,
+) {
+    use crate::resources::{PROJECTILE_POOL_SIZE, DAMAGE_NUMBER_POOL_SIZE};
+
+    // Check if projectile pool needs re-initialization
+    if projectile_pool.available.is_empty() && projectile_pool.active.is_empty() {
+        // Pre-spawn projectiles (hidden, off-screen)
+        for _ in 0..PROJECTILE_POOL_SIZE {
+            let entity = commands.spawn((
+                Pooled,
+                Projectile {
+                    target: Entity::PLACEHOLDER,
+                    damage: 0.0,
+                    crit_tier: CritTier::None,
+                    lifetime: Timer::from_seconds(PROJECTILE_LIFETIME, TimerMode::Once),
+                    source_creature: None,
+                    size: PROJECTILE_SIZE,
+                    speed: PROJECTILE_SPEED,
+                    penetration_remaining: 1,
+                    enemies_hit: Vec::new(),
+                    projectile_type: ProjectileType::Basic,
+                },
+                Velocity::default(),
+                Sprite {
+                    color: Color::WHITE,
+                    custom_size: Some(Vec2::new(PROJECTILE_SIZE, PROJECTILE_SIZE)),
+                    ..default()
+                },
+                Transform::from_translation(Vec3::new(-10000.0, -10000.0, 0.6)),
+                Visibility::Hidden,
+            )).id();
+            projectile_pool.available.push(entity);
+        }
+    }
+
+    // Check if damage number pool needs re-initialization
+    if damage_number_pool.available.is_empty() && damage_number_pool.active.is_empty() {
+        // Pre-spawn damage numbers (hidden, off-screen)
+        for _ in 0..DAMAGE_NUMBER_POOL_SIZE {
+            let entity = commands.spawn((
+                Pooled,
+                DamageNumber::new(),
+                Text2d::new("0"),
+                TextFont {
+                    font_size: 16.0,
+                    ..default()
+                },
+                TextColor(Color::WHITE),
+                Transform::from_translation(Vec3::new(-10000.0, -10000.0, 10.0)),
+                Visibility::Hidden,
+            )).id();
+            damage_number_pool.available.push(entity);
+        }
+    }
+}

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::ui::RelativeCursorPosition;
 
-use crate::resources::{DebugSettings, GameState, MenuState, SliderRange};
+use crate::resources::{DebugSettings, GameState, MenuState, SliderRange, ProjectilePool, DamageNumberPool};
 
 // =============================================================================
 // CONSTANTS
@@ -1007,12 +1007,15 @@ pub fn restart_button_system(
     mut affinity_state: ResMut<crate::resources::AffinityState>,
     mut artifact_buffs: ResMut<crate::resources::ArtifactBuffs>,
     mut respawn_queue: ResMut<crate::systems::death::RespawnQueue>,
+    mut projectile_pool: ResMut<ProjectilePool>,
+    mut damage_number_pool: ResMut<DamageNumberPool>,
     mut button_query: Query<(&Interaction, &mut BackgroundColor), (With<RestartButton>, Changed<Interaction>)>,
     // Query all game entities to despawn
     creature_query: Query<Entity, With<crate::components::Creature>>,
     enemy_query: Query<Entity, With<crate::components::Enemy>>,
-    projectile_query: Query<Entity, With<crate::systems::combat::Projectile>>,
     weapon_query: Query<Entity, With<crate::components::Weapon>>,
+    pooled_query: Query<Entity, With<crate::systems::combat::Pooled>>,
+    blood_query: Query<Entity, With<crate::components::BloodSplatter>>,
 ) {
     for (interaction, mut bg) in button_query.iter_mut() {
         match *interaction {
@@ -1024,10 +1027,15 @@ pub fn restart_button_system(
                 for entity in enemy_query.iter() {
                     commands.entity(entity).despawn_recursive();
                 }
-                for entity in projectile_query.iter() {
+                for entity in weapon_query.iter() {
                     commands.entity(entity).despawn_recursive();
                 }
-                for entity in weapon_query.iter() {
+                // Despawn all pooled entities (includes projectiles and damage numbers)
+                for entity in pooled_query.iter() {
+                    commands.entity(entity).despawn_recursive();
+                }
+                // Despawn all blood splatters
+                for entity in blood_query.iter() {
                     commands.entity(entity).despawn_recursive();
                 }
 
@@ -1042,6 +1050,10 @@ pub fn restart_button_system(
 
                 // Clear respawn queue
                 respawn_queue.entries.clear();
+
+                // Reset pools (will be re-initialized by init_pools_if_empty_system)
+                *projectile_pool = ProjectilePool::default();
+                *damage_number_pool = DamageNumberPool::default();
 
                 // Close menu and reset debug settings
                 debug_settings.menu_state = MenuState::Closed;
@@ -1086,12 +1098,15 @@ pub fn main_menu_button_system(
     mut affinity_state: ResMut<crate::resources::AffinityState>,
     mut artifact_buffs: ResMut<crate::resources::ArtifactBuffs>,
     mut respawn_queue: ResMut<crate::systems::death::RespawnQueue>,
+    mut projectile_pool: ResMut<ProjectilePool>,
+    mut damage_number_pool: ResMut<DamageNumberPool>,
     mut button_query: Query<(&Interaction, &mut BackgroundColor), (With<MainMenuButton>, Changed<Interaction>)>,
     // Query all game entities to despawn
     creature_query: Query<Entity, With<crate::components::Creature>>,
     enemy_query: Query<Entity, With<crate::components::Enemy>>,
-    projectile_query: Query<Entity, With<crate::systems::combat::Projectile>>,
     weapon_query: Query<Entity, With<crate::components::Weapon>>,
+    pooled_query: Query<Entity, With<crate::systems::combat::Pooled>>,
+    blood_query: Query<Entity, With<crate::components::BloodSplatter>>,
 ) {
     for (interaction, mut bg) in button_query.iter_mut() {
         match *interaction {
@@ -1103,10 +1118,15 @@ pub fn main_menu_button_system(
                 for entity in enemy_query.iter() {
                     commands.entity(entity).despawn_recursive();
                 }
-                for entity in projectile_query.iter() {
+                for entity in weapon_query.iter() {
                     commands.entity(entity).despawn_recursive();
                 }
-                for entity in weapon_query.iter() {
+                // Despawn all pooled entities (includes projectiles and damage numbers)
+                for entity in pooled_query.iter() {
+                    commands.entity(entity).despawn_recursive();
+                }
+                // Despawn all blood splatters
+                for entity in blood_query.iter() {
                     commands.entity(entity).despawn_recursive();
                 }
 
@@ -1121,6 +1141,10 @@ pub fn main_menu_button_system(
 
                 // Clear respawn queue
                 respawn_queue.entries.clear();
+
+                // Reset pools (will be re-initialized by init_pools_if_empty_system)
+                *projectile_pool = ProjectilePool::default();
+                *damage_number_pool = DamageNumberPool::default();
 
                 // Close menu and reset debug settings
                 debug_settings.menu_state = MenuState::Closed;
