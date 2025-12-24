@@ -174,6 +174,284 @@ impl EnemyAttackTimer {
     }
 }
 
+// =============================================================================
+// BOSS COMPONENTS
+// =============================================================================
+
+/// Marker component for the Goblin King boss
+#[derive(Component)]
+pub struct GoblinKing;
+
+/// Tracks which phase the boss is currently in
+#[derive(Component, Clone, Copy, Debug, PartialEq, Eq)]
+pub enum BossPhase {
+    /// Normal phase (100% - 30% HP)
+    Phase1,
+    /// Berserker mode (below 30% HP)
+    Phase2,
+}
+
+impl Default for BossPhase {
+    fn default() -> Self {
+        BossPhase::Phase1
+    }
+}
+
+/// Current attack state for boss wind-up animations
+#[derive(Component, Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum BossAttackState {
+    #[default]
+    Idle,
+    /// Winding up melee slam attack
+    WindingUpSlam,
+    /// Executing melee slam
+    Slamming,
+    /// Preparing charge attack (showing telegraph)
+    ChargingUp,
+    /// Executing charge dash
+    Charging,
+    /// Summoning goblin adds
+    Summoning,
+}
+
+/// Component for boss charge attack
+#[derive(Component)]
+pub struct BossChargeAttack {
+    /// Timer for telegraph phase
+    pub telegraph_timer: Timer,
+    /// Timer for charge execution
+    pub charge_timer: Timer,
+    /// Target position for charge
+    pub target_pos: Vec2,
+    /// Starting position of charge
+    pub start_pos: Vec2,
+    /// Whether we're in telegraph phase or execution phase
+    pub is_telegraphing: bool,
+    /// Charge damage
+    pub damage: f64,
+}
+
+impl BossChargeAttack {
+    pub fn new(start_pos: Vec2, target_pos: Vec2, damage: f64) -> Self {
+        Self {
+            telegraph_timer: Timer::from_seconds(1.0, TimerMode::Once),
+            charge_timer: Timer::from_seconds(0.3, TimerMode::Once),
+            target_pos,
+            start_pos,
+            is_telegraphing: true,
+            damage,
+        }
+    }
+}
+
+/// Component for boss melee slam attack
+#[derive(Component)]
+pub struct BossSlamAttack {
+    /// Timer for wind-up phase
+    pub windup_timer: Timer,
+    /// Whether we're in wind-up or execution
+    pub is_winding_up: bool,
+    /// Slam damage
+    pub damage: f64,
+    /// Slam range
+    pub range: f64,
+}
+
+impl BossSlamAttack {
+    pub fn new(damage: f64, range: f64) -> Self {
+        Self {
+            windup_timer: Timer::from_seconds(0.6, TimerMode::Once),
+            is_winding_up: true,
+            damage,
+            range,
+        }
+    }
+}
+
+/// Timer for boss special abilities
+#[derive(Component)]
+pub struct BossAbilityTimers {
+    /// Timer for charge attack cooldown
+    pub charge_cooldown: Timer,
+    /// Timer for summon ability cooldown
+    pub summon_cooldown: Timer,
+}
+
+impl BossAbilityTimers {
+    pub fn new() -> Self {
+        Self {
+            charge_cooldown: Timer::from_seconds(8.0, TimerMode::Repeating),
+            summon_cooldown: Timer::from_seconds(12.0, TimerMode::Repeating),
+        }
+    }
+
+    /// Called when entering Phase 2 (berserker mode)
+    pub fn enter_berserker_mode(&mut self) {
+        // Reduce charge cooldown in berserker mode
+        self.charge_cooldown = Timer::from_seconds(5.0, TimerMode::Repeating);
+        // No more summoning in berserker mode
+    }
+}
+
+impl Default for BossAbilityTimers {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Marker for berserker mode (Phase 2)
+#[derive(Component)]
+pub struct BerserkerMode {
+    /// Visual pulse timer for red glow effect
+    pub pulse_timer: Timer,
+}
+
+impl Default for BerserkerMode {
+    fn default() -> Self {
+        Self {
+            pulse_timer: Timer::from_seconds(0.5, TimerMode::Repeating),
+        }
+    }
+}
+
+/// Visual telegraph for charge attack
+#[derive(Component)]
+pub struct ChargeTelegraph {
+    /// Entity of the boss performing the charge
+    pub boss_entity: Entity,
+    /// Timer synced with boss telegraph timer
+    pub timer: Timer,
+}
+
+/// Animation state for Goblin King boss
+///
+/// Frame layout (12 frames total at 128x192 each):
+/// - Frame 0: idle
+/// - Frames 1-2: walk cycle
+/// - Frames 3-4: charge attack (windup, dash)
+/// - Frames 5-6: sword swipe (windup, strike)
+/// - Frames 7-8: ground pound (windup, impact)
+/// - Frames 9-11: death animation
+#[derive(Component)]
+pub struct GoblinKingAnimation {
+    /// Current frame index
+    pub current_frame: usize,
+    /// Animation timer for frame transitions
+    pub frame_timer: Timer,
+    /// Current animation state
+    pub state: GoblinKingAnimState,
+}
+
+/// Animation states for the Goblin King
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum GoblinKingAnimState {
+    #[default]
+    Idle,
+    Walking,
+    ChargeWindup,
+    ChargeDash,
+    SwipeWindup,
+    SwipeStrike,
+    PoundWindup,
+    PoundImpact,
+    Dying,
+    Dead,
+}
+
+impl GoblinKingAnimation {
+    pub fn new() -> Self {
+        Self {
+            current_frame: 0,
+            frame_timer: Timer::from_seconds(0.18, TimerMode::Repeating),
+            state: GoblinKingAnimState::Idle,
+        }
+    }
+
+    /// Start walking animation
+    pub fn start_walking(&mut self) {
+        self.state = GoblinKingAnimState::Walking;
+        self.current_frame = 1;
+        self.frame_timer = Timer::from_seconds(0.18, TimerMode::Repeating);
+    }
+
+    /// Return to idle
+    pub fn go_idle(&mut self) {
+        self.state = GoblinKingAnimState::Idle;
+        self.current_frame = 0;
+    }
+
+    /// Start charge windup animation
+    pub fn start_charge_windup(&mut self) {
+        self.state = GoblinKingAnimState::ChargeWindup;
+        self.current_frame = 3;
+        self.frame_timer = Timer::from_seconds(0.5, TimerMode::Once);
+    }
+
+    /// Start charge dash animation
+    pub fn start_charge_dash(&mut self) {
+        self.state = GoblinKingAnimState::ChargeDash;
+        self.current_frame = 4;
+        self.frame_timer = Timer::from_seconds(0.1, TimerMode::Repeating);
+    }
+
+    /// Start sword swipe windup
+    pub fn start_swipe_windup(&mut self) {
+        self.state = GoblinKingAnimState::SwipeWindup;
+        self.current_frame = 5;
+        self.frame_timer = Timer::from_seconds(0.3, TimerMode::Once);
+    }
+
+    /// Execute sword swipe
+    pub fn start_swipe_strike(&mut self) {
+        self.state = GoblinKingAnimState::SwipeStrike;
+        self.current_frame = 6;
+        self.frame_timer = Timer::from_seconds(0.08, TimerMode::Once);
+    }
+
+    /// Start ground pound windup
+    pub fn start_pound_windup(&mut self) {
+        self.state = GoblinKingAnimState::PoundWindup;
+        self.current_frame = 7;
+        self.frame_timer = Timer::from_seconds(0.6, TimerMode::Once);
+    }
+
+    /// Execute ground pound impact
+    pub fn start_pound_impact(&mut self) {
+        self.state = GoblinKingAnimState::PoundImpact;
+        self.current_frame = 8;
+        self.frame_timer = Timer::from_seconds(0.15, TimerMode::Once);
+    }
+
+    /// Start death animation
+    pub fn start_dying(&mut self) {
+        self.state = GoblinKingAnimState::Dying;
+        self.current_frame = 9;
+        self.frame_timer = Timer::from_seconds(0.2, TimerMode::Repeating);
+    }
+
+    /// Advance walk animation between frames 1-2
+    pub fn advance_walk_frame(&mut self) {
+        self.current_frame = if self.current_frame == 1 { 2 } else { 1 };
+    }
+
+    /// Advance death animation through frames 9-11
+    pub fn advance_death_frame(&mut self) -> bool {
+        if self.current_frame < 11 {
+            self.current_frame += 1;
+            false // Not finished
+        } else {
+            self.state = GoblinKingAnimState::Dead;
+            true // Finished
+        }
+    }
+}
+
+impl Default for GoblinKingAnimation {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

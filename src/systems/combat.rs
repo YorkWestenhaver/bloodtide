@@ -3,6 +3,8 @@ use bevy::prelude::*;
 use crate::components::{
     AttackRange, AttackTimer, Creature, CreatureStats, Enemy, EnemyAttackTimer, EnemyStats,
     InvincibilityTimer, Player, PlayerStats, ProjectileConfig, ProjectileType, Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
+    // Boss components
+    GoblinKing, BossPhase, BossAttackState, BossSlamAttack, BossChargeAttack, BerserkerMode,
 };
 use crate::math::{calculate_damage_with_crits, CritTier};
 use crate::resources::{get_affinity_bonuses, AffinityState, ArtifactBuffs, CreatureSprites, DebugSettings, GameData, SpatialGrid, ProjectilePool, DamageNumberPool};
@@ -1369,5 +1371,244 @@ pub fn init_pools_if_empty_system(
             )).id();
             damage_number_pool.available.push(entity);
         }
+    }
+}
+
+// =============================================================================
+// BOSS COMBAT SYSTEMS
+// =============================================================================
+
+/// Player knockback distance from boss charge
+pub const BOSS_KNOCKBACK_DISTANCE: f32 = 150.0;
+
+/// Boss slam attack wind-up time
+pub const BOSS_SLAM_WINDUP: f32 = 0.6;
+
+/// System that handles boss slam attack (wind-up and execution)
+pub fn boss_slam_attack_system(
+    mut commands: Commands,
+    time: Res<Time>,
+    debug_settings: Res<DebugSettings>,
+    mut boss_query: Query<
+        (
+            Entity,
+            &Transform,
+            &EnemyStats,
+            &mut BossSlamAttack,
+            &mut BossAttackState,
+            Option<&BerserkerMode>,
+        ),
+        With<GoblinKing>,
+    >,
+    mut player_query: Query<(Entity, &Transform, &mut PlayerStats, Option<&InvincibilityTimer>), With<Player>>,
+    mut enemy_query: Query<(Entity, &Transform, &mut EnemyStats), (With<Enemy>, Without<GoblinKing>)>,
+) {
+    if debug_settings.is_paused() {
+        return;
+    }
+
+    let dt = time.delta();
+
+    for (boss_entity, boss_transform, boss_stats, mut slam, mut attack_state, berserker) in boss_query.iter_mut() {
+        let boss_pos = boss_transform.translation.truncate();
+
+        if slam.is_winding_up {
+            // Wind-up phase - tick timer
+            slam.windup_timer.tick(dt);
+
+            if slam.windup_timer.finished() {
+                slam.is_winding_up = false;
+                *attack_state = BossAttackState::Slamming;
+            }
+        } else {
+            // Execution phase - deal damage
+            let attack_multiplier = if berserker.is_some() { 2.0 } else { 1.0 }; // 2x attack speed in berserker
+            let damage = slam.damage * debug_settings.enemy_damage_multiplier as f64;
+
+            // Damage player if in range
+            if let Ok((player_entity, player_transform, mut player_stats, invincibility)) = player_query.get_single_mut() {
+                // Skip if player is invincible or god mode
+                if debug_settings.god_mode {
+                    // Don't damage player
+                } else if let Some(inv) = invincibility {
+                    if inv.is_active() {
+                        // Player is invincible, skip damage
+                    } else {
+                        let player_pos = player_transform.translation.truncate();
+                        if boss_pos.distance(player_pos) <= slam.range as f32 {
+                            player_stats.current_hp -= damage;
+                            commands.entity(player_entity).insert(InvincibilityTimer::new(INVINCIBILITY_DURATION));
+                        }
+                    }
+                } else {
+                    let player_pos = player_transform.translation.truncate();
+                    if boss_pos.distance(player_pos) <= slam.range as f32 {
+                        player_stats.current_hp -= damage;
+                        commands.entity(player_entity).insert(InvincibilityTimer::new(INVINCIBILITY_DURATION));
+                    }
+                }
+            }
+
+            // FRIENDLY FIRE: Damage nearby goblins
+            for (enemy_entity, enemy_transform, mut enemy_stats) in enemy_query.iter_mut() {
+                let enemy_pos = enemy_transform.translation.truncate();
+                if boss_pos.distance(enemy_pos) <= slam.range as f32 {
+                    // Boss deals full damage to its own minions
+                    enemy_stats.current_hp -= damage;
+                }
+            }
+
+            // Attack complete - remove slam component and reset state
+            commands.entity(boss_entity).remove::<BossSlamAttack>();
+            *attack_state = BossAttackState::Idle;
+        }
+    }
+}
+
+/// System that handles boss charge attack damage and knockback
+pub fn boss_charge_damage_system(
+    mut commands: Commands,
+    debug_settings: Res<DebugSettings>,
+    boss_query: Query<
+        (&Transform, &BossChargeAttack, &BossAttackState),
+        (With<GoblinKing>, Without<Player>),
+    >,
+    mut player_query: Query<(Entity, &mut Transform, &mut PlayerStats, Option<&InvincibilityTimer>), (With<Player>, Without<Enemy>, Without<GoblinKing>)>,
+    mut enemy_query: Query<(Entity, &Transform, &mut EnemyStats), (With<Enemy>, Without<GoblinKing>, Without<Player>)>,
+) {
+    if debug_settings.is_paused() {
+        return;
+    }
+
+    for (boss_transform, charge, attack_state) in boss_query.iter() {
+        // Only deal damage during charging phase (not telegraph)
+        if *attack_state != BossAttackState::Charging {
+            continue;
+        }
+
+        let boss_pos = boss_transform.translation.truncate();
+        let charge_damage = charge.damage * debug_settings.enemy_damage_multiplier as f64;
+        let charge_direction = (charge.target_pos - charge.start_pos).normalize_or_zero();
+
+        // Check collision with player
+        if let Ok((player_entity, mut player_transform, mut player_stats, invincibility)) = player_query.get_single_mut() {
+            if !debug_settings.god_mode {
+                let can_damage = if let Some(inv) = invincibility {
+                    !inv.is_active()
+                } else {
+                    true
+                };
+
+                if can_damage {
+                    let player_pos = player_transform.translation.truncate();
+                    // Charge hitbox is wider than normal attack
+                    if boss_pos.distance(player_pos) <= 60.0 {
+                        // Deal damage
+                        player_stats.current_hp -= charge_damage;
+
+                        // Knockback player
+                        let knockback = charge_direction * BOSS_KNOCKBACK_DISTANCE;
+                        player_transform.translation.x += knockback.x;
+                        player_transform.translation.y += knockback.y;
+
+                        // Add invincibility
+                        commands.entity(player_entity).insert(InvincibilityTimer::new(INVINCIBILITY_DURATION * 1.5));
+                    }
+                }
+            }
+        }
+
+        // FRIENDLY FIRE: Damage goblins in charge path
+        for (_enemy_entity, enemy_transform, mut enemy_stats) in enemy_query.iter_mut() {
+            let enemy_pos = enemy_transform.translation.truncate();
+            // Check if enemy is near the charge path
+            if boss_pos.distance(enemy_pos) <= 50.0 {
+                // Kill minions outright during charge
+                enemy_stats.current_hp = 0.0;
+            }
+        }
+    }
+}
+
+/// System to handle boss summoning goblins (Phase 1 only)
+pub fn boss_summon_system(
+    mut commands: Commands,
+    debug_settings: Res<DebugSettings>,
+    game_data: Res<GameData>,
+    death_sprites: Option<Res<crate::resources::DeathSprites>>,
+    mut boss_query: Query<
+        (Entity, &Transform, &BossPhase, &mut BossAttackState),
+        With<GoblinKing>,
+    >,
+) {
+    use crate::systems::spawn_enemy_scaled;
+    use rand::Rng;
+
+    if debug_settings.is_paused() {
+        return;
+    }
+
+    for (_boss_entity, boss_transform, phase, mut attack_state) in boss_query.iter_mut() {
+        // Only summon in Phase 1 and when in Summoning state
+        if *phase != BossPhase::Phase1 || *attack_state != BossAttackState::Summoning {
+            continue;
+        }
+
+        let boss_pos = boss_transform.translation.truncate();
+        let mut rng = rand::thread_rng();
+
+        // Spawn 3-5 goblins around the boss
+        let goblin_count = rng.gen_range(3..=5);
+
+        for i in 0..goblin_count {
+            let angle = (i as f32 / goblin_count as f32) * std::f32::consts::TAU + rng.gen::<f32>() * 0.5;
+            let distance = 80.0 + rng.gen::<f32>() * 40.0;
+
+            let spawn_pos = Vec3::new(
+                boss_pos.x + angle.cos() * distance,
+                boss_pos.y + angle.sin() * distance,
+                0.3,
+            );
+
+            spawn_enemy_scaled(
+                &mut commands,
+                &game_data,
+                death_sprites.as_deref(),
+                "goblin",
+                spawn_pos,
+                1, // wave 1 stats
+                false, // not elite
+            );
+        }
+
+        // Done summoning
+        *attack_state = BossAttackState::Idle;
+        info!("Goblin King summoned {} goblins!", goblin_count);
+    }
+}
+
+/// System to apply berserker mode visual effect (red pulsing)
+pub fn boss_berserker_visual_system(
+    time: Res<Time>,
+    debug_settings: Res<DebugSettings>,
+    mut boss_query: Query<(&mut Sprite, &mut BerserkerMode), With<GoblinKing>>,
+) {
+    if debug_settings.is_paused() {
+        return;
+    }
+
+    for (mut sprite, mut berserker) in boss_query.iter_mut() {
+        berserker.pulse_timer.tick(time.delta());
+
+        // Pulse between normal color and angry red
+        let pulse = berserker.pulse_timer.fraction();
+        let intensity = 0.5 + 0.5 * (pulse * std::f32::consts::TAU).sin();
+
+        // Blend from dark green to angry red
+        let r = 0.1 + 0.6 * intensity;
+        let g = 0.4 - 0.3 * intensity;
+        let b = 0.15;
+
+        sprite.color = Color::srgb(r, g, b);
     }
 }

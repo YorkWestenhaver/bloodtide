@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::time::Timer;
 
 /// Tracks game over state
 #[derive(Resource, Default)]
@@ -23,6 +24,12 @@ pub struct GameState {
     pub kills_this_second: u32,
     pub kills_last_second: u32,
     pub kill_rate_timer: f32,
+    /// Whether a boss is currently active (stops regular enemy spawning)
+    pub boss_active: bool,
+    /// Whether the Goblin King has already spawned this run (prevents re-spawning)
+    pub goblin_king_spawned: bool,
+    /// Grace period timer after boss dies before resuming normal spawns
+    pub boss_grace_timer: Option<Timer>,
 }
 
 impl Default for GameState {
@@ -39,6 +46,9 @@ impl Default for GameState {
             kills_this_second: 0,
             kills_last_second: 0,
             kill_rate_timer: 0.0,
+            boss_active: false,
+            goblin_king_spawned: false,
+            boss_grace_timer: None,
         }
     }
 }

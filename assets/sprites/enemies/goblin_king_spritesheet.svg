@@ -1,0 +1,1576 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 768 96" width="1536" height="192">
+  <!-- 
+    GOBLIN KING SPRITE SHEET - BOSS TIER
+    12 frames at 64x96 each = 768px wide
+    Layout: [idle] [walk1] [walk2] [charge_windup] [charge_dash] [swipe_windup] [swipe_strike] [pound_windup] [pound_impact] [death1] [death2] [death3]
+    Style: Fat green goblin king with crown, red eyes, big serrated sword
+  -->
+  
+  <!-- COLOR REFERENCE:
+    Skin dark: #2E7D32
+    Skin mid: #4CAF50  
+    Skin light: #81C784
+    Skin highlight: #A5D6A7
+    Eyes: #C62828 / #FF5252
+    Crown: #FFD700 / #FFC107 / #FF8F00
+    Sword blade: #78909C / #607D8B / #455A64
+    Sword serration: #C62828
+    Sword handle: #5D4037 / #3E2723
+    Cloth: #5D4037 / #4E342E
+    Outline: #1B5E20
+    Shadow: #1A1A1A / #2D2D2D
+  -->
+
+  <!-- FRAME 0: IDLE (x=0) - Standing menacing pose, sword resting on shoulder -->
+  <g id="frame_idle" transform="translate(0, 0)">
+    <!-- Shadow -->
+    <ellipse cx="32" cy="92" rx="20" ry="4" fill="#000000" opacity="0.5"/>
+    
+    <!-- Crown -->
+    <rect x="20" y="4" width="4" height="4" fill="#FF8F00"/>
+    <rect x="24" y="0" width="4" height="4" fill="#FFD700"/>
+    <rect x="28" y="4" width="4" height="4" fill="#FFC107"/>
+    <rect x="32" y="0" width="4" height="4" fill="#FFD700"/>
+    <rect x="36" y="4" width="4" height="4" fill="#FFC107"/>
+    <rect x="40" y="0" width="4" height="4" fill="#FFD700"/>
+    <rect x="44" y="4" width="4" height="4" fill="#FF8F00"/>
+    <rect x="20" y="8" width="28" height="4" fill="#FFC107"/>
+    
+    <!-- Head -->
+    <rect x="16" y="12" width="4" height="4" fill="#1B5E20"/>
+    <rect x="20" y="12" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="12" width="4" height="4" fill="#4CAF50"/>
+    <rect x="28" y="12" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="12" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="12" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="12" width="4" height="4" fill="#2E7D32"/>
+    <rect x="44" y="12" width="4" height="4" fill="#1B5E20"/>
+    <!-- Eyes -->
+    <rect x="16" y="16" width="4" height="4" fill="#1B5E20"/>
+    <rect x="20" y="16" width="4" height="4" fill="#C62828"/>
+    <rect x="24" y="16" width="4" height="4" fill="#FF5252"/>
+    <rect x="28" y="16" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="16" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="16" width="4" height="4" fill="#FF5252"/>
+    <rect x="40" y="16" width="4" height="4" fill="#C62828"/>
+    <rect x="44" y="16" width="4" height="4" fill="#1B5E20"/>
+    <!-- Snout/Nose -->
+    <rect x="16" y="20" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="20" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="20" width="4" height="4" fill="#81C784"/>
+    <rect x="28" y="20" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="20" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="20" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="20" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="20" width="4" height="4" fill="#2E7D32"/>
+    <!-- Mouth with fangs -->
+    <rect x="20" y="24" width="4" height="4" fill="#1B5E20"/>
+    <rect x="24" y="24" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="28" y="24" width="4" height="4" fill="#2D2D2D"/>
+    <rect x="32" y="24" width="4" height="4" fill="#2D2D2D"/>
+    <rect x="36" y="24" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="40" y="24" width="4" height="4" fill="#1B5E20"/>
+    
+    <!-- Ears -->
+    <rect x="8" y="12" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="12" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="16" width="4" height="4" fill="#4CAF50"/>
+    <rect x="4" y="16" width="4" height="4" fill="#2E7D32"/>
+    <rect x="48" y="12" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="12" width="4" height="4" fill="#2E7D32"/>
+    <rect x="52" y="16" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="16" width="4" height="4" fill="#2E7D32"/>
+    
+    <!-- Neck -->
+    <rect x="24" y="28" width="4" height="4" fill="#2E7D32"/>
+    <rect x="28" y="28" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="28" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="28" width="4" height="4" fill="#2E7D32"/>
+    
+    <!-- Shoulders and upper body -->
+    <rect x="8" y="32" width="4" height="4" fill="#1B5E20"/>
+    <rect x="12" y="32" width="4" height="4" fill="#2E7D32"/>
+    <rect x="16" y="32" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="32" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="32" width="4" height="4" fill="#81C784"/>
+    <rect x="28" y="32" width="4" height="4" fill="#81C784"/>
+    <rect x="32" y="32" width="4" height="4" fill="#81C784"/>
+    <rect x="36" y="32" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="32" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="32" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="32" width="4" height="4" fill="#2E7D32"/>
+    <rect x="52" y="32" width="4" height="4" fill="#1B5E20"/>
+    
+    <!-- Big Belly -->
+    <rect x="12" y="36" width="4" height="4" fill="#1B5E20"/>
+    <rect x="16" y="36" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="36" width="4" height="4" fill="#81C784"/>
+    <rect x="24" y="36" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="28" y="36" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="36" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="36" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="36" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="36" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="36" width="4" height="4" fill="#1B5E20"/>
+    
+    <rect x="12" y="40" width="4" height="4" fill="#2E7D32"/>
+    <rect x="16" y="40" width="4" height="4" fill="#81C784"/>
+    <rect x="20" y="40" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="24" y="40" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="28" y="40" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="32" y="40" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="36" y="40" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="40" y="40" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="44" y="40" width="4" height="4" fill="#81C784"/>
+    <rect x="48" y="40" width="4" height="4" fill="#2E7D32"/>
+    
+    <rect x="12" y="44" width="4" height="4" fill="#1B5E20"/>
+    <rect x="16" y="44" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="44" width="4" height="4" fill="#81C784"/>
+    <rect x="24" y="44" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="28" y="44" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="44" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="44" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="44" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="44" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="44" width="4" height="4" fill="#1B5E20"/>
+    
+    <!-- Belt/Loincloth -->
+    <rect x="16" y="48" width="4" height="4" fill="#3E2723"/>
+    <rect x="20" y="48" width="4" height="4" fill="#5D4037"/>
+    <rect x="24" y="48" width="4" height="4" fill="#5D4037"/>
+    <rect x="28" y="48" width="4" height="4" fill="#FFD700"/>
+    <rect x="32" y="48" width="4" height="4" fill="#FFD700"/>
+    <rect x="36" y="48" width="4" height="4" fill="#5D4037"/>
+    <rect x="40" y="48" width="4" height="4" fill="#5D4037"/>
+    <rect x="44" y="48" width="4" height="4" fill="#3E2723"/>
+    
+    <rect x="20" y="52" width="4" height="4" fill="#4E342E"/>
+    <rect x="24" y="52" width="4" height="4" fill="#5D4037"/>
+    <rect x="28" y="52" width="4" height="4" fill="#5D4037"/>
+    <rect x="32" y="52" width="4" height="4" fill="#5D4037"/>
+    <rect x="36" y="52" width="4" height="4" fill="#5D4037"/>
+    <rect x="40" y="52" width="4" height="4" fill="#4E342E"/>
+    
+    <!-- Left arm holding sword handle -->
+    <rect x="4" y="36" width="4" height="4" fill="#2E7D32"/>
+    <rect x="8" y="36" width="4" height="4" fill="#4CAF50"/>
+    <rect x="4" y="40" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="40" width="4" height="4" fill="#81C784"/>
+    <rect x="4" y="44" width="4" height="4" fill="#2E7D32"/>
+    <rect x="8" y="44" width="4" height="4" fill="#4CAF50"/>
+    <rect x="4" y="48" width="4" height="4" fill="#4CAF50"/>
+    <rect x="0" y="52" width="4" height="4" fill="#2E7D32"/>
+    <rect x="4" y="52" width="4" height="4" fill="#81C784"/>
+    
+    <!-- Right arm resting -->
+    <rect x="52" y="36" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="36" width="4" height="4" fill="#2E7D32"/>
+    <rect x="52" y="40" width="4" height="4" fill="#81C784"/>
+    <rect x="56" y="40" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="44" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="44" width="4" height="4" fill="#2E7D32"/>
+    <rect x="52" y="48" width="4" height="4" fill="#81C784"/>
+    <rect x="56" y="48" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="52" width="4" height="4" fill="#2E7D32"/>
+    <rect x="60" y="52" width="4" height="4" fill="#81C784"/>
+    
+    <!-- Legs -->
+    <rect x="20" y="56" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="56" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="56" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="56" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="60" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="60" width="4" height="4" fill="#81C784"/>
+    <rect x="36" y="60" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="60" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="64" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="64" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="64" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="64" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="68" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="68" width="4" height="4" fill="#81C784"/>
+    <rect x="36" y="68" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="68" width="4" height="4" fill="#4CAF50"/>
+    
+    <!-- Feet -->
+    <rect x="16" y="72" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="72" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="72" width="4" height="4" fill="#4CAF50"/>
+    <rect x="28" y="72" width="4" height="4" fill="#2E7D32"/>
+    <rect x="32" y="72" width="4" height="4" fill="#2E7D32"/>
+    <rect x="36" y="72" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="72" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="72" width="4" height="4" fill="#2E7D32"/>
+    
+    <!-- SWORD resting on left shoulder -->
+    <!-- Handle -->
+    <rect x="0" y="56" width="4" height="4" fill="#3E2723"/>
+    <rect x="4" y="56" width="4" height="4" fill="#5D4037"/>
+    <rect x="4" y="60" width="4" height="4" fill="#5D4037"/>
+    <!-- Guard -->
+    <rect x="0" y="24" width="4" height="4" fill="#455A64"/>
+    <rect x="4" y="24" width="4" height="4" fill="#607D8B"/>
+    <rect x="8" y="24" width="4" height="4" fill="#455A64"/>
+    <!-- Blade going up -->
+    <rect x="4" y="20" width="4" height="4" fill="#78909C"/>
+    <rect x="4" y="16" width="4" height="4" fill="#607D8B"/>
+    <rect x="4" y="12" width="4" height="4" fill="#78909C"/>
+    <rect x="4" y="8" width="4" height="4" fill="#607D8B"/>
+    <rect x="4" y="4" width="4" height="4" fill="#78909C"/>
+    <rect x="4" y="0" width="4" height="4" fill="#455A64"/>
+    <!-- Serrations on blade -->
+    <rect x="0" y="16" width="4" height="4" fill="#C62828"/>
+    <rect x="0" y="8" width="4" height="4" fill="#C62828"/>
+    <rect x="8" y="12" width="4" height="4" fill="#C62828"/>
+    <rect x="8" y="4" width="4" height="4" fill="#C62828"/>
+  </g>
+
+  <!-- FRAME 1: WALK1 (x=64) - Left foot forward -->
+  <g id="frame_walk1" transform="translate(64, 0)">
+    <ellipse cx="32" cy="92" rx="18" ry="3" fill="#000000" opacity="0.5"/>
+    <!-- Crown -->
+    <rect x="20" y="6" width="4" height="4" fill="#FF8F00"/>
+    <rect x="24" y="2" width="4" height="4" fill="#FFD700"/>
+    <rect x="28" y="6" width="4" height="4" fill="#FFC107"/>
+    <rect x="32" y="2" width="4" height="4" fill="#FFD700"/>
+    <rect x="36" y="6" width="4" height="4" fill="#FFC107"/>
+    <rect x="40" y="2" width="4" height="4" fill="#FFD700"/>
+    <rect x="44" y="6" width="4" height="4" fill="#FF8F00"/>
+    <rect x="20" y="10" width="28" height="4" fill="#FFC107"/>
+    <!-- Head -->
+    <rect x="16" y="14" width="4" height="4" fill="#1B5E20"/>
+    <rect x="20" y="14" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="14" width="4" height="4" fill="#4CAF50"/>
+    <rect x="28" y="14" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="14" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="14" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="14" width="4" height="4" fill="#2E7D32"/>
+    <rect x="44" y="14" width="4" height="4" fill="#1B5E20"/>
+    <!-- Eyes -->
+    <rect x="16" y="18" width="4" height="4" fill="#1B5E20"/>
+    <rect x="20" y="18" width="4" height="4" fill="#C62828"/>
+    <rect x="24" y="18" width="4" height="4" fill="#FF5252"/>
+    <rect x="28" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="18" width="4" height="4" fill="#FF5252"/>
+    <rect x="40" y="18" width="4" height="4" fill="#C62828"/>
+    <rect x="44" y="18" width="4" height="4" fill="#1B5E20"/>
+    <!-- Face -->
+    <rect x="16" y="22" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="22" width="4" height="4" fill="#81C784"/>
+    <rect x="28" y="22" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="22" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="22" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="22" width="4" height="4" fill="#2E7D32"/>
+    <!-- Mouth -->
+    <rect x="20" y="26" width="4" height="4" fill="#1B5E20"/>
+    <rect x="24" y="26" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="28" y="26" width="4" height="4" fill="#2D2D2D"/>
+    <rect x="32" y="26" width="4" height="4" fill="#2D2D2D"/>
+    <rect x="36" y="26" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="40" y="26" width="4" height="4" fill="#1B5E20"/>
+    <!-- Ears -->
+    <rect x="8" y="14" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="14" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="14" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="14" width="4" height="4" fill="#2E7D32"/>
+    <rect x="52" y="18" width="4" height="4" fill="#4CAF50"/>
+    <!-- Neck -->
+    <rect x="24" y="30" width="4" height="4" fill="#2E7D32"/>
+    <rect x="28" y="30" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="30" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="30" width="4" height="4" fill="#2E7D32"/>
+    <!-- Body -->
+    <rect x="12" y="34" width="4" height="4" fill="#1B5E20"/>
+    <rect x="16" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="34" width="4" height="4" fill="#81C784"/>
+    <rect x="24" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="28" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="34" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="34" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belly -->
+    <rect x="12" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="16" y="38" width="4" height="4" fill="#81C784"/>
+    <rect x="20" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="24" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="28" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="32" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="36" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="40" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="44" y="38" width="4" height="4" fill="#81C784"/>
+    <rect x="48" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="42" width="4" height="4" fill="#1B5E20"/>
+    <rect x="16" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="24" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="28" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="42" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belt -->
+    <rect x="16" y="46" width="4" height="4" fill="#3E2723"/>
+    <rect x="20" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="24" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="28" y="46" width="4" height="4" fill="#FFD700"/>
+    <rect x="32" y="46" width="4" height="4" fill="#FFD700"/>
+    <rect x="36" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="40" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="44" y="46" width="4" height="4" fill="#3E2723"/>
+    <rect x="20" y="50" width="4" height="4" fill="#4E342E"/>
+    <rect x="24" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="28" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="32" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="36" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="40" y="50" width="4" height="4" fill="#4E342E"/>
+    <!-- Left arm back with sword -->
+    <rect x="4" y="34" width="4" height="4" fill="#2E7D32"/>
+    <rect x="8" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="4" y="38" width="4" height="4" fill="#4CAF50"/>
+    <rect x="4" y="42" width="4" height="4" fill="#2E7D32"/>
+    <rect x="0" y="46" width="4" height="4" fill="#4CAF50"/>
+    <rect x="0" y="50" width="4" height="4" fill="#81C784"/>
+    <!-- Right arm forward -->
+    <rect x="52" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="34" width="4" height="4" fill="#2E7D32"/>
+    <rect x="56" y="38" width="4" height="4" fill="#4CAF50"/>
+    <rect x="60" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="60" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="60" y="46" width="4" height="4" fill="#81C784"/>
+    <!-- Left leg forward -->
+    <rect x="16" y="54" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="54" width="4" height="4" fill="#4CAF50"/>
+    <rect x="12" y="58" width="4" height="4" fill="#4CAF50"/>
+    <rect x="16" y="58" width="4" height="4" fill="#81C784"/>
+    <rect x="8" y="62" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="62" width="4" height="4" fill="#4CAF50"/>
+    <rect x="4" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="66" width="4" height="4" fill="#81C784"/>
+    <rect x="0" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="4" y="70" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="70" width="4" height="4" fill="#2E7D32"/>
+    <!-- Right leg back -->
+    <rect x="40" y="54" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="54" width="4" height="4" fill="#2E7D32"/>
+    <rect x="44" y="58" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="58" width="4" height="4" fill="#81C784"/>
+    <rect x="48" y="62" width="4" height="4" fill="#2E7D32"/>
+    <rect x="52" y="62" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="66" width="4" height="4" fill="#81C784"/>
+    <rect x="52" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="56" y="70" width="4" height="4" fill="#4CAF50"/>
+    <rect x="60" y="70" width="4" height="4" fill="#2E7D32"/>
+    <!-- Sword at side -->
+    <rect x="0" y="54" width="4" height="4" fill="#5D4037"/>
+    <rect x="0" y="22" width="4" height="4" fill="#455A64"/>
+    <rect x="0" y="18" width="4" height="4" fill="#78909C"/>
+    <rect x="0" y="14" width="4" height="4" fill="#607D8B"/>
+    <rect x="0" y="10" width="4" height="4" fill="#78909C"/>
+    <rect x="0" y="6" width="4" height="4" fill="#607D8B"/>
+    <rect x="0" y="2" width="4" height="4" fill="#455A64"/>
+  </g>
+
+  <!-- FRAME 2: WALK2 (x=128) - Right foot forward -->
+  <g id="frame_walk2" transform="translate(128, 0)">
+    <ellipse cx="32" cy="92" rx="18" ry="3" fill="#000000" opacity="0.5"/>
+    <!-- Crown -->
+    <rect x="20" y="6" width="4" height="4" fill="#FF8F00"/>
+    <rect x="24" y="2" width="4" height="4" fill="#FFD700"/>
+    <rect x="28" y="6" width="4" height="4" fill="#FFC107"/>
+    <rect x="32" y="2" width="4" height="4" fill="#FFD700"/>
+    <rect x="36" y="6" width="4" height="4" fill="#FFC107"/>
+    <rect x="40" y="2" width="4" height="4" fill="#FFD700"/>
+    <rect x="44" y="6" width="4" height="4" fill="#FF8F00"/>
+    <rect x="20" y="10" width="28" height="4" fill="#FFC107"/>
+    <!-- Head -->
+    <rect x="16" y="14" width="4" height="4" fill="#1B5E20"/>
+    <rect x="20" y="14" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="14" width="4" height="4" fill="#4CAF50"/>
+    <rect x="28" y="14" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="14" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="14" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="14" width="4" height="4" fill="#2E7D32"/>
+    <rect x="44" y="14" width="4" height="4" fill="#1B5E20"/>
+    <!-- Eyes -->
+    <rect x="16" y="18" width="4" height="4" fill="#1B5E20"/>
+    <rect x="20" y="18" width="4" height="4" fill="#C62828"/>
+    <rect x="24" y="18" width="4" height="4" fill="#FF5252"/>
+    <rect x="28" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="18" width="4" height="4" fill="#FF5252"/>
+    <rect x="40" y="18" width="4" height="4" fill="#C62828"/>
+    <rect x="44" y="18" width="4" height="4" fill="#1B5E20"/>
+    <!-- Face -->
+    <rect x="16" y="22" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="22" width="4" height="4" fill="#81C784"/>
+    <rect x="28" y="22" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="22" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="22" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="22" width="4" height="4" fill="#2E7D32"/>
+    <!-- Mouth -->
+    <rect x="20" y="26" width="4" height="4" fill="#1B5E20"/>
+    <rect x="24" y="26" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="28" y="26" width="4" height="4" fill="#2D2D2D"/>
+    <rect x="32" y="26" width="4" height="4" fill="#2D2D2D"/>
+    <rect x="36" y="26" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="40" y="26" width="4" height="4" fill="#1B5E20"/>
+    <!-- Ears -->
+    <rect x="8" y="14" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="14" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="14" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="14" width="4" height="4" fill="#2E7D32"/>
+    <rect x="52" y="18" width="4" height="4" fill="#4CAF50"/>
+    <!-- Neck -->
+    <rect x="24" y="30" width="4" height="4" fill="#2E7D32"/>
+    <rect x="28" y="30" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="30" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="30" width="4" height="4" fill="#2E7D32"/>
+    <!-- Body -->
+    <rect x="12" y="34" width="4" height="4" fill="#1B5E20"/>
+    <rect x="16" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="34" width="4" height="4" fill="#81C784"/>
+    <rect x="24" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="28" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="34" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="34" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belly -->
+    <rect x="12" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="16" y="38" width="4" height="4" fill="#81C784"/>
+    <rect x="20" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="24" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="28" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="32" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="36" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="40" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="44" y="38" width="4" height="4" fill="#81C784"/>
+    <rect x="48" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="42" width="4" height="4" fill="#1B5E20"/>
+    <rect x="16" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="24" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="28" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="42" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belt -->
+    <rect x="16" y="46" width="4" height="4" fill="#3E2723"/>
+    <rect x="20" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="24" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="28" y="46" width="4" height="4" fill="#FFD700"/>
+    <rect x="32" y="46" width="4" height="4" fill="#FFD700"/>
+    <rect x="36" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="40" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="44" y="46" width="4" height="4" fill="#3E2723"/>
+    <rect x="20" y="50" width="4" height="4" fill="#4E342E"/>
+    <rect x="24" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="28" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="32" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="36" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="40" y="50" width="4" height="4" fill="#4E342E"/>
+    <!-- Left arm forward -->
+    <rect x="4" y="34" width="4" height="4" fill="#2E7D32"/>
+    <rect x="8" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="0" y="38" width="4" height="4" fill="#4CAF50"/>
+    <rect x="4" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="0" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="0" y="46" width="4" height="4" fill="#81C784"/>
+    <!-- Right arm back -->
+    <rect x="52" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="34" width="4" height="4" fill="#2E7D32"/>
+    <rect x="56" y="38" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="42" width="4" height="4" fill="#2E7D32"/>
+    <rect x="60" y="46" width="4" height="4" fill="#4CAF50"/>
+    <rect x="60" y="50" width="4" height="4" fill="#81C784"/>
+    <!-- Left leg back -->
+    <rect x="20" y="54" width="4" height="4" fill="#2E7D32"/>
+    <rect x="16" y="54" width="4" height="4" fill="#4CAF50"/>
+    <rect x="16" y="58" width="4" height="4" fill="#4CAF50"/>
+    <rect x="12" y="58" width="4" height="4" fill="#81C784"/>
+    <rect x="12" y="62" width="4" height="4" fill="#2E7D32"/>
+    <rect x="8" y="62" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="4" y="66" width="4" height="4" fill="#81C784"/>
+    <rect x="8" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="4" y="70" width="4" height="4" fill="#4CAF50"/>
+    <rect x="0" y="70" width="4" height="4" fill="#2E7D32"/>
+    <!-- Right leg forward -->
+    <rect x="40" y="54" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="54" width="4" height="4" fill="#2E7D32"/>
+    <rect x="48" y="58" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="58" width="4" height="4" fill="#81C784"/>
+    <rect x="52" y="62" width="4" height="4" fill="#2E7D32"/>
+    <rect x="56" y="62" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="60" y="66" width="4" height="4" fill="#81C784"/>
+    <rect x="56" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="60" y="70" width="4" height="4" fill="#4CAF50"/>
+    <!-- Sword at side -->
+    <rect x="0" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="0" y="18" width="4" height="4" fill="#455A64"/>
+    <rect x="0" y="14" width="4" height="4" fill="#78909C"/>
+    <rect x="0" y="10" width="4" height="4" fill="#607D8B"/>
+    <rect x="0" y="6" width="4" height="4" fill="#78909C"/>
+    <rect x="0" y="2" width="4" height="4" fill="#455A64"/>
+  </g>
+
+  <!-- FRAME 3: CHARGE_WINDUP (x=192) - Crouched, sword pulled back -->
+  <g id="frame_charge_windup" transform="translate(192, 0)">
+    <ellipse cx="32" cy="92" rx="22" ry="4" fill="#000000" opacity="0.5"/>
+    <!-- Crown tilted forward -->
+    <rect x="24" y="10" width="4" height="4" fill="#FF8F00"/>
+    <rect x="28" y="6" width="4" height="4" fill="#FFD700"/>
+    <rect x="32" y="10" width="4" height="4" fill="#FFC107"/>
+    <rect x="36" y="6" width="4" height="4" fill="#FFD700"/>
+    <rect x="40" y="10" width="4" height="4" fill="#FFC107"/>
+    <rect x="44" y="6" width="4" height="4" fill="#FFD700"/>
+    <rect x="48" y="10" width="4" height="4" fill="#FF8F00"/>
+    <rect x="24" y="14" width="28" height="4" fill="#FFC107"/>
+    <!-- Head tilted forward -->
+    <rect x="20" y="18" width="4" height="4" fill="#1B5E20"/>
+    <rect x="24" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="28" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="48" y="18" width="4" height="4" fill="#1B5E20"/>
+    <!-- Angry eyes -->
+    <rect x="20" y="22" width="4" height="4" fill="#1B5E20"/>
+    <rect x="24" y="22" width="4" height="4" fill="#FF5252"/>
+    <rect x="28" y="22" width="4" height="4" fill="#FF1744"/>
+    <rect x="32" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="22" width="4" height="4" fill="#FF1744"/>
+    <rect x="44" y="22" width="4" height="4" fill="#FF5252"/>
+    <rect x="48" y="22" width="4" height="4" fill="#1B5E20"/>
+    <!-- Face -->
+    <rect x="24" y="26" width="4" height="4" fill="#2E7D32"/>
+    <rect x="28" y="26" width="4" height="4" fill="#81C784"/>
+    <rect x="32" y="26" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="26" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="26" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="26" width="4" height="4" fill="#2E7D32"/>
+    <!-- Open roaring mouth -->
+    <rect x="28" y="30" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="32" y="30" width="4" height="4" fill="#1A1A1A"/>
+    <rect x="36" y="30" width="4" height="4" fill="#1A1A1A"/>
+    <rect x="40" y="30" width="4" height="4" fill="#FFFFFF"/>
+    <!-- Ears -->
+    <rect x="12" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="16" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="12" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="56" y="22" width="4" height="4" fill="#4CAF50"/>
+    <!-- Crouched body -->
+    <rect x="16" y="34" width="4" height="4" fill="#1B5E20"/>
+    <rect x="20" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="34" width="4" height="4" fill="#81C784"/>
+    <rect x="28" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="44" y="34" width="4" height="4" fill="#81C784"/>
+    <rect x="48" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="34" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belly compressed -->
+    <rect x="16" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="38" width="4" height="4" fill="#81C784"/>
+    <rect x="24" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="28" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="32" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="36" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="40" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="44" y="38" width="4" height="4" fill="#81C784"/>
+    <rect x="48" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="42" width="4" height="4" fill="#1B5E20"/>
+    <rect x="24" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="28" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="32" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="42" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belt -->
+    <rect x="20" y="46" width="4" height="4" fill="#3E2723"/>
+    <rect x="24" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="28" y="46" width="4" height="4" fill="#FFD700"/>
+    <rect x="32" y="46" width="4" height="4" fill="#FFD700"/>
+    <rect x="36" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="40" y="46" width="4" height="4" fill="#3E2723"/>
+    <rect x="24" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="28" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="32" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="36" y="50" width="4" height="4" fill="#5D4037"/>
+    <!-- Left arm pulling sword back -->
+    <rect x="8" y="34" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="4" y="38" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="38" width="4" height="4" fill="#81C784"/>
+    <rect x="0" y="42" width="4" height="4" fill="#2E7D32"/>
+    <rect x="4" y="42" width="4" height="4" fill="#4CAF50"/>
+    <!-- Right arm forward for balance -->
+    <rect x="52" y="30" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="30" width="4" height="4" fill="#2E7D32"/>
+    <rect x="56" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="60" y="34" width="4" height="4" fill="#81C784"/>
+    <!-- Crouched legs -->
+    <rect x="20" y="54" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="54" width="4" height="4" fill="#4CAF50"/>
+    <rect x="16" y="58" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="58" width="4" height="4" fill="#81C784"/>
+    <rect x="12" y="62" width="4" height="4" fill="#2E7D32"/>
+    <rect x="16" y="62" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="12" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="70" width="4" height="4" fill="#4CAF50"/>
+    <rect x="16" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="36" y="54" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="54" width="4" height="4" fill="#2E7D32"/>
+    <rect x="40" y="58" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="58" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="62" width="4" height="4" fill="#2E7D32"/>
+    <rect x="48" y="62" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="52" y="70" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="70" width="4" height="4" fill="#2E7D32"/>
+    <!-- Sword pulled back horizontally -->
+    <rect x="0" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="0" y="50" width="4" height="4" fill="#455A64"/>
+    <rect x="0" y="54" width="4" height="4" fill="#78909C"/>
+    <rect x="0" y="58" width="4" height="4" fill="#607D8B"/>
+    <rect x="0" y="62" width="4" height="4" fill="#78909C"/>
+    <rect x="0" y="66" width="4" height="4" fill="#607D8B"/>
+    <rect x="0" y="70" width="4" height="4" fill="#455A64"/>
+    <!-- Serrations -->
+    <rect x="4" y="54" width="4" height="4" fill="#C62828"/>
+    <rect x="4" y="62" width="4" height="4" fill="#C62828"/>
+  </g>
+
+  <!-- FRAME 4: CHARGE_DASH (x=256) - Leaning forward, sword extended -->
+  <g id="frame_charge_dash" transform="translate(256, 0)">
+    <ellipse cx="36" cy="92" rx="18" ry="3" fill="#000000" opacity="0.5"/>
+    <!-- Crown -->
+    <rect x="32" y="10" width="4" height="4" fill="#FF8F00"/>
+    <rect x="36" y="6" width="4" height="4" fill="#FFD700"/>
+    <rect x="40" y="10" width="4" height="4" fill="#FFC107"/>
+    <rect x="44" y="6" width="4" height="4" fill="#FFD700"/>
+    <rect x="48" y="10" width="4" height="4" fill="#FFC107"/>
+    <rect x="52" y="6" width="4" height="4" fill="#FFD700"/>
+    <rect x="56" y="10" width="4" height="4" fill="#FF8F00"/>
+    <rect x="32" y="14" width="28" height="4" fill="#FFC107"/>
+    <!-- Head leaning forward -->
+    <rect x="28" y="18" width="4" height="4" fill="#1B5E20"/>
+    <rect x="32" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="36" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="56" y="18" width="4" height="4" fill="#1B5E20"/>
+    <!-- Fierce eyes -->
+    <rect x="28" y="22" width="4" height="4" fill="#1B5E20"/>
+    <rect x="32" y="22" width="4" height="4" fill="#FF5252"/>
+    <rect x="36" y="22" width="4" height="4" fill="#FF1744"/>
+    <rect x="40" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="22" width="4" height="4" fill="#FF1744"/>
+    <rect x="52" y="22" width="4" height="4" fill="#FF5252"/>
+    <rect x="56" y="22" width="4" height="4" fill="#1B5E20"/>
+    <!-- Face -->
+    <rect x="32" y="26" width="4" height="4" fill="#2E7D32"/>
+    <rect x="36" y="26" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="26" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="44" y="26" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="48" y="26" width="4" height="4" fill="#81C784"/>
+    <rect x="52" y="26" width="4" height="4" fill="#2E7D32"/>
+    <!-- Roaring mouth -->
+    <rect x="36" y="30" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="40" y="30" width="4" height="4" fill="#1A1A1A"/>
+    <rect x="44" y="30" width="4" height="4" fill="#1A1A1A"/>
+    <rect x="48" y="30" width="4" height="4" fill="#FFFFFF"/>
+    <!-- Ears -->
+    <rect x="20" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="60" y="18" width="4" height="4" fill="#2E7D32"/>
+    <!-- Body leaning forward -->
+    <rect x="24" y="34" width="4" height="4" fill="#1B5E20"/>
+    <rect x="28" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="34" width="4" height="4" fill="#81C784"/>
+    <rect x="36" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="44" y="34" width="4" height="4" fill="#81C784"/>
+    <rect x="48" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="34" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belly -->
+    <rect x="24" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="28" y="38" width="4" height="4" fill="#81C784"/>
+    <rect x="32" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="40" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="44" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="48" y="38" width="4" height="4" fill="#81C784"/>
+    <rect x="52" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="28" y="42" width="4" height="4" fill="#1B5E20"/>
+    <rect x="32" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="42" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belt -->
+    <rect x="28" y="46" width="4" height="4" fill="#3E2723"/>
+    <rect x="32" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="36" y="46" width="4" height="4" fill="#FFD700"/>
+    <rect x="40" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="44" y="46" width="4" height="4" fill="#3E2723"/>
+    <!-- Left arm with sword thrust forward -->
+    <rect x="16" y="30" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="30" width="4" height="4" fill="#4CAF50"/>
+    <rect x="12" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="16" y="34" width="4" height="4" fill="#81C784"/>
+    <rect x="8" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="38" width="4" height="4" fill="#4CAF50"/>
+    <!-- SWORD thrust forward horizontally -->
+    <rect x="4" y="38" width="4" height="4" fill="#5D4037"/>
+    <rect x="0" y="38" width="4" height="4" fill="#455A64"/>
+    <rect x="0" y="34" width="4" height="4" fill="#78909C"/>
+    <rect x="0" y="30" width="4" height="4" fill="#607D8B"/>
+    <rect x="0" y="26" width="4" height="4" fill="#78909C"/>
+    <rect x="0" y="22" width="4" height="4" fill="#607D8B"/>
+    <rect x="0" y="18" width="4" height="4" fill="#455A64"/>
+    <!-- Serrations -->
+    <rect x="4" y="30" width="4" height="4" fill="#C62828"/>
+    <rect x="4" y="22" width="4" height="4" fill="#C62828"/>
+    <!-- Right arm back for balance -->
+    <rect x="52" y="38" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="60" y="46" width="4" height="4" fill="#81C784"/>
+    <!-- Legs running -->
+    <rect x="28" y="50" width="4" height="4" fill="#2E7D32"/>
+    <rect x="32" y="50" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="54" width="4" height="4" fill="#4CAF50"/>
+    <rect x="28" y="54" width="4" height="4" fill="#81C784"/>
+    <rect x="20" y="58" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="58" width="4" height="4" fill="#4CAF50"/>
+    <rect x="16" y="62" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="62" width="4" height="4" fill="#81C784"/>
+    <rect x="12" y="66" width="4" height="4" fill="#2E7D32"/>
+    <rect x="16" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="66" width="4" height="4" fill="#2E7D32"/>
+    <rect x="40" y="50" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="50" width="4" height="4" fill="#2E7D32"/>
+    <rect x="44" y="54" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="54" width="4" height="4" fill="#81C784"/>
+    <rect x="48" y="58" width="4" height="4" fill="#2E7D32"/>
+    <rect x="52" y="58" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="62" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="62" width="4" height="4" fill="#81C784"/>
+    <rect x="52" y="66" width="4" height="4" fill="#2E7D32"/>
+    <rect x="56" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="60" y="66" width="4" height="4" fill="#2E7D32"/>
+  </g>
+
+  <!-- FRAME 5: SWIPE_WINDUP (x=320) - Sword raised high -->
+  <g id="frame_swipe_windup" transform="translate(320, 0)">
+    <ellipse cx="32" cy="92" rx="20" ry="4" fill="#000000" opacity="0.5"/>
+    <!-- Crown -->
+    <rect x="20" y="10" width="4" height="4" fill="#FF8F00"/>
+    <rect x="24" y="6" width="4" height="4" fill="#FFD700"/>
+    <rect x="28" y="10" width="4" height="4" fill="#FFC107"/>
+    <rect x="32" y="6" width="4" height="4" fill="#FFD700"/>
+    <rect x="36" y="10" width="4" height="4" fill="#FFC107"/>
+    <rect x="40" y="6" width="4" height="4" fill="#FFD700"/>
+    <rect x="44" y="10" width="4" height="4" fill="#FF8F00"/>
+    <rect x="20" y="14" width="28" height="4" fill="#FFC107"/>
+    <!-- Head -->
+    <rect x="16" y="18" width="4" height="4" fill="#1B5E20"/>
+    <rect x="20" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="28" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="44" y="18" width="4" height="4" fill="#1B5E20"/>
+    <!-- Eyes -->
+    <rect x="16" y="22" width="4" height="4" fill="#1B5E20"/>
+    <rect x="20" y="22" width="4" height="4" fill="#C62828"/>
+    <rect x="24" y="22" width="4" height="4" fill="#FF5252"/>
+    <rect x="28" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="22" width="4" height="4" fill="#FF5252"/>
+    <rect x="40" y="22" width="4" height="4" fill="#C62828"/>
+    <rect x="44" y="22" width="4" height="4" fill="#1B5E20"/>
+    <!-- Face -->
+    <rect x="16" y="26" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="26" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="26" width="4" height="4" fill="#81C784"/>
+    <rect x="28" y="26" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="26" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="26" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="26" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="26" width="4" height="4" fill="#2E7D32"/>
+    <!-- Mouth -->
+    <rect x="20" y="30" width="4" height="4" fill="#1B5E20"/>
+    <rect x="24" y="30" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="28" y="30" width="4" height="4" fill="#2D2D2D"/>
+    <rect x="32" y="30" width="4" height="4" fill="#2D2D2D"/>
+    <rect x="36" y="30" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="40" y="30" width="4" height="4" fill="#1B5E20"/>
+    <!-- Ears -->
+    <rect x="8" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="52" y="22" width="4" height="4" fill="#4CAF50"/>
+    <!-- Body -->
+    <rect x="12" y="34" width="4" height="4" fill="#1B5E20"/>
+    <rect x="16" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="34" width="4" height="4" fill="#81C784"/>
+    <rect x="24" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="28" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="34" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="34" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belly -->
+    <rect x="12" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="16" y="38" width="4" height="4" fill="#81C784"/>
+    <rect x="20" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="24" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="28" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="32" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="36" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="40" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="44" y="38" width="4" height="4" fill="#81C784"/>
+    <rect x="48" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="42" width="4" height="4" fill="#1B5E20"/>
+    <rect x="16" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="24" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="28" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="42" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belt -->
+    <rect x="16" y="46" width="4" height="4" fill="#3E2723"/>
+    <rect x="20" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="24" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="28" y="46" width="4" height="4" fill="#FFD700"/>
+    <rect x="32" y="46" width="4" height="4" fill="#FFD700"/>
+    <rect x="36" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="40" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="44" y="46" width="4" height="4" fill="#3E2723"/>
+    <rect x="20" y="50" width="4" height="4" fill="#4E342E"/>
+    <rect x="24" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="28" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="32" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="36" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="40" y="50" width="4" height="4" fill="#4E342E"/>
+    <!-- Left arm raised high with sword -->
+    <rect x="4" y="26" width="4" height="4" fill="#2E7D32"/>
+    <rect x="8" y="26" width="4" height="4" fill="#4CAF50"/>
+    <rect x="0" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="4" y="22" width="4" height="4" fill="#81C784"/>
+    <rect x="0" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="4" y="18" width="4" height="4" fill="#4CAF50"/>
+    <!-- SWORD raised vertically -->
+    <rect x="0" y="14" width="4" height="4" fill="#5D4037"/>
+    <rect x="0" y="10" width="4" height="4" fill="#455A64"/>
+    <rect x="0" y="6" width="4" height="4" fill="#78909C"/>
+    <rect x="0" y="2" width="4" height="4" fill="#607D8B"/>
+    <!-- Serrations on left -->
+    <rect x="4" y="6" width="4" height="4" fill="#C62828"/>
+    <!-- Right arm down -->
+    <rect x="52" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="34" width="4" height="4" fill="#2E7D32"/>
+    <rect x="56" y="38" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="42" width="4" height="4" fill="#81C784"/>
+    <!-- Legs standing -->
+    <rect x="20" y="54" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="54" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="54" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="54" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="58" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="58" width="4" height="4" fill="#81C784"/>
+    <rect x="36" y="58" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="58" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="62" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="62" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="62" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="62" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="66" width="4" height="4" fill="#81C784"/>
+    <rect x="36" y="66" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="66" width="4" height="4" fill="#4CAF50"/>
+    <!-- Feet -->
+    <rect x="16" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="70" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="70" width="4" height="4" fill="#4CAF50"/>
+    <rect x="28" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="32" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="36" y="70" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="70" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="70" width="4" height="4" fill="#2E7D32"/>
+  </g>
+
+  <!-- FRAME 6: SWIPE_STRIKE (x=384) - Sword swept across -->
+  <g id="frame_swipe_strike" transform="translate(384, 0)">
+    <ellipse cx="32" cy="92" rx="20" ry="4" fill="#000000" opacity="0.5"/>
+    <!-- Crown -->
+    <rect x="20" y="10" width="4" height="4" fill="#FF8F00"/>
+    <rect x="24" y="6" width="4" height="4" fill="#FFD700"/>
+    <rect x="28" y="10" width="4" height="4" fill="#FFC107"/>
+    <rect x="32" y="6" width="4" height="4" fill="#FFD700"/>
+    <rect x="36" y="10" width="4" height="4" fill="#FFC107"/>
+    <rect x="40" y="6" width="4" height="4" fill="#FFD700"/>
+    <rect x="44" y="10" width="4" height="4" fill="#FF8F00"/>
+    <rect x="20" y="14" width="28" height="4" fill="#FFC107"/>
+    <!-- Head -->
+    <rect x="16" y="18" width="4" height="4" fill="#1B5E20"/>
+    <rect x="20" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="28" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="44" y="18" width="4" height="4" fill="#1B5E20"/>
+    <!-- Eyes -->
+    <rect x="16" y="22" width="4" height="4" fill="#1B5E20"/>
+    <rect x="20" y="22" width="4" height="4" fill="#FF1744"/>
+    <rect x="24" y="22" width="4" height="4" fill="#FF5252"/>
+    <rect x="28" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="22" width="4" height="4" fill="#FF5252"/>
+    <rect x="40" y="22" width="4" height="4" fill="#FF1744"/>
+    <rect x="44" y="22" width="4" height="4" fill="#1B5E20"/>
+    <!-- Face -->
+    <rect x="16" y="26" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="26" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="26" width="4" height="4" fill="#81C784"/>
+    <rect x="28" y="26" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="26" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="26" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="26" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="26" width="4" height="4" fill="#2E7D32"/>
+    <!-- Mouth -->
+    <rect x="20" y="30" width="4" height="4" fill="#1B5E20"/>
+    <rect x="24" y="30" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="28" y="30" width="4" height="4" fill="#1A1A1A"/>
+    <rect x="32" y="30" width="4" height="4" fill="#1A1A1A"/>
+    <rect x="36" y="30" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="40" y="30" width="4" height="4" fill="#1B5E20"/>
+    <!-- Ears -->
+    <rect x="8" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="18" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="18" width="4" height="4" fill="#2E7D32"/>
+    <rect x="52" y="22" width="4" height="4" fill="#4CAF50"/>
+    <!-- Body twisted -->
+    <rect x="12" y="34" width="4" height="4" fill="#1B5E20"/>
+    <rect x="16" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="34" width="4" height="4" fill="#81C784"/>
+    <rect x="24" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="28" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="34" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="34" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="34" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belly -->
+    <rect x="12" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="16" y="38" width="4" height="4" fill="#81C784"/>
+    <rect x="20" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="24" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="28" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="32" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="36" y="38" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="40" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="44" y="38" width="4" height="4" fill="#81C784"/>
+    <rect x="48" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="42" width="4" height="4" fill="#1B5E20"/>
+    <rect x="16" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="24" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="28" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="42" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belt -->
+    <rect x="16" y="46" width="4" height="4" fill="#3E2723"/>
+    <rect x="20" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="24" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="28" y="46" width="4" height="4" fill="#FFD700"/>
+    <rect x="32" y="46" width="4" height="4" fill="#FFD700"/>
+    <rect x="36" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="40" y="46" width="4" height="4" fill="#5D4037"/>
+    <rect x="44" y="46" width="4" height="4" fill="#3E2723"/>
+    <rect x="20" y="50" width="4" height="4" fill="#4E342E"/>
+    <rect x="24" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="28" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="32" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="36" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="40" y="50" width="4" height="4" fill="#4E342E"/>
+    <!-- Left arm swept across - horizontal sword at waist level -->
+    <rect x="4" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="8" y="38" width="4" height="4" fill="#4CAF50"/>
+    <!-- Right arm pulled back -->
+    <rect x="52" y="34" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="60" y="42" width="4" height="4" fill="#4CAF50"/>
+    <!-- SWORD swept horizontally to the right -->
+    <rect x="0" y="38" width="4" height="4" fill="#5D4037"/>
+    <rect x="52" y="38" width="4" height="4" fill="#455A64"/>
+    <rect x="56" y="42" width="4" height="4" fill="#78909C"/>
+    <rect x="60" y="38" width="4" height="4" fill="#607D8B"/>
+    <!-- Serrations -->
+    <rect x="56" y="34" width="4" height="4" fill="#C62828"/>
+    <rect x="60" y="34" width="4" height="4" fill="#C62828"/>
+    <!-- Slash effect -->
+    <rect x="52" y="30" width="4" height="4" fill="#FFFFFF" opacity="0.8"/>
+    <rect x="56" y="26" width="4" height="4" fill="#FFFFFF" opacity="0.6"/>
+    <rect x="60" y="30" width="4" height="4" fill="#FFFFFF" opacity="0.4"/>
+    <!-- Legs planted -->
+    <rect x="20" y="54" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="54" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="54" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="54" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="58" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="58" width="4" height="4" fill="#81C784"/>
+    <rect x="36" y="58" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="58" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="62" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="62" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="62" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="62" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="66" width="4" height="4" fill="#81C784"/>
+    <rect x="36" y="66" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="66" width="4" height="4" fill="#4CAF50"/>
+    <!-- Feet -->
+    <rect x="16" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="70" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="70" width="4" height="4" fill="#4CAF50"/>
+    <rect x="28" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="32" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="36" y="70" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="70" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="70" width="4" height="4" fill="#2E7D32"/>
+  </g>
+
+  <!-- FRAME 7: POUND_WINDUP (x=448) - Jumping up, sword raised -->
+  <g id="frame_pound_windup" transform="translate(448, 0)">
+    <!-- No ground shadow - in air -->
+    <!-- Crown -->
+    <rect x="20" y="0" width="4" height="4" fill="#FF8F00"/>
+    <rect x="24" y="0" width="4" height="4" fill="#FFD700"/>
+    <rect x="28" y="0" width="4" height="4" fill="#FFC107"/>
+    <rect x="32" y="0" width="4" height="4" fill="#FFD700"/>
+    <rect x="36" y="0" width="4" height="4" fill="#FFC107"/>
+    <rect x="40" y="0" width="4" height="4" fill="#FFD700"/>
+    <rect x="44" y="0" width="4" height="4" fill="#FF8F00"/>
+    <rect x="20" y="4" width="28" height="4" fill="#FFC107"/>
+    <!-- Head -->
+    <rect x="16" y="8" width="4" height="4" fill="#1B5E20"/>
+    <rect x="20" y="8" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="8" width="4" height="4" fill="#4CAF50"/>
+    <rect x="28" y="8" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="8" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="8" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="8" width="4" height="4" fill="#2E7D32"/>
+    <rect x="44" y="8" width="4" height="4" fill="#1B5E20"/>
+    <!-- Eyes -->
+    <rect x="16" y="12" width="4" height="4" fill="#1B5E20"/>
+    <rect x="20" y="12" width="4" height="4" fill="#FF1744"/>
+    <rect x="24" y="12" width="4" height="4" fill="#FF5252"/>
+    <rect x="28" y="12" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="12" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="12" width="4" height="4" fill="#FF5252"/>
+    <rect x="40" y="12" width="4" height="4" fill="#FF1744"/>
+    <rect x="44" y="12" width="4" height="4" fill="#1B5E20"/>
+    <!-- Face -->
+    <rect x="16" y="16" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="16" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="16" width="4" height="4" fill="#81C784"/>
+    <rect x="28" y="16" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="16" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="16" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="16" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="16" width="4" height="4" fill="#2E7D32"/>
+    <!-- Mouth roaring -->
+    <rect x="20" y="20" width="4" height="4" fill="#1B5E20"/>
+    <rect x="24" y="20" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="28" y="20" width="4" height="4" fill="#1A1A1A"/>
+    <rect x="32" y="20" width="4" height="4" fill="#1A1A1A"/>
+    <rect x="36" y="20" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="40" y="20" width="4" height="4" fill="#1B5E20"/>
+    <!-- Ears -->
+    <rect x="8" y="8" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="8" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="12" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="8" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="8" width="4" height="4" fill="#2E7D32"/>
+    <rect x="52" y="12" width="4" height="4" fill="#4CAF50"/>
+    <!-- Body -->
+    <rect x="12" y="24" width="4" height="4" fill="#1B5E20"/>
+    <rect x="16" y="24" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="24" width="4" height="4" fill="#81C784"/>
+    <rect x="24" y="24" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="28" y="24" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="24" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="24" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="24" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="24" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="24" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belly -->
+    <rect x="12" y="28" width="4" height="4" fill="#2E7D32"/>
+    <rect x="16" y="28" width="4" height="4" fill="#81C784"/>
+    <rect x="20" y="28" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="24" y="28" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="28" y="28" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="32" y="28" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="36" y="28" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="40" y="28" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="44" y="28" width="4" height="4" fill="#81C784"/>
+    <rect x="48" y="28" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="32" width="4" height="4" fill="#1B5E20"/>
+    <rect x="16" y="32" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="32" width="4" height="4" fill="#81C784"/>
+    <rect x="24" y="32" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="28" y="32" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="32" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="32" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="32" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="32" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="32" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belt -->
+    <rect x="16" y="36" width="4" height="4" fill="#3E2723"/>
+    <rect x="20" y="36" width="4" height="4" fill="#5D4037"/>
+    <rect x="24" y="36" width="4" height="4" fill="#5D4037"/>
+    <rect x="28" y="36" width="4" height="4" fill="#FFD700"/>
+    <rect x="32" y="36" width="4" height="4" fill="#FFD700"/>
+    <rect x="36" y="36" width="4" height="4" fill="#5D4037"/>
+    <rect x="40" y="36" width="4" height="4" fill="#5D4037"/>
+    <rect x="44" y="36" width="4" height="4" fill="#3E2723"/>
+    <rect x="20" y="40" width="4" height="4" fill="#4E342E"/>
+    <rect x="24" y="40" width="4" height="4" fill="#5D4037"/>
+    <rect x="28" y="40" width="4" height="4" fill="#5D4037"/>
+    <rect x="32" y="40" width="4" height="4" fill="#5D4037"/>
+    <rect x="36" y="40" width="4" height="4" fill="#5D4037"/>
+    <rect x="40" y="40" width="4" height="4" fill="#4E342E"/>
+    <!-- Arms raised high holding sword with both hands -->
+    <rect x="4" y="16" width="4" height="4" fill="#2E7D32"/>
+    <rect x="8" y="16" width="4" height="4" fill="#4CAF50"/>
+    <rect x="0" y="12" width="4" height="4" fill="#4CAF50"/>
+    <rect x="4" y="12" width="4" height="4" fill="#81C784"/>
+    <rect x="0" y="8" width="4" height="4" fill="#2E7D32"/>
+    <rect x="4" y="8" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="16" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="16" width="4" height="4" fill="#2E7D32"/>
+    <rect x="56" y="12" width="4" height="4" fill="#4CAF50"/>
+    <rect x="60" y="12" width="4" height="4" fill="#81C784"/>
+    <rect x="56" y="8" width="4" height="4" fill="#2E7D32"/>
+    <rect x="60" y="8" width="4" height="4" fill="#4CAF50"/>
+    <!-- SWORD raised vertically above head -->
+    <rect x="28" y="0" width="4" height="4" fill="#5D4037"/>
+    <!-- Legs tucked -->
+    <rect x="20" y="44" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="44" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="44" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="44" width="4" height="4" fill="#2E7D32"/>
+    <rect x="16" y="48" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="48" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="48" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="48" width="4" height="4" fill="#4CAF50"/>
+    <rect x="16" y="52" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="52" width="4" height="4" fill="#4CAF50"/>
+    <rect x="24" y="52" width="4" height="4" fill="#2E7D32"/>
+    <rect x="36" y="52" width="4" height="4" fill="#2E7D32"/>
+    <rect x="40" y="52" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="52" width="4" height="4" fill="#2E7D32"/>
+  </g>
+
+  <!-- FRAME 8: POUND_IMPACT (x=512) - Landing with shockwave -->
+  <g id="frame_pound_impact" transform="translate(512, 0)">
+    <ellipse cx="32" cy="92" rx="24" ry="5" fill="#000000" opacity="0.6"/>
+    <!-- Shockwave rings -->
+    <ellipse cx="32" cy="80" rx="28" ry="4" fill="none" stroke="#FFD700" stroke-width="2" opacity="0.8"/>
+    <ellipse cx="32" cy="84" rx="20" ry="3" fill="none" stroke="#FFC107" stroke-width="2" opacity="0.6"/>
+    <!-- Crown tilted down -->
+    <rect x="20" y="14" width="4" height="4" fill="#FF8F00"/>
+    <rect x="24" y="10" width="4" height="4" fill="#FFD700"/>
+    <rect x="28" y="14" width="4" height="4" fill="#FFC107"/>
+    <rect x="32" y="10" width="4" height="4" fill="#FFD700"/>
+    <rect x="36" y="14" width="4" height="4" fill="#FFC107"/>
+    <rect x="40" y="10" width="4" height="4" fill="#FFD700"/>
+    <rect x="44" y="14" width="4" height="4" fill="#FF8F00"/>
+    <rect x="20" y="18" width="28" height="4" fill="#FFC107"/>
+    <!-- Head looking down -->
+    <rect x="16" y="22" width="4" height="4" fill="#1B5E20"/>
+    <rect x="20" y="22" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="28" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="22" width="4" height="4" fill="#2E7D32"/>
+    <rect x="44" y="22" width="4" height="4" fill="#1B5E20"/>
+    <!-- Eyes -->
+    <rect x="16" y="26" width="4" height="4" fill="#1B5E20"/>
+    <rect x="20" y="26" width="4" height="4" fill="#FF1744"/>
+    <rect x="24" y="26" width="4" height="4" fill="#FF5252"/>
+    <rect x="28" y="26" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="26" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="26" width="4" height="4" fill="#FF5252"/>
+    <rect x="40" y="26" width="4" height="4" fill="#FF1744"/>
+    <rect x="44" y="26" width="4" height="4" fill="#1B5E20"/>
+    <!-- Face -->
+    <rect x="20" y="30" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="30" width="4" height="4" fill="#81C784"/>
+    <rect x="28" y="30" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="30" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="30" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="30" width="4" height="4" fill="#2E7D32"/>
+    <!-- Mouth -->
+    <rect x="24" y="34" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="28" y="34" width="4" height="4" fill="#1A1A1A"/>
+    <rect x="32" y="34" width="4" height="4" fill="#1A1A1A"/>
+    <rect x="36" y="34" width="4" height="4" fill="#FFFFFF"/>
+    <!-- Ears -->
+    <rect x="8" y="22" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="26" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="22" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="22" width="4" height="4" fill="#2E7D32"/>
+    <rect x="52" y="26" width="4" height="4" fill="#4CAF50"/>
+    <!-- Body crouched from impact -->
+    <rect x="12" y="38" width="4" height="4" fill="#1B5E20"/>
+    <rect x="16" y="38" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="38" width="4" height="4" fill="#81C784"/>
+    <rect x="24" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="28" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="32" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="36" y="38" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="38" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="38" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="38" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belly compressed -->
+    <rect x="16" y="42" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="24" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="28" y="42" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="32" y="42" width="4" height="4" fill="#C8E6C9"/>
+    <rect x="36" y="42" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="42" width="4" height="4" fill="#2E7D32"/>
+    <rect x="20" y="46" width="4" height="4" fill="#1B5E20"/>
+    <rect x="24" y="46" width="4" height="4" fill="#4CAF50"/>
+    <rect x="28" y="46" width="4" height="4" fill="#81C784"/>
+    <rect x="32" y="46" width="4" height="4" fill="#81C784"/>
+    <rect x="36" y="46" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="46" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belt -->
+    <rect x="20" y="50" width="4" height="4" fill="#3E2723"/>
+    <rect x="24" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="28" y="50" width="4" height="4" fill="#FFD700"/>
+    <rect x="32" y="50" width="4" height="4" fill="#FFD700"/>
+    <rect x="36" y="50" width="4" height="4" fill="#5D4037"/>
+    <rect x="40" y="50" width="4" height="4" fill="#3E2723"/>
+    <!-- Arms down planting sword -->
+    <rect x="4" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="8" y="38" width="4" height="4" fill="#4CAF50"/>
+    <rect x="4" y="42" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="52" y="38" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="38" width="4" height="4" fill="#2E7D32"/>
+    <rect x="52" y="42" width="4" height="4" fill="#81C784"/>
+    <rect x="56" y="42" width="4" height="4" fill="#4CAF50"/>
+    <!-- SWORD planted in ground -->
+    <rect x="28" y="54" width="4" height="4" fill="#5D4037"/>
+    <rect x="24" y="58" width="4" height="4" fill="#455A64"/>
+    <rect x="28" y="58" width="4" height="4" fill="#607D8B"/>
+    <rect x="32" y="58" width="4" height="4" fill="#455A64"/>
+    <rect x="28" y="62" width="4" height="4" fill="#78909C"/>
+    <rect x="28" y="66" width="4" height="4" fill="#607D8B"/>
+    <rect x="28" y="70" width="4" height="4" fill="#78909C"/>
+    <rect x="28" y="74" width="4" height="4" fill="#455A64"/>
+    <!-- Serrations -->
+    <rect x="24" y="66" width="4" height="4" fill="#C62828"/>
+    <rect x="32" y="70" width="4" height="4" fill="#C62828"/>
+    <!-- Legs spread and crouched -->
+    <rect x="12" y="54" width="4" height="4" fill="#2E7D32"/>
+    <rect x="16" y="54" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="58" width="4" height="4" fill="#4CAF50"/>
+    <rect x="12" y="58" width="4" height="4" fill="#81C784"/>
+    <rect x="4" y="62" width="4" height="4" fill="#2E7D32"/>
+    <rect x="8" y="62" width="4" height="4" fill="#4CAF50"/>
+    <rect x="0" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="4" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="0" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="4" y="70" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="44" y="54" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="54" width="4" height="4" fill="#2E7D32"/>
+    <rect x="48" y="58" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="58" width="4" height="4" fill="#81C784"/>
+    <rect x="52" y="62" width="4" height="4" fill="#2E7D32"/>
+    <rect x="56" y="62" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="60" y="66" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="70" width="4" height="4" fill="#2E7D32"/>
+    <rect x="56" y="70" width="4" height="4" fill="#4CAF50"/>
+    <rect x="60" y="70" width="4" height="4" fill="#2E7D32"/>
+  </g>
+
+  <!-- FRAME 9: DEATH1 (x=576) - Hit recoil -->
+  <g id="frame_death1" transform="translate(576, 0)">
+    <ellipse cx="32" cy="92" rx="18" ry="3" fill="#000000" opacity="0.4"/>
+    <!-- Crown falling off -->
+    <rect x="8" y="8" width="4" height="4" fill="#FF8F00"/>
+    <rect x="12" y="4" width="4" height="4" fill="#FFD700"/>
+    <rect x="16" y="8" width="4" height="4" fill="#FFC107"/>
+    <rect x="8" y="12" width="16" height="4" fill="#FFC107"/>
+    <!-- Head recoiling back, eyes white -->
+    <rect x="24" y="16" width="4" height="4" fill="#1B5E20"/>
+    <rect x="28" y="16" width="4" height="4" fill="#2E7D32"/>
+    <rect x="32" y="16" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="16" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="16" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="16" width="4" height="4" fill="#2E7D32"/>
+    <rect x="48" y="16" width="4" height="4" fill="#1B5E20"/>
+    <!-- White eyes - hit stun -->
+    <rect x="28" y="20" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="32" y="20" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="40" y="20" width="4" height="4" fill="#FFFFFF"/>
+    <rect x="44" y="20" width="4" height="4" fill="#FFFFFF"/>
+    <!-- Face -->
+    <rect x="28" y="24" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="24" width="4" height="4" fill="#81C784"/>
+    <rect x="36" y="24" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="24" width="4" height="4" fill="#4CAF50"/>
+    <!-- Open mouth in pain -->
+    <rect x="32" y="28" width="4" height="4" fill="#1A1A1A"/>
+    <rect x="36" y="28" width="4" height="4" fill="#1A1A1A"/>
+    <!-- Ears -->
+    <rect x="52" y="16" width="4" height="4" fill="#2E7D32"/>
+    <rect x="56" y="20" width="4" height="4" fill="#4CAF50"/>
+    <!-- Body staggering back -->
+    <rect x="24" y="32" width="4" height="4" fill="#1B5E20"/>
+    <rect x="28" y="32" width="4" height="4" fill="#4CAF50"/>
+    <rect x="32" y="32" width="4" height="4" fill="#81C784"/>
+    <rect x="36" y="32" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="32" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="32" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="32" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belly -->
+    <rect x="28" y="36" width="4" height="4" fill="#2E7D32"/>
+    <rect x="32" y="36" width="4" height="4" fill="#81C784"/>
+    <rect x="36" y="36" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="36" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="36" width="4" height="4" fill="#2E7D32"/>
+    <rect x="28" y="40" width="4" height="4" fill="#1B5E20"/>
+    <rect x="32" y="40" width="4" height="4" fill="#4CAF50"/>
+    <rect x="36" y="40" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="40" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="40" width="4" height="4" fill="#1B5E20"/>
+    <!-- Belt -->
+    <rect x="28" y="44" width="4" height="4" fill="#3E2723"/>
+    <rect x="32" y="44" width="4" height="4" fill="#5D4037"/>
+    <rect x="36" y="44" width="4" height="4" fill="#FFD700"/>
+    <rect x="40" y="44" width="4" height="4" fill="#5D4037"/>
+    <rect x="44" y="44" width="4" height="4" fill="#3E2723"/>
+    <!-- Arms flailing -->
+    <rect x="20" y="32" width="4" height="4" fill="#4CAF50"/>
+    <rect x="16" y="36" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="40" width="4" height="4" fill="#81C784"/>
+    <rect x="52" y="32" width="4" height="4" fill="#4CAF50"/>
+    <rect x="56" y="36" width="4" height="4" fill="#2E7D32"/>
+    <rect x="60" y="40" width="4" height="4" fill="#81C784"/>
+    <!-- Legs stumbling -->
+    <rect x="28" y="48" width="4" height="4" fill="#2E7D32"/>
+    <rect x="32" y="48" width="4" height="4" fill="#4CAF50"/>
+    <rect x="40" y="48" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="48" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="52" width="4" height="4" fill="#4CAF50"/>
+    <rect x="28" y="52" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="52" width="4" height="4" fill="#81C784"/>
+    <rect x="48" y="52" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="56" width="4" height="4" fill="#2E7D32"/>
+    <rect x="24" y="56" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="56" width="4" height="4" fill="#4CAF50"/>
+    <rect x="52" y="56" width="4" height="4" fill="#2E7D32"/>
+    <rect x="16" y="60" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="60" width="4" height="4" fill="#81C784"/>
+    <rect x="52" y="60" width="4" height="4" fill="#81C784"/>
+    <rect x="56" y="60" width="4" height="4" fill="#4CAF50"/>
+    <!-- Feet -->
+    <rect x="12" y="64" width="4" height="4" fill="#2E7D32"/>
+    <rect x="16" y="64" width="4" height="4" fill="#4CAF50"/>
+    <rect x="20" y="64" width="4" height="4" fill="#2E7D32"/>
+    <rect x="52" y="64" width="4" height="4" fill="#2E7D32"/>
+    <rect x="56" y="64" width="4" height="4" fill="#4CAF50"/>
+    <rect x="60" y="64" width="4" height="4" fill="#2E7D32"/>
+    <!-- Sword flying away -->
+    <rect x="0" y="24" width="4" height="4" fill="#5D4037"/>
+    <rect x="0" y="20" width="4" height="4" fill="#455A64"/>
+    <rect x="0" y="16" width="4" height="4" fill="#78909C"/>
+    <rect x="0" y="12" width="4" height="4" fill="#607D8B"/>
+    <rect x="4" y="16" width="4" height="4" fill="#C62828"/>
+    <!-- Blood splatter -->
+    <rect x="36" y="20" width="4" height="4" fill="#C62828"/>
+    <rect x="48" y="24" width="4" height="4" fill="#B71C1C"/>
+  </g>
+
+  <!-- FRAME 10: DEATH2 (x=640) - Splitting apart -->
+  <g id="frame_death2" transform="translate(640, 0)">
+    <ellipse cx="32" cy="92" rx="20" ry="4" fill="#8B0000" opacity="0.6"/>
+    <!-- Upper body chunk flying up-left -->
+    <rect x="8" y="20" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="20" width="4" height="4" fill="#4CAF50"/>
+    <rect x="16" y="20" width="4" height="4" fill="#81C784"/>
+    <rect x="8" y="24" width="4" height="4" fill="#4CAF50"/>
+    <rect x="12" y="24" width="4" height="4" fill="#81C784"/>
+    <rect x="16" y="24" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="8" y="28" width="4" height="4" fill="#81C784"/>
+    <rect x="12" y="28" width="4" height="4" fill="#A5D6A7"/>
+    <!-- Crown piece -->
+    <rect x="4" y="12" width="4" height="4" fill="#FFD700"/>
+    <rect x="8" y="16" width="4" height="4" fill="#FFC107"/>
+    <!-- Eye white -->
+    <rect x="16" y="16" width="4" height="4" fill="#FFFFFF"/>
+    <!-- Lower body chunk falling -->
+    <rect x="40" y="44" width="4" height="4" fill="#2E7D32"/>
+    <rect x="44" y="44" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="44" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="48" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="48" width="4" height="4" fill="#81C784"/>
+    <rect x="48" y="48" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="40" y="52" width="4" height="4" fill="#5D4037"/>
+    <rect x="44" y="52" width="4" height="4" fill="#FFD700"/>
+    <rect x="48" y="52" width="4" height="4" fill="#5D4037"/>
+    <!-- Legs chunk -->
+    <rect x="44" y="56" width="4" height="4" fill="#2E7D32"/>
+    <rect x="48" y="56" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="60" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="60" width="4" height="4" fill="#81C784"/>
+    <rect x="44" y="64" width="4" height="4" fill="#2E7D32"/>
+    <rect x="48" y="64" width="4" height="4" fill="#4CAF50"/>
+    <!-- GUTS spilling - green/yellow -->
+    <rect x="24" y="32" width="4" height="4" fill="#558B2F"/>
+    <rect x="28" y="32" width="4" height="4" fill="#9E9D24"/>
+    <rect x="32" y="32" width="4" height="4" fill="#558B2F"/>
+    <rect x="28" y="36" width="4" height="4" fill="#689F38"/>
+    <rect x="32" y="36" width="4" height="4" fill="#9E9D24"/>
+    <rect x="36" y="36" width="4" height="4" fill="#558B2F"/>
+    <rect x="24" y="40" width="4" height="4" fill="#9E9D24"/>
+    <rect x="28" y="40" width="4" height="4" fill="#558B2F"/>
+    <rect x="32" y="40" width="4" height="4" fill="#689F38"/>
+    <rect x="36" y="40" width="4" height="4" fill="#9E9D24"/>
+    <rect x="28" y="44" width="4" height="4" fill="#689F38"/>
+    <rect x="32" y="44" width="4" height="4" fill="#558B2F"/>
+    <!-- Blood spray -->
+    <rect x="20" y="28" width="4" height="4" fill="#C62828"/>
+    <rect x="24" y="24" width="4" height="4" fill="#B71C1C"/>
+    <rect x="28" y="28" width="4" height="4" fill="#C62828"/>
+    <rect x="36" y="28" width="4" height="4" fill="#B71C1C"/>
+    <rect x="40" y="32" width="4" height="4" fill="#C62828"/>
+    <rect x="20" y="36" width="4" height="4" fill="#8B0000"/>
+    <rect x="40" y="40" width="4" height="4" fill="#8B0000"/>
+    <!-- Sword pieces -->
+    <rect x="0" y="48" width="4" height="4" fill="#455A64"/>
+    <rect x="4" y="52" width="4" height="4" fill="#78909C"/>
+    <rect x="56" y="36" width="4" height="4" fill="#607D8B"/>
+    <rect x="60" y="40" width="4" height="4" fill="#C62828"/>
+    <!-- Blood pool forming -->
+    <rect x="20" y="76" width="4" height="4" fill="#8B0000"/>
+    <rect x="24" y="76" width="4" height="4" fill="#B71C1C"/>
+    <rect x="28" y="76" width="4" height="4" fill="#C62828"/>
+    <rect x="32" y="76" width="4" height="4" fill="#C62828"/>
+    <rect x="36" y="76" width="4" height="4" fill="#B71C1C"/>
+    <rect x="40" y="76" width="4" height="4" fill="#8B0000"/>
+    <rect x="16" y="80" width="4" height="4" fill="#8B0000"/>
+    <rect x="20" y="80" width="4" height="4" fill="#B71C1C"/>
+    <rect x="24" y="80" width="4" height="4" fill="#C62828"/>
+    <rect x="28" y="80" width="4" height="4" fill="#B71C1C"/>
+    <rect x="32" y="80" width="4" height="4" fill="#B71C1C"/>
+    <rect x="36" y="80" width="4" height="4" fill="#C62828"/>
+    <rect x="40" y="80" width="4" height="4" fill="#B71C1C"/>
+    <rect x="44" y="80" width="4" height="4" fill="#8B0000"/>
+  </g>
+
+  <!-- FRAME 11: DEATH3 (x=704) - Corpse chunks in blood pool -->
+  <g id="frame_death3" transform="translate(704, 0)">
+    <!-- Large blood pool -->
+    <ellipse cx="32" cy="84" rx="26" ry="8" fill="#8B0000"/>
+    <ellipse cx="32" cy="82" rx="22" ry="6" fill="#B71C1C"/>
+    <ellipse cx="32" cy="80" rx="18" ry="4" fill="#C62828"/>
+    <!-- Upper body chunk on ground -->
+    <rect x="8" y="68" width="4" height="4" fill="#2E7D32"/>
+    <rect x="12" y="68" width="4" height="4" fill="#4CAF50"/>
+    <rect x="16" y="68" width="4" height="4" fill="#81C784"/>
+    <rect x="20" y="68" width="4" height="4" fill="#4CAF50"/>
+    <rect x="8" y="72" width="4" height="4" fill="#4CAF50"/>
+    <rect x="12" y="72" width="4" height="4" fill="#81C784"/>
+    <rect x="16" y="72" width="4" height="4" fill="#A5D6A7"/>
+    <rect x="20" y="72" width="4" height="4" fill="#81C784"/>
+    <!-- White dead eye -->
+    <rect x="16" y="64" width="4" height="4" fill="#FFFFFF"/>
+    <!-- Crown piece -->
+    <rect x="4" y="64" width="4" height="4" fill="#FFD700"/>
+    <rect x="8" y="64" width="4" height="4" fill="#FFC107"/>
+    <!-- Lower body/leg chunk -->
+    <rect x="40" y="72" width="4" height="4" fill="#2E7D32"/>
+    <rect x="44" y="72" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="72" width="4" height="4" fill="#81C784"/>
+    <rect x="40" y="76" width="4" height="4" fill="#4CAF50"/>
+    <rect x="44" y="76" width="4" height="4" fill="#4CAF50"/>
+    <rect x="48" y="76" width="4" height="4" fill="#2E7D32"/>
+    <!-- Belt piece -->
+    <rect x="44" y="68" width="4" height="4" fill="#5D4037"/>
+    <rect x="48" y="68" width="4" height="4" fill="#FFD700"/>
+    <!-- GUTS scattered -->
+    <rect x="24" y="72" width="4" height="4" fill="#558B2F"/>
+    <rect x="28" y="72" width="4" height="4" fill="#9E9D24"/>
+    <rect x="32" y="72" width="4" height="4" fill="#558B2F"/>
+    <rect x="36" y="72" width="4" height="4" fill="#689F38"/>
+    <rect x="28" y="76" width="4" height="4" fill="#689F38"/>
+    <rect x="32" y="76" width="4" height="4" fill="#9E9D24"/>
+    <rect x="24" y="68" width="4" height="4" fill="#9E9D24"/>
+    <rect x="36" y="68" width="4" height="4" fill="#558B2F"/>
+    <!-- Sword broken in pool -->
+    <rect x="52" y="76" width="4" height="4" fill="#455A64"/>
+    <rect x="56" y="80" width="4" height="4" fill="#78909C"/>
+    <rect x="0" y="80" width="4" height="4" fill="#607D8B"/>
+    <rect x="4" y="76" width="4" height="4" fill="#5D4037"/>
+    <!-- Small blood splatters around -->
+    <rect x="12" y="60" width="4" height="4" fill="#8B0000"/>
+    <rect x="52" y="64" width="4" height="4" fill="#B71C1C"/>
+    <rect x="28" y="64" width="4" height="4" fill="#C62828"/>
+  </g>
+
+</svg>

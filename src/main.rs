@@ -8,11 +8,12 @@ mod resources;
 mod systems;
 
 use components::{Player, PlayerStats, PlayerAnimation, Velocity};
-use resources::{load_game_data, AffinityState, ArtifactBuffs, CreatureSprites, DeathSprites, PlayerSprites, DebugSettings, Director, GameData, GameState, GameOverState, GamePhase, PlayerDeck, DeckBuilderState, SpatialGrid, ProjectilePool, DamageNumberPool, ChunkManager};
+use resources::{load_game_data, AffinityState, ArtifactBuffs, BossSprites, CreatureSprites, CreatureSpatialGrid, DeathSprites, PlayerSprites, DebugSettings, Director, GameData, GameState, GameOverState, GamePhase, PlayerDeck, DeckBuilderState, SpatialGrid, ProjectilePool, DamageNumberPool, ChunkManager};
 use systems::{
     apply_velocity_system, camera_follow_system, creature_attack_system, creature_death_animation_system, creature_death_system,
-    creature_evolution_system, creature_follow_system, creature_level_up_effect_system,
+    creature_evolution_system, creature_herd_system, creature_level_up_effect_system,
     creature_xp_system, damage_number_system, death_animation_system, death_effect_system,
+    update_creature_spatial_grid_system,
     blood_cleanup_system, creature_animation_system, enemy_animation_system, enemy_attack_system,
     enemy_chase_system, enemy_death_system, enemy_spawn_system, evolution_effect_system,
     level_check_system, level_up_effect_system, player_movement_system, projectile_system,
@@ -65,6 +66,10 @@ use systems::{
     // Game over systems
     spawn_game_over_ui_system, game_over_visibility_system,
     game_over_restart_button_system, game_over_deck_builder_button_system,
+    // Boss systems
+    goblin_king_spawn_system, goblin_king_ai_system, boss_charge_system,
+    boss_grace_period_system, boss_slam_attack_system, boss_charge_damage_system,
+    boss_summon_system, boss_berserker_visual_system, goblin_king_animation_system,
 };
 
 fn main() {
@@ -106,6 +111,7 @@ fn main() {
         .init_resource::<TooltipState>()
         .init_resource::<CardRollQueue>()
         .init_resource::<SpatialGrid>()
+        .init_resource::<CreatureSpatialGrid>()
         .init_resource::<ProjectilePool>()
         .init_resource::<DamageNumberPool>()
         .init_resource::<ChunkManager>()
@@ -124,6 +130,7 @@ fn main() {
             load_death_sprites,
             load_creature_sprites,
             load_player_sprites,
+            load_boss_sprites,
             load_tilemap_assets,
         ))
         // Player sprite initialization (runs once when sprites are loaded)
@@ -139,15 +146,23 @@ fn main() {
             enemy_spawn_system,
             enemy_cleanup_system,
             respawn_system,
+            // Boss spawning
+            goblin_king_spawn_system,
+            boss_grace_period_system,
         ).chain().after(director_update_system))
         // AI and movement systems
         .add_systems(Update, (
-            creature_follow_system,
+            update_creature_spatial_grid_system, // Update creature positions for flocking
+            creature_herd_system,                // Herd-like following with flocking behaviors
             enemy_chase_system,
+            // Boss AI systems
+            goblin_king_ai_system,
+            boss_charge_system,
             apply_velocity_system,
-            enemy_animation_system,    // Update enemy sprite animations based on velocity
-            creature_animation_system, // Update creature sprite animations based on velocity
-            player_animation_system,   // Update player sprite animations based on velocity
+            enemy_animation_system,           // Update enemy sprite animations based on velocity
+            creature_animation_system,        // Update creature sprite animations based on velocity
+            player_animation_system,          // Update player sprite animations based on velocity
+            goblin_king_animation_system,     // Update boss sprite animations based on attack state
         ).chain().after(player_movement_system))
         // Pool re-initialization (needed after game restart)
         .add_systems(Update, init_pools_if_empty_system.after(apply_velocity_system))
@@ -158,6 +173,11 @@ fn main() {
             enemy_attack_system,
             enemy_attack_player_system,  // Enemies attack player
             enemy_contact_damage_system, // Contact damage to player
+            // Boss combat systems
+            boss_slam_attack_system,
+            boss_charge_damage_system,
+            boss_summon_system,
+            boss_berserker_visual_system,
             weapon_attack_system,
             homing_projectile_system,  // Run homing before projectile movement/collision
             projectile_system,
@@ -349,6 +369,25 @@ fn load_player_sprites(
     commands.insert_resource(PlayerSprites {
         wizard_spritesheet,
         wizard_atlas,
+    });
+}
+
+/// Load boss sprite animation assets and create texture atlases
+fn load_boss_sprites(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+) {
+    // Goblin King: 64x96 per frame at 2x = 128x192 per frame, 12 frames total
+    // Animation frames: idle, walk1-2, charge_windup, charge_dash, swipe_windup, swipe_strike,
+    //                   pound_windup, pound_impact, death1-3
+    let goblin_king_spritesheet: Handle<Image> = asset_server.load("sprites/enemies/goblin_king_spritesheet.png");
+    let goblin_king_layout = TextureAtlasLayout::from_grid(UVec2::new(128, 192), 12, 1, None, None);
+    let goblin_king_atlas = texture_atlas_layouts.add(goblin_king_layout);
+
+    commands.insert_resource(BossSprites {
+        goblin_king_spritesheet,
+        goblin_king_atlas,
     });
 }
 

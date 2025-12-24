@@ -1,0 +1,157 @@
+{
+  "sprite_sheets": {
+    "goblin_king": {
+      "file": "goblin_king_spritesheet.svg",
+      "export_to": "goblin_king_spritesheet.png",
+      "frame_width": 64,
+      "frame_height": 96,
+      "total_frames": 12,
+      "transparent_background": true,
+      "color_palette": "green_boss",
+      "creature_type": "boss",
+      "animations": {
+        "idle": {
+          "frames": [0],
+          "frame_duration_ms": 0,
+          "loop": false
+        },
+        "walk": {
+          "frames": [1, 2],
+          "frame_duration_ms": 180,
+          "loop": true
+        },
+        "charge_attack": {
+          "frames": [3, 4],
+          "frame_duration_ms": 100,
+          "loop": false,
+          "damage_frame": 4,
+          "attack_type": "dash",
+          "hitbox": {
+            "width": 48,
+            "height": 32,
+            "offset_x": -24,
+            "offset_y": 20
+          }
+        },
+        "sword_swipe": {
+          "frames": [5, 6],
+          "frame_duration_ms": 80,
+          "loop": false,
+          "damage_frame": 6,
+          "attack_type": "melee_arc",
+          "hitbox": {
+            "width": 56,
+            "height": 48,
+            "offset_x": 0,
+            "offset_y": 16
+          }
+        },
+        "ground_pound": {
+          "frames": [7, 8],
+          "frame_duration_ms": 150,
+          "loop": false,
+          "damage_frame": 8,
+          "attack_type": "aoe",
+          "hitbox": {
+            "width": 80,
+            "height": 24,
+            "offset_x": 0,
+            "offset_y": 60
+          },
+          "on_impact": "spawn_shockwave"
+        },
+        "death": {
+          "frames": [9, 10, 11],
+          "frame_duration_ms": 200,
+          "loop": false,
+          "on_complete": "spawn_boss_loot"
+        }
+      },
+      "frame_descriptions": {
+        "0": "idle - standing menacing pose, sword resting on shoulder, crown gleaming",
+        "1": "walk1 - left foot forward, sword at side, arms swinging",
+        "2": "walk2 - right foot forward, sword at side, opposite arm swing",
+        "3": "charge_windup - crouched low, sword pulled back horizontally, roaring",
+        "4": "charge_dash - leaning forward in full dash, sword thrust ahead",
+        "5": "swipe_windup - sword raised high overhead, preparing strike",
+        "6": "swipe_strike - sword swept horizontally across, slash effect visible",
+        "7": "pound_windup - jumped up in air, sword raised high with both hands",
+        "8": "pound_impact - landed in crouch, sword planted in ground, shockwave rings",
+        "9": "death1 - hit recoil, crown flying off, eyes white, staggering back",
+        "10": "death2 - body splitting, blood spray, green/yellow guts spilling out",
+        "11": "death3 - corpse chunks in large blood pool, scattered guts, broken sword"
+      },
+      "visual_traits": {
+        "skin_dark": "#1B5E20",
+        "skin_mid": "#2E7D32",
+        "skin_base": "#4CAF50",
+        "skin_light": "#81C784",
+        "skin_highlight": "#A5D6A7",
+        "belly_highlight": "#C8E6C9",
+        "eyes_base": "#C62828",
+        "eyes_glow": "#FF5252",
+        "eyes_rage": "#FF1744",
+        "crown_dark": "#FF8F00",
+        "crown_mid": "#FFC107",
+        "crown_bright": "#FFD700",
+        "sword_blade_dark": "#455A64",
+        "sword_blade_mid": "#607D8B",
+        "sword_blade_light": "#78909C",
+        "sword_serration": "#C62828",
+        "sword_handle": "#5D4037",
+        "belt_dark": "#3E2723",
+        "belt_light": "#5D4037",
+        "belt_buckle": "#FFD700",
+        "guts_green": "#558B2F",
+        "guts_yellow": "#9E9D24",
+        "guts_mid": "#689F38",
+        "blood_dark": "#8B0000",
+        "blood_mid": "#B71C1C",
+        "blood_bright": "#C62828"
+      },
+      "boss_stats": {
+        "health_multiplier": 10,
+        "damage_multiplier": 3,
+        "size_scale": 2.0,
+        "aggro_range": 200,
+        "attack_cooldown_ms": 1500
+      },
+      "attack_patterns": [
+        {
+          "name": "charge_rush",
+          "animation": "charge_attack",
+          "windup_ms": 500,
+          "recovery_ms": 800,
+          "triggers_at_distance": 150
+        },
+        {
+          "name": "melee_swipe",
+          "animation": "sword_swipe",
+          "windup_ms": 300,
+          "recovery_ms": 400,
+          "triggers_at_distance": 60
+        },
+        {
+          "name": "ground_slam",
+          "animation": "ground_pound",
+          "windup_ms": 600,
+          "recovery_ms": 1000,
+          "triggers_when": "health_below_50_percent"
+        }
+      ]
+    }
+  },
+  "export_instructions": {
+    "tool": "resvg (recommended) or inkscape",
+    "command_resvg": "resvg goblin_king_spritesheet.svg goblin_king_spritesheet.png",
+    "command_resvg_2x": "resvg -w 1536 goblin_king_spritesheet.svg goblin_king_spritesheet.png",
+    "command_inkscape": "inkscape --export-type=png --export-background-opacity=0 goblin_king_spritesheet.svg",
+    "notes": [
+      "MUST preserve transparency - no white background",
+      "Do not add any background rectangle",
+      "Boss sprite is 64x96 per frame (2x standard creature size)",
+      "12 frames total = 768px wide spritesheet",
+      "Export at 2x scale for crisp pixels: resvg -w 1536"
+    ]
+  }
+}

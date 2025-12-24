@@ -326,6 +326,28 @@ description = "Fire resistant golem. Forces red decks to adapt or rely on weapon
 # =============================================================================
 
 [[enemies]]
+id = "goblin_king"
+name = "Goblin King"
+enemy_class = "boss"
+enemy_type = "melee"
+color_resist = ""
+color_weak = ""
+base_hp = 3000.0
+base_damage = 50.0
+attack_speed = 0.7
+movement_speed = 55.0
+attack_range = 80.0
+ai_type = "boss"
+targets_creatures = false
+min_wave = 1
+spawn_weight = 0.0
+group_size_min = 1
+group_size_max = 1
+xp_value = 75
+phases = 2
+description = "Level 15 boss. Phase 1: Melee slams, charge attacks, summons goblins. Phase 2 (<30% HP): Berserker mode with 2x attack speed."
+
+[[enemies]]
 id = "troll_chief"
 name = "Troll Chief"
 enemy_class = "boss"

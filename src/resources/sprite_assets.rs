@@ -59,3 +59,21 @@ pub struct PlayerSprites {
     /// Texture atlas layout for wizard player
     pub wizard_atlas: Handle<TextureAtlasLayout>,
 }
+
+/// Resource holding handles to boss sprite assets
+///
+/// Goblin King: 128x192 per frame (64x96 at 2x export), 12 frames total
+/// Animation layout:
+/// - Frame 0: idle
+/// - Frames 1-2: walk cycle
+/// - Frames 3-4: charge attack (windup, dash)
+/// - Frames 5-6: sword swipe (windup, strike)
+/// - Frames 7-8: ground pound (windup, impact)
+/// - Frames 9-11: death animation
+#[derive(Resource)]
+pub struct BossSprites {
+    /// Handle to the Goblin King sprite sheet (12 frames, 128x192 each at 2x)
+    pub goblin_king_spritesheet: Handle<Image>,
+    /// Texture atlas layout for Goblin King
+    pub goblin_king_atlas: Handle<TextureAtlasLayout>,
+}

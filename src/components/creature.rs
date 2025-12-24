@@ -4,6 +4,36 @@ use bevy::prelude::*;
 #[derive(Component)]
 pub struct Creature;
 
+/// Role-based positioning within the herd
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
+pub enum HerdRole {
+    /// Stay behind the player (ranged, support)
+    #[default]
+    Backline,
+    /// Position in front of the player (tanks, melee)
+    Frontline,
+    /// Flank positions (assassins)
+    Flanker,
+}
+
+/// Flocking state for herd-like creature behavior
+#[derive(Component)]
+pub struct FlockingState {
+    /// Current velocity for spring physics (separate from movement velocity)
+    pub spring_velocity: Vec2,
+    /// Smoothed player direction (for stable front/behind calculation)
+    pub smoothed_leader_direction: Vec2,
+}
+
+impl Default for FlockingState {
+    fn default() -> Self {
+        Self {
+            spring_velocity: Vec2::ZERO,
+            smoothed_leader_direction: Vec2::new(1.0, 0.0), // Default facing right
+        }
+    }
+}
+
 /// Creature color/element type
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
 pub enum CreatureColor {
@@ -90,6 +120,18 @@ impl CreatureType {
             "support" => CreatureType::Support,
             "assassin" => CreatureType::Assassin,
             _ => CreatureType::Melee,
+        }
+    }
+}
+
+impl HerdRole {
+    /// Convert CreatureType to HerdRole
+    pub fn from_creature_type(creature_type: CreatureType) -> Self {
+        match creature_type {
+            CreatureType::Ranged => HerdRole::Backline,
+            CreatureType::Support => HerdRole::Backline,
+            CreatureType::Melee => HerdRole::Frontline,
+            CreatureType::Assassin => HerdRole::Flanker,
         }
     }
 }

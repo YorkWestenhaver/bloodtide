@@ -12,6 +12,52 @@ pub struct SpatialGrid {
     cells: HashMap<(i32, i32), Vec<Entity>>,
 }
 
+/// Spatial grid for efficient creature-to-creature lookups (for flocking behavior)
+#[derive(Resource, Default)]
+pub struct CreatureSpatialGrid {
+    /// Map from cell coordinates to list of creature entities in that cell
+    cells: HashMap<(i32, i32), Vec<Entity>>,
+}
+
+impl CreatureSpatialGrid {
+    /// Clear all cells
+    pub fn clear(&mut self) {
+        self.cells.clear();
+    }
+
+    /// Get cell coordinates for a world position
+    pub fn get_cell(pos: Vec2) -> (i32, i32) {
+        (
+            (pos.x / SPATIAL_CELL_SIZE).floor() as i32,
+            (pos.y / SPATIAL_CELL_SIZE).floor() as i32,
+        )
+    }
+
+    /// Insert an entity at the given position
+    pub fn insert(&mut self, entity: Entity, pos: Vec2) {
+        let cell = Self::get_cell(pos);
+        self.cells.entry(cell).or_default().push(entity);
+    }
+
+    /// Get all entities in a cell and its 8 neighbors (3x3 area)
+    pub fn get_nearby_entities(&self, pos: Vec2) -> Vec<Entity> {
+        let (cx, cy) = Self::get_cell(pos);
+        let mut result = Vec::new();
+
+        // Check 3x3 grid of cells centered on the position's cell
+        for dx in -1..=1 {
+            for dy in -1..=1 {
+                let cell = (cx + dx, cy + dy);
+                if let Some(entities) = self.cells.get(&cell) {
+                    result.extend(entities.iter().copied());
+                }
+            }
+        }
+
+        result
+    }
+}
+
 impl SpatialGrid {
     /// Clear all cells
     pub fn clear(&mut self) {

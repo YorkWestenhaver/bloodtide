@@ -1,0 +1,81 @@
+{
+  "goblin_king": {
+    "creature": "goblin_king",
+    "type": "boss",
+    "file": "goblin_king_spritesheet.svg",
+    "export_to": "goblin_king_spritesheet.png",
+    "frame_width": 96,
+    "frame_height": 120,
+    "total_frames": 8,
+    "columns": 8,
+    "rows": 1,
+    "transparent_background": true,
+    "animations": {
+      "idle": {
+        "frames": [0],
+        "frame_duration_ms": 0,
+        "loop": false
+      },
+      "turn": {
+        "frames": [1],
+        "frame_duration_ms": 100,
+        "loop": false,
+        "notes": "Transition from front-facing to side view"
+      },
+      "walk": {
+        "frames": [2, 3],
+        "frame_duration_ms": 200,
+        "loop": true,
+        "notes": "Slow, heavy footsteps - slower than regular goblins"
+      },
+      "death": {
+        "frames": [4, 5, 6, 7],
+        "frame_duration_ms": 250,
+        "loop": false,
+        "on_complete": "stay_on_frame_7"
+      }
+    },
+    "frame_descriptions": {
+      "0": "idle - front-facing stance, massive muscular goblin with golden crown (red gems), tattered purple/red royal cape, large spiked mace held at side, crude iron shoulder plates, imposing posture",
+      "1": "turn - 3/4 angle transitioning to side view, crown and cape visible, weapon raised slightly",
+      "2": "walk1 - side view, left leg forward in heavy stride, cape flowing behind, mace swinging forward, shoulder plates visible",
+      "3": "walk2 - side view, right leg forward, alternate stride, mace swinging back, cape billowing",
+      "4": "death1 - staggering backward from fatal blow, crown tilting off head, eyes wide, mace dropping from grip",
+      "5": "death2 - falling forward, crown flying off to the side, weapon on ground, cape crumpled, arms splayed",
+      "6": "death3 - collapsed face-down, green blood pooling around body, crown nearby on ground, cape spread out",
+      "7": "corpse - dead on ground, large green blood pool, crown lying nearby, scattered armor pieces, mace beside body"
+    },
+    "visual_traits": {
+      "skin": "dark forest green (#2E7D32)",
+      "skin_highlight": "lighter green (#4CAF50) for muscle definition",
+      "crown": "gold (#FFD700) with red ruby gems (#C62828)",
+      "eyes": "glowing angry red (#FF1744)",
+      "size": "3x regular goblin (96x120 vs 32x40)",
+      "build": "massive muscular frame, thick arms and legs",
+      "weapon": "large iron spiked mace or club, dark gray metal",
+      "cape": "tattered royal cape, purple (#7B1FA2) with red (#C62828) trim",
+      "armor": "crude iron shoulder plates, dark gray (#424242)",
+      "ears": "large pointed ears like regular goblin but bigger",
+      "nose": "big protruding goblin nose",
+      "teeth": "large yellow fangs protruding from lower jaw",
+      "guts_color": "green/yellow (#558B2F, #9E9D24) for death frames",
+      "blood_color": "dark green (#1B5E20)"
+    },
+    "bevy_texture_atlas": {
+      "tile_size_x": 96,
+      "tile_size_y": 120,
+      "columns": 8,
+      "rows": 1
+    },
+    "design_notes": [
+      "Should look like a much larger, more imposing version of the regular goblin",
+      "Crown indicates royalty - gold with red gems",
+      "Cape should be tattered/battle-worn, not pristine",
+      "Mace should be oversized and brutal-looking",
+      "Armor is crude/primitive, not polished - just iron shoulder plates",
+      "Expression should be fierce and angry",
+      "Muscles should be visible to show strength",
+      "Death sequence should feel impactful - crown flying off is key visual"
+    ]
+  }
+}

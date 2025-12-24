@@ -3,11 +3,13 @@ use rand::Rng;
 
 use crate::components::{
     AttackRange, AttackTimer, Creature, CreatureAnimation, CreatureColor, CreatureFacing, CreatureStats, CreatureType, Enemy,
-    EnemyAttackTimer, EnemyClass, EnemyStats, EnemyType, Player, ProjectileConfig, ProjectileType,
+    EnemyAttackTimer, EnemyClass, EnemyStats, EnemyType, FlockingState, Player, ProjectileConfig, ProjectileType,
     SpriteAnimation, Velocity, Weapon, WeaponAttackTimer, WeaponData, WeaponStats,
     get_creature_color_by_id,
+    // Boss components
+    GoblinKing, BossPhase, BossAttackState, BossAbilityTimers, GoblinKingAnimation,
 };
-use crate::resources::{AffinityState, ArtifactBuffs, CreatureSprites, DeathSprites, DebugSettings, Director, GameData, GameState};
+use crate::resources::{AffinityState, ArtifactBuffs, BossSprites, CreatureSprites, DeathSprites, DebugSettings, Director, GameData, GameState};
 use crate::systems::death::RespawnQueue;
 
 /// Size of creature sprites in pixels
@@ -36,6 +38,15 @@ pub const MAX_ENEMIES: u32 = 2000;
 
 /// Kills needed to advance to the next wave
 pub const KILLS_PER_WAVE: u32 = 50;
+
+/// Level at which the Goblin King boss spawns
+pub const GOBLIN_KING_SPAWN_LEVEL: u32 = 15;
+
+/// Distance from player to spawn the boss
+pub const BOSS_SPAWN_DISTANCE: f32 = 800.0;
+
+/// Grace period after boss dies before resuming normal spawns (seconds)
+pub const BOSS_GRACE_PERIOD: f32 = 3.0;
 
 /// Resource for tracking enemy spawn timing
 #[derive(Resource)]
@@ -133,6 +144,7 @@ pub fn spawn_creature(
                         Creature,
                         stats.clone(),
                         Velocity::default(),
+                        FlockingState::default(),
                         AttackTimer::new(modified_attack_speed),
                         AttackRange(attack_range),
                         projectile_config,
@@ -156,6 +168,7 @@ pub fn spawn_creature(
                         Creature,
                         stats.clone(),
                         Velocity::default(),
+                        FlockingState::default(),
                         AttackTimer::new(modified_attack_speed),
                         AttackRange(attack_range),
                         projectile_config,
@@ -179,6 +192,7 @@ pub fn spawn_creature(
                         Creature,
                         stats.clone(),
                         Velocity::default(),
+                        FlockingState::default(),
                         AttackTimer::new(modified_attack_speed),
                         AttackRange(attack_range),
                         projectile_config,
@@ -224,6 +238,7 @@ fn spawn_creature_as_square(
             Creature,
             stats,
             Velocity::default(),
+            FlockingState::default(),
             AttackTimer::new(modified_attack_speed),
             AttackRange(attack_range),
             projectile_config,
@@ -574,6 +589,19 @@ pub fn enemy_spawn_system(
         return;
     }
 
+    // Don't spawn regular enemies when boss is active
+    if game_state.boss_active {
+        // Still update enemy count for director
+        director.enemies_alive = enemy_query.iter().count() as u32;
+        return;
+    }
+
+    // Don't spawn during grace period after boss dies
+    if game_state.boss_grace_timer.is_some() {
+        director.enemies_alive = enemy_query.iter().count() as u32;
+        return;
+    }
+
     // Update enemy count in director
     director.enemies_alive = enemy_query.iter().count() as u32;
 
@@ -747,6 +775,160 @@ pub fn director_update_system(
     // Update FPS (simple approximation)
     let fps = 1.0 / time.delta_secs();
     director.update_performance(fps, time.delta_secs());
+}
+
+/// Spawn the Goblin King boss
+pub fn spawn_goblin_king(
+    commands: &mut Commands,
+    game_data: &GameData,
+    boss_sprites: Option<&BossSprites>,
+    position: Vec3,
+) -> Option<Entity> {
+    // Find goblin_king data
+    let enemy_data = game_data.enemies.iter().find(|e| e.id == "goblin_king")?;
+
+    let enemy_class = EnemyClass::from_str(&enemy_data.enemy_class);
+    let enemy_type = EnemyType::from_str(&enemy_data.enemy_type);
+
+    let stats = EnemyStats::new(
+        enemy_data.id.clone(),
+        enemy_data.name.clone(),
+        enemy_class,
+        enemy_type,
+        enemy_data.base_hp,
+        enemy_data.base_damage,
+        enemy_data.attack_speed,
+        enemy_data.movement_speed,
+        enemy_data.attack_range,
+    );
+
+    // Boss sprite: 128x192 per frame at 2x export (64x96 base)
+    // Scale to ~0.75 for reasonable game size
+    let boss_scale = 0.75;
+
+    let entity = if let Some(sprites) = boss_sprites {
+        // Spawn with spritesheet
+        commands
+            .spawn((
+                Enemy,
+                GoblinKing,
+                stats,
+                Velocity::default(),
+                EnemyAttackTimer::new(enemy_data.attack_speed),
+                BossPhase::Phase1,
+                BossAttackState::Idle,
+                BossAbilityTimers::new(),
+                GoblinKingAnimation::new(),
+                Sprite {
+                    image: sprites.goblin_king_spritesheet.clone(),
+                    texture_atlas: Some(TextureAtlas {
+                        layout: sprites.goblin_king_atlas.clone(),
+                        index: 0, // Start at idle frame
+                    }),
+                    ..default()
+                },
+                Transform::from_translation(position).with_scale(Vec3::splat(boss_scale)),
+            ))
+            .id()
+    } else {
+        // Fallback: colored rectangle if sprites not loaded
+        let boss_color = Color::srgb(0.1, 0.4, 0.15);
+        let boss_size = 96.0;
+
+        commands
+            .spawn((
+                Enemy,
+                GoblinKing,
+                stats,
+                Velocity::default(),
+                EnemyAttackTimer::new(enemy_data.attack_speed),
+                BossPhase::Phase1,
+                BossAttackState::Idle,
+                BossAbilityTimers::new(),
+                GoblinKingAnimation::new(),
+                Sprite {
+                    color: boss_color,
+                    custom_size: Some(Vec2::new(boss_size, boss_size * 1.25)),
+                    ..default()
+                },
+                Transform::from_translation(position),
+            ))
+            .id()
+    };
+
+    Some(entity)
+}
+
+/// System to check if Goblin King should spawn (at level 15)
+pub fn goblin_king_spawn_system(
+    mut commands: Commands,
+    mut game_state: ResMut<GameState>,
+    game_data: Res<GameData>,
+    boss_sprites: Option<Res<BossSprites>>,
+    game_phase: Res<crate::resources::GamePhase>,
+    debug_settings: Res<DebugSettings>,
+    player_query: Query<&Transform, With<Player>>,
+) {
+    // Only spawn during gameplay
+    if *game_phase != crate::resources::GamePhase::Playing {
+        return;
+    }
+
+    // Don't spawn if paused
+    if debug_settings.is_paused() {
+        return;
+    }
+
+    // Don't spawn if already spawned this run
+    if game_state.goblin_king_spawned {
+        return;
+    }
+
+    // Check if player reached level 15
+    if game_state.current_level >= GOBLIN_KING_SPAWN_LEVEL {
+        if let Ok(player_transform) = player_query.get_single() {
+            let player_pos = player_transform.translation;
+
+            // Spawn boss at a distance from player
+            let mut rng = rand::thread_rng();
+            let spawn_angle = rng.gen::<f32>() * std::f32::consts::TAU;
+            let spawn_pos = Vec3::new(
+                player_pos.x + spawn_angle.cos() * BOSS_SPAWN_DISTANCE,
+                player_pos.y + spawn_angle.sin() * BOSS_SPAWN_DISTANCE,
+                0.4, // Slightly above regular enemies
+            );
+
+            if spawn_goblin_king(&mut commands, &game_data, boss_sprites.as_deref(), spawn_pos).is_some() {
+                game_state.goblin_king_spawned = true;
+                game_state.boss_active = true;
+                info!("Goblin King spawned at level {}!", game_state.current_level);
+            }
+        }
+    }
+}
+
+/// System to handle boss grace period timer after boss dies
+pub fn boss_grace_period_system(
+    time: Res<Time>,
+    mut game_state: ResMut<GameState>,
+    boss_query: Query<&GoblinKing>,
+) {
+    // Check if boss just died (was active, now no boss entities exist)
+    if game_state.boss_active && boss_query.is_empty() {
+        // Boss died, start grace period
+        game_state.boss_active = false;
+        game_state.boss_grace_timer = Some(Timer::from_seconds(BOSS_GRACE_PERIOD, TimerMode::Once));
+        info!("Goblin King defeated! Grace period started.");
+    }
+
+    // Tick grace period timer
+    if let Some(ref mut timer) = game_state.boss_grace_timer {
+        timer.tick(time.delta());
+        if timer.finished() {
+            game_state.boss_grace_timer = None;
+            info!("Grace period ended. Resuming normal spawns.");
+        }
+    }
 }
 
 /// System to handle creature respawns from the respawn queue
